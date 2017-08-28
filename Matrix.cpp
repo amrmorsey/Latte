@@ -80,8 +80,9 @@ vector<int> Matrix::calculateIndex(int x) {
         }
         int t = temp/y;
         index.push_back(t);
-        x -= (x*y);
+        x -= (t*y);
     }
+    std::reverse(index.begin(), index.end());
     return index;
 }
 

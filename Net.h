@@ -6,15 +6,17 @@
 #define INFERENCEENGINE_NET_H
 
 #include <vector>
-#include "Layer.h"
-using namespace std;
-class Net {
+#include <string>
+#include "layers/Layer.h"
 
+class Net {
 private:
     vector<Layer> layers;
+    vector<Layer> bias;
 public:
-    Net();
-    ~Net();
+    Net(std::string weight_dir);
+
+    ~Net() {}
 
 
 };

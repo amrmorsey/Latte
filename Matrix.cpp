@@ -5,45 +5,84 @@
 #include "Matrix.h"
 
 
-Matrix Matrix::im2col(vector<int> filterShape, int s, int f) {
+Matrix Matrix::im2col(vector<int> filterShape, int s) {
     vector<int> X_col_shape;
     vector<int> W_row_shape;
-    int pad = filterShape.at(1);
+    int pad = filterShape.at(0);
     pad = pad -1;
     pad = pad/2;
-    int x = this->shape.at(1);
-    x = x - filterShape.at(1) + pad;
+    int x = this->shape.at(0);
+    x = x - filterShape.at(0) + pad;
     x = x/s;
     x = x +1;
     int x_row = x*x;
     int x_col = 1;
-    for(int i = 0; i<filterShape.size(); i++){
+    for(int i = 0; i<filterShape.size()-1; i++){
         x_col *= filterShape.at(i);
     }
     X_col_shape.push_back(x_col);
     X_col_shape.push_back(x_row);
-
-    W_row_shape.push_back(f);
+    int xx = filterShape.at(filterShape.size()-1);
+    W_row_shape.push_back(xx);
     W_row_shape.push_back(x_col);
 
     cout<<"So far so good!"<<endl;
 
     //(x, y, z) = Z*(Dim_Y*Dim_X) + y*DIM_X + x
+    vector<int> out_shape = {W_row_shape.at(1), X_col_shape.at(1)};
+    Matrix out(out_shape);
+    vector<int> index(this->shape.size());
+    fill(index.begin(), index.end(), 0);
 
+    for (int i = 0; i < this->matrix.size();) {
+
+    }
 
 
 }
 
 float Matrix::at(vector<int> index) {
-    float out = 0;
+    float out = calcuteOutput(index);
+    if(out != -1)
+        return matrix.at(out);
+}
+
+int Matrix::calcuteOutput(vector<int> index) {
+    int out = 0;
     for (int i = 0; i <this->shape.size() ; i++) {
         out += index.at(i);
         for (int j = i-1; j >=0 ; j--) {
             out *= this->shape.at(j);
         }
     }
-    return matrix.at(out);
-    return 0;
+
+    if(out<this->shape.size())
+        return out;
+    else
+        return -1;
+}
+
+void Matrix::set(vector<int> index, float value) {
+    int out = calcuteOutput(index);
+    if(out != -1){
+        this->matrix.at(out) = value;
+    }
+}
+
+vector<int> Matrix::calculateIndex(int x) {
+    vector<int> index;
+    int temp = 0;
+    for (int i = this->shape.size()-1; i >=0; i--) {
+        temp = x;
+        int y = 1;
+        for (int j = 0; j <i ; j++) {
+            y *= this->shape.at(j);
+        }
+        int t = temp/y;
+        index.push_back(t);
+        x -= (x*y);
+    }
+    return index;
 }
 
 

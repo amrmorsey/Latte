@@ -12,6 +12,7 @@
 #include <string.h>
 #include <vector>
 #include <iostream>
+#include <algorithm>
 using namespace std;
 
 class Matrix {
@@ -20,12 +21,15 @@ private:
 //    unique_ptr<vector<float>> matrix;
     vector<int> shape;
     vector<float> matrix;
-    vector<int> calcuteOutput();
+    int calcuteOutput(vector<int> index);
 public:
     Matrix(vector<int> s, vector<float> m) : matrix(m), shape(s){};
+    Matrix(vector<int> s): shape(s){};
     ~Matrix(){};
-    Matrix im2col(vector<int>, int s, int f);
+    Matrix im2col(vector<int>, int s);
     float at(vector<int>);
+    void set(vector<int>, float);
+    vector<int> calculateIndex(int x);
 };
 
 

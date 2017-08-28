@@ -31,8 +31,7 @@ Matrix Matrix::im2col(vector<int> filterShape, int s) {
     //(x, y, z) = Z*(Dim_Y*Dim_X) + y*DIM_X + x
     vector<int> out_shape = {W_row_shape.at(1), X_col_shape.at(1)};
     Matrix out(out_shape);
-    vector<int> index(this->shape.size());
-    fill(index.begin(), index.end(), 0);
+    vector<int> index;
 
     for (int i = 0; i < this->matrix.size();) {
 
@@ -84,6 +83,15 @@ vector<int> Matrix::calculateIndex(int x) {
     }
     std::reverse(index.begin(), index.end());
     return index;
+}
+
+Matrix::Matrix(vector<int> s) {
+    shape = s;
+    int x = 1;
+    for (int i = 0; i < s.size(); ++i) {
+        x *=s.at(i);
+    }
+    matrix.resize(x);
 }
 
 

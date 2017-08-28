@@ -24,7 +24,7 @@ private:
     int calcuteOutput(vector<int> index);
 public:
     Matrix(vector<int> s, vector<float> m) : matrix(m), shape(s){};
-    Matrix(vector<int> s): shape(s){};
+    Matrix(vector<int> s);
     ~Matrix(){};
     Matrix im2col(vector<int>, int s);
     float at(vector<int>);

@@ -550,13 +550,13 @@ int main(int argc, char **argv)
     //VecNN vv(4, aa);
     //VecNN vf(4, bb);
     //printf("%f", vv.dot(vf));
-    vector<float> matrix;
+    vector<float> matrix = {1, 2,3,4,5};
     vector<int> shape;
-    shape.push_back(3);
-    shape.push_back(5);
     shape.push_back(5);
     Matrix mm(shape, matrix);
-    vector<int> filter = {3,3,3};
-    mm.im2col(filter, 2, 2);
+    //vector<int> filter = {3,3,3};
+    //mm.im2col(filter, 2, 2);
+    vector<int> in= {3};
+    cout<<mm.at(in)<<endl;
     return 0;
 }

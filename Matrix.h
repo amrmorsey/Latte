@@ -25,7 +25,7 @@ public:
     Matrix(vector<int> s, vector<float> m) : matrix(m), shape(s){};
     ~Matrix(){};
     Matrix im2col(vector<int>, int s, int f);
-
+    float at(vector<int>);
 };
 
 

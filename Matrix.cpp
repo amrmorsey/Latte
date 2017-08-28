@@ -28,9 +28,22 @@ Matrix Matrix::im2col(vector<int> filterShape, int s, int f) {
 
     cout<<"So far so good!"<<endl;
 
+    //(x, y, z) = Z*(Dim_Y*Dim_X) + y*DIM_X + x
 
 
 
+}
+
+float Matrix::at(vector<int> index) {
+    float out = 0;
+    for (int i = 0; i <this->shape.size() ; i++) {
+        out += index.at(i);
+        for (int j = i-1; j >=0 ; j--) {
+            out *= this->shape.at(j);
+        }
+    }
+    return matrix.at(out);
+    return 0;
 }
 
 

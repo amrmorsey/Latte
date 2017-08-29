@@ -31,13 +31,36 @@ Matrix Matrix::im2col(vector<int> filterShape, int s) {
     //(x, y, z) = Z*(Dim_Y*Dim_X) + y*DIM_X + x
     vector<int> out_shape = {W_row_shape.at(1), X_col_shape.at(1)};
     Matrix out(out_shape);
-    vector<int> index;
 
-    for (int i = 0; i < this->matrix.size();) {
+//    for (int i = 0; i < this->matrix.size(); i = i+s) {
+//        vector<int> in = this->calculateIndex(i);
+//
+//        for (int j = 0; j < in.size(); j++) {
+//
+//        }
+//    }
 
+    for (int i = 0; i < this->shape.at(1); i= i+s) { //length y
+        for (int j = 0; j <this->shape.at(2) ; j++) { // depth z
+            for (int k = 0; k < this->shape.at(0); k= k+s) { //width x
+                for (int l = -pad; l <=pad ; l++) { // for j
+                    for (int m = -pad; m <=pad ; m++) {
+                        int tem1 = k+m;
+                        int tem2 = i+l;
+                        if(tem1 <0 || tem2<0){
+                            out.matrix.push_back(0);
+                        }else{
+                            vector<int> in ={tem1, tem2, j};
+                            out.matrix.push_back(this->at(in));
+                        }
+
+                    }
+                }
+            }
+        }
     }
 
-
+    return out;
 }
 
 float Matrix::at(vector<int> index) {

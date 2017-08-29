@@ -5,9 +5,9 @@
 #ifndef INFERENCEENGINE_FULLYCONNECTEDLAYER_H
 #define INFERENCEENGINE_FULLYCONNECTEDLAYER_H
 
-#include "Layer.h"
+#include "abstract_layers/AbstractLayer.h"
 
-class FullyConnectedLayer: public Layer {
+class FullyConnectedLayer: public AbstractLayer {
 private:
     int num_of_neurons;
     double *input;

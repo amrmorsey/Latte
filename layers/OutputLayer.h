@@ -5,9 +5,9 @@
 #ifndef INFERENCEENGINE_OUTPUTLAYER_H
 #define INFERENCEENGINE_OUTPUTLAYER_H
 
-#include "Layer.h"
+#include "abstract_layers/AbstractLayer.h"
 
-class outputLayer: public Layer {
+class outputLayer: public AbstractLayer {
 private:
     int output_size;
     double *input;

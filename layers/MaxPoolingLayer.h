@@ -5,9 +5,9 @@
 #ifndef INFERENCEENGINE_MAXPOOLINGLAYER_H
 #define INFERENCEENGINE_MAXPOOLINGLAYER_H
 
-#include "Layer.h"
+#include "abstract_layers/AbstractLayer.h"
 
-class MaxpoolingLayer: public Layer{
+class MaxPoolingLayer: public AbstractLayer{
 private:
     int kernel_size;
     int stride;
@@ -16,8 +16,8 @@ private:
     vector<int> input_dims;
     vector<int> output_dims;
 public:
-    MaxpoolingLayer(int, int);
-    ~MaxpoolingLayer();
+    MaxPoolingLayer(int, int);
+    ~MaxPoolingLayer();
     void feedForward();
     void setInput(double *);
 };

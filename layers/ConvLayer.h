@@ -6,12 +6,14 @@
 #define INFERENCEENGINE_CONVLAYER_H
 
 #include <string>
-#include "Layer.h"
+#include "abstract_layers/AbstractLayer.h"
+
 using namespace std;
 
-class ConvLayer : public Layer{
+class ConvLayer : public AbstractLayer {
 
-private: string name;
+private:
+    string name;
     int D;
     int C;
     int H;
@@ -30,12 +32,18 @@ private: string name;
     vector<int> output_dims;
 
 public:
-    ConvLayer(string n, int d, int c, int h, int w, int nf, int hf, int wf, int b, int st, int pa);
-    ~ConvLayer();
+    ConvLayer(string n, int d, int c, int h, Matrix w, int nf, int hf, int wf, Matrix b, int st, int pa);
+
+    ~ConvLayer() {};
+
     void loadWieghts();
+
     void forwardPass();
+
     void flattenLayer();
+
     void feedForward();
+
     void setInput(double *);
 };
 

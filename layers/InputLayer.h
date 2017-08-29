@@ -5,9 +5,9 @@
 #ifndef INFERENCEENGINE_INPUTLAYER_H
 #define INFERENCEENGINE_INPUTLAYER_H
 
-#include "Layer.h"
+#include "abstract_layers/AbstractLayer.h"
 
-class inputLayer: public Layer {
+class inputLayer: public AbstractLayer {
 private:
     int no_of_input;
     int chanels;

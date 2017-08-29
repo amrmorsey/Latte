@@ -4,23 +4,17 @@
 
 #include "ConvLayer.h"
 
-ConvLayer::ConvLayer(string n, int d, int c, int h, int w, int nf, int hf, int wf, int b, int st, int pa) {
-    name = n;
+ConvLayer::ConvLayer(string n, int d, int c, int h, Matrix w, int nf, int hf, int wf, Matrix b, int st, int pa) : AbstractLayer(name, w, b){
     D = d;
     C = c;
     H = h;
-    W = w;
     NF = nf;
     HF = hf;
     WF = wf;
-    bias = b;
     stride = st;
     pad = pa;
 }
 
-ConvLayer::~ConvLayer() {
-
-}
 
 void ConvLayer::flattenLayer() {
 

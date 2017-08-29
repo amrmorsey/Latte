@@ -7,14 +7,14 @@
 
 #include <vector>
 #include <string>
-#include "layers/Layer.h"
+#include "layers/abstract_layers/AbstractLayer.h"
 
 class Net {
 private:
-    vector<Layer> layers;
-    vector<Layer> bias;
+    vector<AbstractLayer> layers;
+    vector<AbstractLayer> bias;
 public:
-    Net(std::string weight_dir);
+    Net(const string &weight_dir);
 
     ~Net() {}
 

@@ -552,7 +552,7 @@ int main(int argc, char **argv)
     //printf("%f", vv.dot(vf));
     vector<float> matrix = {1, 2,3,4,5};
     vector<int> shape= {2,2,4};
-    Matrix mm(shape, matrix);
+    Matrix mm(matrix, shape);
     vector<int> filter = {3,3,3,2};
     //mm.im2col(filter, 2);
     //vector<int> in= {3};

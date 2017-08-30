@@ -23,11 +23,11 @@ private:
 //    unique_ptr<vector<float>> matrix;
     vector<int> shape;
     vector<float> matrix;
-
+    int matrixSizeVector;
     int calcuteOutput(vector<int> index);
 
 public:
-    Matrix(vector<float> m, vector<int> s) : matrix(m), shape(s) {};
+    Matrix(vector<float> m, vector<int> s);
 
     Matrix(vector<int> s);
 

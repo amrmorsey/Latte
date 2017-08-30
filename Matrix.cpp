@@ -12,7 +12,7 @@ Matrix Matrix::im2col(vector<int> filterShape, int s) {
     pad = pad -1;
     pad = pad/2;
     int x = this->shape.at(0);
-    x = x - filterShape.at(0) + pad;
+    x = x - filterShape.at(0) + 2*pad;
     x = x/s;
     x = x +1;
     int x_row = x*x;
@@ -29,29 +29,23 @@ Matrix Matrix::im2col(vector<int> filterShape, int s) {
     cout<<"So far so good!"<<endl;
 
     //(x, y, z) = Z*(Dim_Y*Dim_X) + y*DIM_X + x
-    vector<int> out_shape = {W_row_shape.at(1), X_col_shape.at(1)};
+    vector<int> out_shape = {X_col_shape.at(0), X_col_shape.at(1)};
     Matrix out(out_shape);
-
-//    for (int i = 0; i < this->matrix.size(); i = i+s) {
-//        vector<int> in = this->calculateIndex(i);
-//
-//        for (int j = 0; j < in.size(); j++) {
-//
-//        }
-//    }
+    int index = 0;
 
     for (int i = 0; i < this->shape.at(1); i= i+s) { //length y
-        for (int j = 0; j <this->shape.at(2) ; j++) { // depth z
-            for (int k = 0; k < this->shape.at(0); k= k+s) { //width x
-                for (int l = -pad; l <=pad ; l++) { // for j
-                    for (int m = -pad; m <=pad ; m++) {
+        for (int k = 0; k < this->shape.at(0); k= k+s) { //width x
+            for (int j = 0; j <this->shape.at(2) ; j++) { // depth z
+                for (int l = -pad; l <=pad ; l++) { // for i
+                    for (int m = -pad; m <=pad ; m++) { //for j
                         int tem1 = k+m;
                         int tem2 = i+l;
-                        if(tem1 <0 || tem2<0){
-                            out.matrix.push_back(0);
+                        if(tem1 <0 || tem2<0 || tem1 >= this->shape.at(0) || tem2 >= shape.at(1)){
+                            index++;
                         }else{
                             vector<int> in ={tem1, tem2, j};
-                            out.matrix.push_back(this->at(in));
+                            out.matrix.at(index) = this->at(in);
+                            index++;
                         }
 
                     }
@@ -72,13 +66,15 @@ float Matrix::at(vector<int> index) {
 int Matrix::calcuteOutput(vector<int> index) {
     int out = 0;
     for (int i = 0; i <this->shape.size() ; i++) {
-        out += index.at(i);
+        int x = index.at(i);
+        int y = 1;
         for (int j = i-1; j >=0 ; j--) {
-            out *= this->shape.at(j);
+            y *= this->shape.at(j);
         }
+        out += x*y;
     }
 
-    if(out<this->shape.size())
+    if(out>=0 && out<matrixSizeVector )
         return out;
     else
         return -1;
@@ -115,6 +111,11 @@ Matrix::Matrix(vector<int> s) {
         x *=s.at(i);
     }
     matrix.resize(x);
+    matrixSizeVector = x;
+}
+
+Matrix::Matrix(vector<float> m, vector<int> s): matrix(m), shape(s){
+    matrixSizeVector = m.size();
 }
 
 

@@ -550,11 +550,11 @@ int main(int argc, char **argv)
     //VecNN vv(4, aa);
     //VecNN vf(4, bb);
     //printf("%f", vv.dot(vf));
-    vector<float> matrix = {1, 2,3,4,5};
-    vector<int> shape= {2,2,4};
+    vector<float> matrix = {2, 0,2,2,2,1,0,1,0,2,2,0,1,0,0,0,2,1,2,0,0,2,2,1,0,0,2,1,2,0,2,1,1,1,2,2,2,1,0,1,1,2,1,1,1,0,0,1,0,1,1,1,1,0,0,1,0,2,1,0,2,2,1,1,2,1,2,0,0,1,0,0,1,1,0};
+    vector<int> shape= {5,5,3};
     Matrix mm(matrix, shape);
     vector<int> filter = {3,3,3,2};
-    //mm.im2col(filter, 2);
+    mm.im2col(filter, 2);
     //vector<int> in= {3};
     vector<int> x = mm.calculateIndex(10);
     return 0;

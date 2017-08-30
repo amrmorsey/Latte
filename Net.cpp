@@ -21,7 +21,7 @@ Net::Net(const string &weight_dir) {
     while ((file >> weight >> c) && ((c == ',') || (c == ']'))) {
         test.push_back(weight);
     }
-    Matrix weights(test, vector<int>{test.size()});
-    AbstractLayer l("conv3d", weights, weights);
+    //Matrix weights(test, vector<int>{test.size()});
+    //AbstractLayer l("conv3d", weights, weights);
     return;
 }

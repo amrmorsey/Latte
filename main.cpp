@@ -134,6 +134,7 @@
 #include <string.h>
 #include "VecNN.h"
 #include "Matrix.h"
+#include "VecAVX.h"
 
 union Mat44 {
     float m[4][4];
@@ -378,88 +379,88 @@ void mmul_nxn(const float *a, const float *b, float *r, int n, int row){
 
 int main(int argc, char **argv)
 {
-    static const struct {
-        const char *name;
-        void (*matmult)(Mat44 &out, const Mat44 &A, const Mat44 &B);
-    } variants[] = {
-            { "ref",      matmult_ref },
-            { "SSE",      matmult_SSE },
-            { "AVX_4mem", matmult_AVX_4mem },
-            { "AVX_8",    matmult_AVX_8 },
-    };
-    static const int nvars = (int) (sizeof(variants) / sizeof(*variants));
-
-    srand(1234); // deterministic random tests(TM)
-
-    // correctness tests
-    // when compiled with /arch:SSE (or SSE2/AVX), all functions are
-    // supposed to return the exact same results!
-    for (int i=0; i < 1000000; i++)
-    {
-        Mat44 A, B, out, ref_out;
-        randmat(A);
-        randmat(B);
-        matmult_ref(ref_out, A, B);
-
-        for (int j=0; j < nvars; j++)
-        {
-            variants[j].matmult(out, A, B);
-            if (memcmp(&out, &ref_out, sizeof(out)) != 0)
-            {
-                fprintf(stderr, "%s fails test\n", variants[j].name);
-                exit(1);
-            }
-        }
-    }
-
-    printf("all ok.\n");
-
-    // perf tests
-    // as usual with such microbenchmarks, this isn't measuring anything
-    // terribly useful, but here goes.
-    static const struct {
-        const char *name;
-        void (*run)(Mat44 *out, const Mat44 *A, const Mat44 *B, int count);
-    } perf_variants[] = {
-            { "ref",      run_ref },
-            { "SSE",      run_SSE },
-            { "AVX_4mem", run_AVX_4mem },
-            { "AVX_8",    run_AVX_8 },
-    };
-    static const int nperfvars = (int) (sizeof(perf_variants) / sizeof(*perf_variants));
-
-    /*
-       results on my sandy bridge laptop when compiling the code in x64
-       mode with VC2010 using /arch:AVX:
-        all ok.
-                 ref: 59.00 cycles
-                 SSE: 20.52 cycles
-            AVX_4mem: 15.64 cycles
-               AVX_8: 14.13 cycles
-    */
-
-    Mat44 Aperf, Bperf, out;
-    randmat(Aperf);
-    randmat(Bperf);
-
-    for (int i=0; i < nvars; i++)
-    {
-        static const int nruns = 4096;
-        static const int muls_per_run = 4096;
-        unsigned long long best_time = ~0ull;
-
-        for (int run=0; run < nruns; run++)
-        {
-            unsigned long long time = __rdtsc();
-            perf_variants[i].run(&out, &Aperf, &Bperf, muls_per_run);
-            time = __rdtsc() - time;
-            if (time < best_time)
-                best_time = time;
-        }
-
-        double cycles_per_run = (double) best_time / (double) muls_per_run;
-        printf("%12s: %.2f cycles\n", perf_variants[i].name, cycles_per_run);
-    }
+//    static const struct {
+//        const char *name;
+//        void (*matmult)(Mat44 &out, const Mat44 &A, const Mat44 &B);
+//    } variants[] = {
+//            { "ref",      matmult_ref },
+//            { "SSE",      matmult_SSE },
+//            { "AVX_4mem", matmult_AVX_4mem },
+//            { "AVX_8",    matmult_AVX_8 },
+//    };
+//    static const int nvars = (int) (sizeof(variants) / sizeof(*variants));
+//
+//    srand(1234); // deterministic random tests(TM)
+//
+//    // correctness tests
+//    // when compiled with /arch:SSE (or SSE2/AVX), all functions are
+//    // supposed to return the exact same results!
+//    for (int i=0; i < 1000000; i++)
+//    {
+//        Mat44 A, B, out, ref_out;
+//        randmat(A);
+//        randmat(B);
+//        matmult_ref(ref_out, A, B);
+//
+//        for (int j=0; j < nvars; j++)
+//        {
+//            variants[j].matmult(out, A, B);
+//            if (memcmp(&out, &ref_out, sizeof(out)) != 0)
+//            {
+//                fprintf(stderr, "%s fails test\n", variants[j].name);
+//                exit(1);
+//            }
+//        }
+//    }
+//
+//    printf("all ok.\n");
+//
+//    // perf tests
+//    // as usual with such microbenchmarks, this isn't measuring anything
+//    // terribly useful, but here goes.
+//    static const struct {
+//        const char *name;
+//        void (*run)(Mat44 *out, const Mat44 *A, const Mat44 *B, int count);
+//    } perf_variants[] = {
+//            { "ref",      run_ref },
+//            { "SSE",      run_SSE },
+//            { "AVX_4mem", run_AVX_4mem },
+//            { "AVX_8",    run_AVX_8 },
+//    };
+//    static const int nperfvars = (int) (sizeof(perf_variants) / sizeof(*perf_variants));
+//
+//    /*
+//       results on my sandy bridge laptop when compiling the code in x64
+//       mode with VC2010 using /arch:AVX:
+//        all ok.
+//                 ref: 59.00 cycles
+//                 SSE: 20.52 cycles
+//            AVX_4mem: 15.64 cycles
+//               AVX_8: 14.13 cycles
+//    */
+//
+//    Mat44 Aperf, Bperf, out;
+//    randmat(Aperf);
+//    randmat(Bperf);
+//
+//    for (int i=0; i < nvars; i++)
+//    {
+//        static const int nruns = 4096;
+//        static const int muls_per_run = 4096;
+//        unsigned long long best_time = ~0ull;
+//
+//        for (int run=0; run < nruns; run++)
+//        {
+//            unsigned long long time = __rdtsc();
+//            perf_variants[i].run(&out, &Aperf, &Bperf, muls_per_run);
+//            time = __rdtsc() - time;
+//            if (time < best_time)
+//                best_time = time;
+//        }
+//
+//        double cycles_per_run = (double) best_time / (double) muls_per_run;
+//        printf("%12s: %.2f cycles\n", perf_variants[i].name, cycles_per_run);
+//    }
 
 //    Mat44 A, B, out;
 //    A.m[0][0] = 1;
@@ -532,13 +533,28 @@ int main(int argc, char **argv)
 //
 //    }
 
-    float aa[9] = {0, 1, 2, 3, 4, 5, 6, 7, 8};
-    float bb[4] = {0.5, 1.5, 2.5, 3.5};
+    //float aa[9] = {0, 1, 2, 3, 4, 5, 6, 7, 8};
+    //float bb[4] = {0.5, 1.5, 2.5, 3.5};
+    float aa[51];
+    float bb[51];
+    for(int i = 0; i< 51; i++){
+        aa[i] = i;
+        bb[i] = i;
+    }
+    VecAVX vv(51, aa);
+    VecAVX vf(51, bb);
+    VecNN vn(51, aa);
+    VecNN fn(51, bb);
+    unsigned long long time = __rdtsc();
+    vv.dot(vf);
+    time = __rdtsc() - time;
+    cout<<"AVX dot product Time in seconds: "<<time<<endl;
 
-//    for(int i = 0; i< 11; i++){
-//        aa[i] = i;
-//        bb[i] = i;
-//    }
+    time = __rdtsc();
+    vn.dot(fn);
+    time = __rdtsc() - time;
+    cout<<"SSE dot product Time in seconds: "<<time<<endl;
+
 //    __m128 xx = _mm_load_ps(aa);
 //    __m128  yy = _mm_load_ps(bb);
 //    __m128 *arr;

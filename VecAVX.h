@@ -21,9 +21,9 @@ private:
 public:
     VecAVX(int, const float*);
     VecAVX(int);
-    ~VecNN();
+    ~VecAVX();
     float dot(VecAVX);
-    __m128 getAtIndex(int);
+    __m256 getAtIndex(int);
     int getSize();
     int getNoOfElements();
     void loadData(const float*);

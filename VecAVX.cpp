@@ -14,7 +14,7 @@ VecAVX::VecAVX(int s, const float * arr) {
     fvec = new float[size];
 
     for (int i = 0; i < N; i++) {
-        vec[i] = _mm_load_ps(&arr[8*i]);
+        vec[i] = _mm256_load_ps(&arr[8*i]);
     }
 }
 
@@ -28,7 +28,7 @@ VecAVX::VecAVX(int s) {
     fvec = new float[size];
 }
 
-VecAVX::~VecNN() {
+VecAVX::~VecAVX() {
 
 }
 
@@ -68,7 +68,7 @@ int VecAVX::getNoOfElements() {
 
 void VecAVX::loadData(const float * arr) {
     for(int i = 0; i< N; i++){
-        vec[i] = _mm_load_ps(&arr[8*i]);
+        vec[i] = _mm256_load_ps(&arr[8*i]);
     }
 }
 

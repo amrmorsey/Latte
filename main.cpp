@@ -195,19 +195,19 @@ static inline __m128 lincomb_AVX_4mem(const float *a, const Mat44 &B)
 
 // using AVX instructions, 4-wide
 //// this can be better if A is in memory.
-//void matmult_AVX_4mem(Mat44 &out, const Mat44 &A, const Mat44 &B)
-//{
-//    _mm256_zeroupper();
-//    __m128 out0x = lincomb_AVX_4mem(A.m[0], B);
-//    __m128 out1x = lincomb_AVX_4mem(A.m[1], B);
-//    __m128 out2x = lincomb_AVX_4mem(A.m[2], B);
-//    __m128 out3x = lincomb_AVX_4mem(A.m[3], B);
-//
-//    out.row[0] = out0x;
-//    out.row[1] = out1x;
-//    out.row[2] = out2x;
-//    out.row[3] = out3x;
-//}
+void matmult_AVX_4mem(Mat44 &out, const Mat44 &A, const Mat44 &B)
+{
+    _mm256_zeroupper();
+    __m128 out0x = lincomb_AVX_4mem(A.m[0], B);
+    __m128 out1x = lincomb_AVX_4mem(A.m[1], B);
+    __m128 out2x = lincomb_AVX_4mem(A.m[2], B);
+    __m128 out3x = lincomb_AVX_4mem(A.m[3], B);
+
+    out.row[0] = out0x;
+    out.row[1] = out1x;
+    out.row[2] = out2x;
+    out.row[3] = out3x;
+}
 
 // dual linear combination using AVX instructions on YMM regs
 static inline __m256 twolincomb_AVX_8(__m256 A01, const Mat44 &B)
@@ -222,18 +222,18 @@ static inline __m256 twolincomb_AVX_8(__m256 A01, const Mat44 &B)
 
 // this should be noticeably faster with actual 256-bit wide vector units (Intel);
 // not sure about double-pumped 128-bit (AMD), would need to check.
-//void matmult_AVX_8(Mat44 &out, const Mat44 &A, const Mat44 &B)
-//{
-//    _mm256_zeroupper();
-//    __m256 A01 = _mm256_loadu_ps(&A.m[0][0]);
-//    __m256 A23 = _mm256_loadu_ps(&A.m[2][0]);
-//
-//    __m256 out01x = twolincomb_AVX_8(A01, B);
-//    __m256 out23x = twolincomb_AVX_8(A23, B);
-//
-//    _mm256_storeu_ps(&out.m[0][0], out01x);
-//    _mm256_storeu_ps(&out.m[2][0], out23x);
-//}
+void matmult_AVX_8(Mat44 &out, const Mat44 &A, const Mat44 &B)
+{
+    _mm256_zeroupper();
+    __m256 A01 = _mm256_loadu_ps(&A.m[0][0]);
+    __m256 A23 = _mm256_loadu_ps(&A.m[2][0]);
+
+    __m256 out01x = twolincomb_AVX_8(A01, B);
+    __m256 out23x = twolincomb_AVX_8(A23, B);
+
+    _mm256_storeu_ps(&out.m[0][0], out01x);
+    _mm256_storeu_ps(&out.m[2][0], out23x);
+}
 
 // ---- testing stuff
 
@@ -275,7 +275,7 @@ static void run_AVX_4mem(Mat44 *out, const Mat44 *A, const Mat44 *B, int count)
     for (int i=0; i < count; i++)
     {
         int j = i & the_mask;
-//        matmult_AVX_4mem(out[j], A[j], B[j]);
+        matmult_AVX_4mem(out[j], A[j], B[j]);
     }
 }
 
@@ -284,7 +284,7 @@ static void run_AVX_8(Mat44 *out, const Mat44 *A, const Mat44 *B, int count)
     for (int i=0; i < count; i++)
     {
         int j = i & the_mask;
-//        matmult_AVX_8(out[j], A[j], B[j]);
+        matmult_AVX_8(out[j], A[j], B[j]);
     }
 }
 
@@ -378,141 +378,141 @@ void mmul_nxn(const float *a, const float *b, float *r, int n, int row){
 
 int main(int argc, char **argv)
 {
-//    static const struct {
-//        const char *name;
-//        void (*matmult)(Mat44 &out, const Mat44 &A, const Mat44 &B);
-//    } variants[] = {
-//            { "ref",      matmult_ref },
-//            { "SSE",      matmult_SSE },
-////            { "AVX_4mem", matmult_AVX_4mem },
-////            { "AVX_8",    matmult_AVX_8 },
-//    };
-//    static const int nvars = (int) (sizeof(variants) / sizeof(*variants));
-//
-//    srand(1234); // deterministic random tests(TM)
-//
-//    // correctness tests
-//    // when compiled with /arch:SSE (or SSE2/AVX), all functions are
-//    // supposed to return the exact same results!
-//    for (int i=0; i < 1000000; i++)
-//    {
-//        Mat44 A, B, out, ref_out;
-//        randmat(A);
-//        randmat(B);
-//        matmult_ref(ref_out, A, B);
-//
-//        for (int j=0; j < nvars; j++)
-//        {
-//            variants[j].matmult(out, A, B);
-//            if (memcmp(&out, &ref_out, sizeof(out)) != 0)
-//            {
-//                fprintf(stderr, "%s fails test\n", variants[j].name);
-//                exit(1);
-//            }
-//        }
-//    }
-//
-//    printf("all ok.\n");
-//
-//    // perf tests
-//    // as usual with such microbenchmarks, this isn't measuring anything
-//    // terribly useful, but here goes.
-//    static const struct {
-//        const char *name;
-//        void (*run)(Mat44 *out, const Mat44 *A, const Mat44 *B, int count);
-//    } perf_variants[] = {
-//            { "ref",      run_ref },
-//            { "SSE",      run_SSE },
-//            { "AVX_4mem", run_AVX_4mem },
-//            { "AVX_8",    run_AVX_8 },
-//    };
-//    static const int nperfvars = (int) (sizeof(perf_variants) / sizeof(*perf_variants));
-//
-//    /*
-//       results on my sandy bridge laptop when compiling the code in x64
-//       mode with VC2010 using /arch:AVX:
-//        all ok.
-//                 ref: 59.00 cycles
-//                 SSE: 20.52 cycles
-//            AVX_4mem: 15.64 cycles
-//               AVX_8: 14.13 cycles
-//    */
-//
-//    Mat44 Aperf, Bperf, out;
-//    randmat(Aperf);
-//    randmat(Bperf);
-//
-//    for (int i=0; i < nvars; i++)
-//    {
-//        static const int nruns = 4096;
-//        static const int muls_per_run = 4096;
-//        unsigned long long best_time = ~0ull;
-//
-//        for (int run=0; run < nruns; run++)
-//        {
-//            unsigned long long time = __rdtsc();
-//            perf_variants[i].run(&out, &Aperf, &Bperf, muls_per_run);
-//            time = __rdtsc() - time;
-//            if (time < best_time)
-//                best_time = time;
-//        }
-//
-//        double cycles_per_run = (double) best_time / (double) muls_per_run;
-//        printf("%12s: %.2f cycles\n", perf_variants[i].name, cycles_per_run);
-//    }
+    static const struct {
+        const char *name;
+        void (*matmult)(Mat44 &out, const Mat44 &A, const Mat44 &B);
+    } variants[] = {
+            { "ref",      matmult_ref },
+            { "SSE",      matmult_SSE },
+            { "AVX_4mem", matmult_AVX_4mem },
+            { "AVX_8",    matmult_AVX_8 },
+    };
+    static const int nvars = (int) (sizeof(variants) / sizeof(*variants));
 
-    Mat44 A, B, out;
-    A.m[0][0] = 1;
-    A.m[0][1] = 2;
-    A.m[0][2] = 3;
-    A.m[0][3] = 4;
-    A.m[0][4] = 5;
-    A.m[1][0] = 6;
-    A.m[1][1] = 7;
-    A.m[1][2] = 8;
-    A.m[1][3] = 9;
-    A.m[2][4] = 10;
-    A.m[2][0] = 11;
-    A.m[2][1] = 12;
-    A.m[2][2] = 13;
-    A.m[2][3] = 14;
-    A.m[2][4] = 15;
-    A.m[3][0] = 16;
-    A.m[3][1] = 17;
-    A.m[3][2] = 18;
-    A.m[3][3] = 19;
-    A.m[3][4] = 20;
-//    A.m[4][0] = 21;
-//    A.m[4][1] = 22;
-//    A.m[4][2] = 23;
-//    A.m[4][3] = 24;
-//    A.m[4][4] = 25;
+    srand(1234); // deterministic random tests(TM)
 
-    B.m[0][0] = 1;
-    B.m[0][1] = 0;
-    B.m[0][2] = 0;
-    B.m[0][3] = 0;
-    B.m[0][4] = 0;
-    B.m[1][0] = 0;
-    B.m[1][1] = 1;
-    B.m[1][2] = 0;
-    B.m[1][3] = 0;
-    B.m[2][4] = 0;
-    B.m[2][0] = 0;
-    B.m[2][1] = 0;
-    B.m[2][2] = 1;
-    B.m[2][3] = 0;
-    B.m[2][4] = 0;
-    B.m[3][0] = 0;
-    B.m[3][1] = 0;
-    B.m[3][2] = 0;
-    B.m[3][3] = 1;
-    B.m[3][4] = 0;
-//    B.m[4][0] = 0;
-//    B.m[4][1] = 0;
-//    B.m[4][2] = 0;
-//    B.m[4][3] = 0;
-//    B.m[4][4] = 1;
+    // correctness tests
+    // when compiled with /arch:SSE (or SSE2/AVX), all functions are
+    // supposed to return the exact same results!
+    for (int i=0; i < 1000000; i++)
+    {
+        Mat44 A, B, out, ref_out;
+        randmat(A);
+        randmat(B);
+        matmult_ref(ref_out, A, B);
+
+        for (int j=0; j < nvars; j++)
+        {
+            variants[j].matmult(out, A, B);
+            if (memcmp(&out, &ref_out, sizeof(out)) != 0)
+            {
+                fprintf(stderr, "%s fails test\n", variants[j].name);
+                exit(1);
+            }
+        }
+    }
+
+    printf("all ok.\n");
+
+    // perf tests
+    // as usual with such microbenchmarks, this isn't measuring anything
+    // terribly useful, but here goes.
+    static const struct {
+        const char *name;
+        void (*run)(Mat44 *out, const Mat44 *A, const Mat44 *B, int count);
+    } perf_variants[] = {
+            { "ref",      run_ref },
+            { "SSE",      run_SSE },
+            { "AVX_4mem", run_AVX_4mem },
+            { "AVX_8",    run_AVX_8 },
+    };
+    static const int nperfvars = (int) (sizeof(perf_variants) / sizeof(*perf_variants));
+
+    /*
+       results on my sandy bridge laptop when compiling the code in x64
+       mode with VC2010 using /arch:AVX:
+        all ok.
+                 ref: 59.00 cycles
+                 SSE: 20.52 cycles
+            AVX_4mem: 15.64 cycles
+               AVX_8: 14.13 cycles
+    */
+
+    Mat44 Aperf, Bperf, out;
+    randmat(Aperf);
+    randmat(Bperf);
+
+    for (int i=0; i < nvars; i++)
+    {
+        static const int nruns = 4096;
+        static const int muls_per_run = 4096;
+        unsigned long long best_time = ~0ull;
+
+        for (int run=0; run < nruns; run++)
+        {
+            unsigned long long time = __rdtsc();
+            perf_variants[i].run(&out, &Aperf, &Bperf, muls_per_run);
+            time = __rdtsc() - time;
+            if (time < best_time)
+                best_time = time;
+        }
+
+        double cycles_per_run = (double) best_time / (double) muls_per_run;
+        printf("%12s: %.2f cycles\n", perf_variants[i].name, cycles_per_run);
+    }
+
+//    Mat44 A, B, out;
+//    A.m[0][0] = 1;
+//    A.m[0][1] = 2;
+//    A.m[0][2] = 3;
+//    A.m[0][3] = 4;
+//    A.m[0][4] = 5;
+//    A.m[1][0] = 6;
+//    A.m[1][1] = 7;
+//    A.m[1][2] = 8;
+//    A.m[1][3] = 9;
+//    A.m[2][4] = 10;
+//    A.m[2][0] = 11;
+//    A.m[2][1] = 12;
+//    A.m[2][2] = 13;
+//    A.m[2][3] = 14;
+//    A.m[2][4] = 15;
+//    A.m[3][0] = 16;
+//    A.m[3][1] = 17;
+//    A.m[3][2] = 18;
+//    A.m[3][3] = 19;
+//    A.m[3][4] = 20;
+////    A.m[4][0] = 21;
+////    A.m[4][1] = 22;
+////    A.m[4][2] = 23;
+////    A.m[4][3] = 24;
+////    A.m[4][4] = 25;
+//
+//    B.m[0][0] = 1;
+//    B.m[0][1] = 0;
+//    B.m[0][2] = 0;
+//    B.m[0][3] = 0;
+//    B.m[0][4] = 0;
+//    B.m[1][0] = 0;
+//    B.m[1][1] = 1;
+//    B.m[1][2] = 0;
+//    B.m[1][3] = 0;
+//    B.m[2][4] = 0;
+//    B.m[2][0] = 0;
+//    B.m[2][1] = 0;
+//    B.m[2][2] = 1;
+//    B.m[2][3] = 0;
+//    B.m[2][4] = 0;
+//    B.m[3][0] = 0;
+//    B.m[3][1] = 0;
+//    B.m[3][2] = 0;
+//    B.m[3][3] = 1;
+//    B.m[3][4] = 0;
+////    B.m[4][0] = 0;
+////    B.m[4][1] = 0;
+////    B.m[4][2] = 0;
+////    B.m[4][3] = 0;
+////    B.m[4][4] = 1;
 
     float c[] = {1,2,3,4,5,6,7,8,8,7,6,5,4,3,2,1};
     float d[] = {1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1};
@@ -532,17 +532,17 @@ int main(int argc, char **argv)
 //
 //    }
 
-    float aa[4] = {1, 2, 3, 4};
+    float aa[9] = {0, 1, 2, 3, 4, 5, 6, 7, 8};
     float bb[4] = {0.5, 1.5, 2.5, 3.5};
 
 //    for(int i = 0; i< 11; i++){
 //        aa[i] = i;
 //        bb[i] = i;
 //    }
-    __m128 xx = _mm_load_ps(aa);
-    __m128  yy = _mm_load_ps(bb);
-    __m128 *arr;
-    arr = new __m128[2];
+//    __m128 xx = _mm_load_ps(aa);
+//    __m128  yy = _mm_load_ps(bb);
+//    __m128 *arr;
+//    arr = new __m128[2];
     //const double __xx = aa[4];
     //__m128 zz = _mm_load_ps(&aa[4]);
     //_mm_insert_ps()
@@ -550,13 +550,14 @@ int main(int argc, char **argv)
     //VecNN vv(4, aa);
     //VecNN vf(4, bb);
     //printf("%f", vv.dot(vf));
-    vector<float> matrix = {2, 0,2,2,2,1,0,1,0,2,2,0,1,0,0,0,2,1,2,0,0,2,2,1,0,0,2,1,2,0,2,1,1,1,2,2,2,1,0,1,1,2,1,1,1,0,0,1,0,1,1,1,1,0,0,1,0,2,1,0,2,2,1,1,2,1,2,0,0,1,0,0,1,1,0};
-    vector<int> shape= {5,5,3};
-    Matrix mm(matrix, shape);
-    vector<int> filter = {3,3,3,2};
-    Matrix x = mm.im2col(filter, 2);
-    vector<float> mFilter = {-1,1,-1,0,0,-1,-1,0,1,0,0,1,1,1,1,0,1,-1,-1,1,0,0,0,0,1,1,1,1,-1,-1,1,1,0,0,-1,0,-1,-1,-1,1,1,1,-1,1,1,1,1,0,-1,-1,1,0,1,-1};
-    Matrix w(mFilter, filter);
-    x.dot(w);
-    return 0;
+//    vector<float> matrix = {2, 0,2,2,2,1,0,1,0,2,2,0,1,0,0,0,2,1,2,0,0,2,2,1,0,0,2,1,2,0,2,1,1,1,2,2,2,1,0,1,1,2,1,1,1,0,0,1,0,1,1,1,1,0,0,1,0,2,1,0,2,2,1,1,2,1,2,0,0,1,0,0,1,1,0};
+//    vector<int> shape= {5,5,3};
+//    Matrix mm(matrix, shape);
+//    vector<int> filter = {3,3,3,2};
+//    Matrix x = mm.im2col(filter, 2);
+//    vector<float> mFilter = {-1,1,-1,0,0,-1,-1,0,1,0,0,1,1,1,1,0,1,-1,-1,1,0,0,0,0,1,1,1,1,-1,-1,1,1,0,0,-1,0,-1,-1,-1,1,1,1,-1,1,1,1,1,0,-1,-1,1,0,1,-1};
+//    Matrix w(mFilter, filter);
+//    x.dot(w);
+//    __m256 x = _mm256_load_ps(aa);
+//    return 0;
 }

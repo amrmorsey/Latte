@@ -6,8 +6,6 @@
 
 
 Matrix Matrix::im2col(vector<int> filterShape, int s) {
-    vector<int> X_col_shape;
-    vector<int> W_row_shape;
     int pad = filterShape.at(0);
     pad = pad -1;
     pad = pad/2;
@@ -26,7 +24,7 @@ Matrix Matrix::im2col(vector<int> filterShape, int s) {
     W_row_shape.push_back(xx);
     W_row_shape.push_back(x_col);
 
-    cout<<"So far so good!"<<endl;
+    //cout<<"So far so good!"<<endl;
 
     //(x, y, z) = Z*(Dim_Y*Dim_X) + y*DIM_X + x
     vector<int> out_shape = {X_col_shape.at(0), X_col_shape.at(1)};
@@ -53,7 +51,8 @@ Matrix Matrix::im2col(vector<int> filterShape, int s) {
             }
         }
     }
-
+    out.W_row_shape = this->W_row_shape;
+    out.X_col_shape = this->X_col_shape;
     return out;
 }
 
@@ -116,6 +115,39 @@ Matrix::Matrix(vector<int> s) {
 
 Matrix::Matrix(vector<float> m, vector<int> s): matrix(m), shape(s){
     matrixSizeVector = m.size();
+}
+
+Matrix Matrix::dot(Matrix filter) {
+    vector<int> out_shape = {X_col_shape.at(1), W_row_shape.at(0)};
+    Matrix out(out_shape);
+    int x_dim = 0;
+    int w_dim = 0;
+    int index = 0;
+    for(int i = 0; i < W_row_shape.at(0); i++){
+        __attribute__((aligned (16))) float b[W_row_shape.at(1)];
+        for (int k = 0; k <W_row_shape.at(1) ; k++) {
+            b[k] = filter.matrix[k+w_dim];
+            cout<<b[k]<<" ";
+        }
+        VecNN w(W_row_shape.at(1), b);
+        for (int j = 0; j < X_col_shape.at(1); j++) {
+            __attribute__((aligned (16))) float a[X_col_shape.at(0)];// = &this->matrix[x_dim];
+            for (int k = 0; k <X_col_shape.at(0) ; k++) {
+                a[k] = this->matrix[k+x_dim];
+                cout<<a[k]<<" ";
+            }
+            cout<<endl;
+            VecNN v(X_col_shape.at(0), a);
+            float res = v.dot(w);
+            out.matrix.at(index) = res;
+            x_dim += X_col_shape.at(0);
+            index++;
+        }
+        x_dim = 0;
+        w_dim += W_row_shape.at(1);
+    }
+
+    return out;
 }
 
 

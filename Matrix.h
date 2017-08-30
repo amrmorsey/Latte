@@ -14,6 +14,7 @@
 #include <vector>
 #include <iostream>
 #include <algorithm>
+#include "VecNN.h"
 
 using namespace std;
 
@@ -25,7 +26,8 @@ private:
     vector<float> matrix;
     int matrixSizeVector;
     int calcuteOutput(vector<int> index);
-
+    vector<int> X_col_shape;
+    vector<int> W_row_shape;
 public:
     Matrix(vector<float> m, vector<int> s);
 
@@ -40,6 +42,8 @@ public:
     void set(vector<int>, float);
 
     vector<int> calculateIndex(int x);
+
+    Matrix dot(Matrix);
 };
 
 

@@ -554,8 +554,9 @@ int main(int argc, char **argv)
     vector<int> shape= {5,5,3};
     Matrix mm(matrix, shape);
     vector<int> filter = {3,3,3,2};
-    mm.im2col(filter, 2);
-    //vector<int> in= {3};
-    vector<int> x = mm.calculateIndex(10);
+    Matrix x = mm.im2col(filter, 2);
+    vector<float> mFilter = {-1,1,-1,0,0,-1,-1,0,1,0,0,1,1,1,1,0,1,-1,-1,1,0,0,0,0,1,1,1,1,-1,-1,1,1,0,0,-1,0,-1,-1,-1,1,1,1,-1,1,1,1,1,0,-1,-1,1,0,1,-1};
+    Matrix w(mFilter, filter);
+    x.dot(w);
     return 0;
 }

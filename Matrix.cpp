@@ -151,6 +151,11 @@ Matrix Matrix::dot(Matrix filter) {
     return out;
 }
 
+Matrix Matrix::conv(Matrix filter, int s) {
+    Matrix out = this->im2col(filter.shape, s);
+    return out.dot(filter);
+}
+
 
 
 //void im2col_cpu(const Dtype* data_im, const int channels,

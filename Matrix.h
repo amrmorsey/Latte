@@ -44,6 +44,8 @@ public:
     vector<int> calculateIndex(int x);
 
     Matrix dot(Matrix);
+
+    Matrix conv(Matrix, int);
 };
 
 

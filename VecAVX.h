@@ -15,15 +15,17 @@
 class VecAVX {
 private:
     int N;
-    __m256 *vec;
+    //__m256 *vec;
     float *fvec;
     int size;
+    int paddedSize;
 public:
-    VecAVX(int, const float*);
+    __m256 *vec;
+    VecAVX(int, float*);
     VecAVX(int);
     ~VecAVX();
     float dot(VecAVX);
-    __m256 getAtIndex(int);
+    //__m256 getAtIndex(int);
     int getSize();
     int getNoOfElements();
     void loadData(const float*);

@@ -128,17 +128,14 @@ Matrix Matrix::dot(Matrix filter) {
         __attribute__((aligned (16))) float b[W_row_shape.at(1)];
         for (int k = 0; k <W_row_shape.at(1) ; k++) {
             b[k] = filter.matrix[k+w_dim];
-            cout<<b[k]<<" ";
         }
-        VecNN w(W_row_shape.at(1), b);
+        VecAVX w(W_row_shape.at(1), b);
         for (int j = 0; j < X_col_shape.at(1); j++) {
             __attribute__((aligned (16))) float a[X_col_shape.at(0)];// = &this->matrix[x_dim];
             for (int k = 0; k <X_col_shape.at(0) ; k++) {
                 a[k] = this->matrix[k+x_dim];
-                cout<<a[k]<<" ";
             }
-            cout<<endl;
-            VecNN v(X_col_shape.at(0), a);
+            VecAVX v(X_col_shape.at(0), a);
             float res = v.dot(w);
             out.matrix.at(index) = res;
             x_dim += X_col_shape.at(0);

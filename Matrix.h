@@ -15,6 +15,7 @@
 #include <iostream>
 #include <algorithm>
 #include "VecNN.h"
+#include "VecAVX.h"
 
 using namespace std;
 

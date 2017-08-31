@@ -7,44 +7,27 @@
 
 #include <string>
 #include "abstract_layers/AbstractLayer.h"
+#include "abstract_layers/AbstractWeightedLayer.h"
 
 using namespace std;
 
-class ConvLayer : public AbstractLayer {
+class ConvLayer : public AbstractWeightedLayer {
 
 private:
-    string name;
-    int D;
-    int C;
-    int H;
-    int W;
-    int NF;
-    int HF;
-    int WF;
-    int *flattenedMatrix;
-    int bias;
-    int stride;
-    int pad;
-    double *input;
-    double *weights;
-    double *output;
-    vector<int> input_dims;
-    vector<int> output_dims;
+    const int &kernel_size;
+    const int &stride;
+    const int &padding;
 
 public:
-    ConvLayer(string n, int d, int c, int h, Matrix w, int nf, int hf, int wf, Matrix b, int st, int pa);
+    ConvLayer(const std::string &name, const int &num_of_outputs, const Matrix &weights, const Matrix &bias,
+              const int &kernel_size, const int &stride, const int &padding) : AbstractWeightedLayer(name, weights,
+                                                                                                     bias,
+                                                                                                     num_of_outputs),
+                                                                               kernel_size(kernel_size), stride(stride),
+                                                                               padding(padding) {};
 
     ~ConvLayer() {};
 
-    void loadWieghts();
-
-    void forwardPass();
-
-    void flattenLayer();
-
-    void feedForward();
-
-    void setInput(double *);
 };
 
 

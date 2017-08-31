@@ -11,10 +11,13 @@
 
 class Net {
 private:
+    const string &prototxt_path;
+    const string &weights_dir;
     vector<AbstractLayer> layers;
     vector<AbstractLayer> bias;
+
 public:
-    Net(const string &weight_dir);
+    Net(const string &protoxt_path, const string &weights_dir);
 
     ~Net() {}
 

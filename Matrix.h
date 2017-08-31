@@ -26,17 +26,16 @@ private:
     vector<int> shape;
     vector<float> matrix;
     int matrixSizeVector;
-    int calcuteOutput(vector<int> index);
     vector<int> X_col_shape;
     vector<int> W_row_shape;
+    Matrix im2col(vector<int>, int s);
+    int calcuteOutput(vector<int> index);
 public:
     Matrix(vector<float> m, vector<int> s);
 
     Matrix(vector<int> s);
 
     ~Matrix() {};
-
-    Matrix im2col(vector<int>, int s);
 
     float at(vector<int>);
 
@@ -47,6 +46,8 @@ public:
     Matrix dot(Matrix);
 
     Matrix conv(Matrix, int);
+
+    Matrix MaxRow(Matrix, int);
 };
 
 

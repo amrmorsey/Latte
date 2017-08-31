@@ -541,16 +541,20 @@ int main(int argc, char **argv)
         aa[i] = i;
         bb[i] = i;
     }
+//    VecAVX vv(51, aa);
+//    VecAVX vf(51, bb);
+//    VecNN vn(51, aa);
+//    VecNN fn(51, bb);
+    unsigned long long time = __rdtsc();
     VecAVX vv(51, aa);
     VecAVX vf(51, bb);
-    VecNN vn(51, aa);
-    VecNN fn(51, bb);
-    unsigned long long time = __rdtsc();
     vv.dot(vf);
     time = __rdtsc() - time;
     cout<<"AVX dot product Time in seconds: "<<time<<endl;
 
     time = __rdtsc();
+    VecNN vn(51, aa);
+    VecNN fn(51, bb);
     vn.dot(fn);
     time = __rdtsc() - time;
     cout<<"SSE dot product Time in seconds: "<<time<<endl;

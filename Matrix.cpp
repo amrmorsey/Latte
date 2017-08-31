@@ -153,6 +153,21 @@ Matrix Matrix::conv(Matrix filter, int s) {
     return out.dot(filter);
 }
 
+Matrix Matrix::MaxRow(Matrix filter, int s) {
+    Matrix im = this->im2col(filter.shape, s);
+    vector<int> out_shape = {X_col_shape.at(1), W_row_shape.at(0)};
+    Matrix out(out_shape);
+    int x_dim = 0;
+    int w_dim = 0;
+    int index = 0;
+    for (int i = 0; i <X_col_shape.at(1) ; i++) {
+        out.matrix.at(index) = std::max_element(im.matrix[i+x_dim], im.matrix[i+x_dim] + X_col_shape.at(0));
+        x_dim += X_col_shape.at(0);
+        index++;
+    }
+    return out;
+}
+
 
 
 //void im2col_cpu(const Dtype* data_im, const int channels,

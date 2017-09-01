@@ -29,7 +29,7 @@ private:
     int matrixSizeVector;
     vector<int> X_col_shape;
     vector<int> W_row_shape;
-    Matrix im2col(vector<int>, int s);
+    Matrix im2col(vector<int>, int s, bool);
     int calcuteOutput(vector<int> index);
 public:
     explicit Matrix(vector<float> m, vector<int> s);
@@ -46,9 +46,9 @@ public:
 
     Matrix dot(Matrix);
 
-    Matrix conv(Matrix, int);
+    Matrix conv(Matrix, int, bool);
 
-    Matrix MaxRow(Matrix, int);
+    Matrix MaxRow(Matrix, int, bool);
 };
 
 

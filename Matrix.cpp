@@ -5,10 +5,20 @@
 #include "Matrix.h"
 
 
-Matrix Matrix::im2col(vector<int> filterShape, int s) {
-    int pad = filterShape.at(0);
-    pad = pad -1;
-    pad = pad/2;
+Matrix Matrix::im2col(vector<int> filterShape, int s, bool padding) {
+    int pad = 0;
+    int sp = 0;
+    int filter_width = filterShape.at(0)/2;
+    if(padding){
+        pad = filterShape.at(0);
+        pad = pad -1;
+        pad = pad/2;
+    }
+    else{
+        pad = 0;
+        sp = filter_width;
+    }
+
     int x = this->shape.at(0);
     x = x - filterShape.at(0) + 2*pad;
     x = x/s;
@@ -31,11 +41,11 @@ Matrix Matrix::im2col(vector<int> filterShape, int s) {
     Matrix out(out_shape);
     int index = 0;
 
-    for (int i = 0; i < this->shape.at(1); i= i+s) { //length y
+    for (int i = 0 + sp; i < this->shape.at(1); i= i+s) { //length y
         for (int k = 0; k < this->shape.at(0); k= k+s) { //width x
-            for (int j = 0; j <this->shape.at(2) ; j++) { // depth z
-                for (int l = -pad; l <=pad ; l++) { // for i
-                    for (int m = -pad; m <=pad ; m++) { //for j
+            for (int j = 0 + sp; j <this->shape.at(2) ; j++) { // depth z
+                for (int l = -filter_width; l <=filter_width ; l++) { // for i
+                    for (int m = -filter_width; m <=filter_width ; m++) { //for j
                         int tem1 = k+m;
                         int tem2 = i+l;
                         if(tem1 <0 || tem2<0 || tem1 >= this->shape.at(0) || tem2 >= shape.at(1)){
@@ -148,15 +158,23 @@ Matrix Matrix::dot(Matrix filter) {
     return out;
 }
 
-Matrix Matrix::conv(Matrix filter, int s) {
-    Matrix out = this->im2col(filter.shape, s);
+Matrix Matrix::conv(Matrix filter, int s, bool padding) {
+    Matrix out = this->im2col(filter.shape, s, padding);
     return out.dot(filter);
 }
 
-Matrix Matrix::MaxRow(Matrix filter, int s) {
-    int pad = filter.shape.at(0);
-    pad = pad -1;
-    pad = pad/2;
+Matrix Matrix::MaxRow(Matrix filter, int s, bool padding) {
+    int sp = 0;
+    int pad = 0;
+    int filter_width = filter.shape.at(0)/2;
+    if(padding) {
+        pad = filter.shape.at(0);
+        pad = pad - 1;
+        pad = pad / 2;
+    }else{
+        pad = 0;
+        sp = filter_width;
+    }
     int x = this->shape.at(0);
     x = x - filter.shape.at(0) + 2*pad;
     x = x/s;
@@ -168,11 +186,11 @@ Matrix Matrix::MaxRow(Matrix filter, int s) {
     int index = 0;
 
     for (int j = 0; j <this->shape.at(2) ; j++) { // depth z
-        for (int i = 0; i < this->shape.at(1); i = i + s) { //length y
-            for (int k = 0; k < this->shape.at(0); k = k + s) { //width x
+        for (int i = 0 + sp; i < this->shape.at(1); i = i + s) { //length y
+            for (int k = 0 + sp; k < this->shape.at(0); k = k + s) { //width x
                 float max = -(std::numeric_limits<float>::infinity());
-                for (int l = -pad; l <= pad; l++) { // for i
-                    for (int m = -pad; m <= pad; m++) { //for j
+                for (int l = -filter_width; l <= filter_width; l++) { // for i
+                    for (int m = -filter_width; m <= filter_width; m++) { //for j
                         int tem1 = k + m;
                         int tem2 = i + l;
                         if (tem1 < 0 || tem2 < 0 || tem1 >= this->shape.at(0) || tem2 >= shape.at(1)) {

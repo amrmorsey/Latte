@@ -18,12 +18,18 @@ private:
     vector<std::unique_ptr<AbstractLayer>> layers;
 
     std::map<std::string, vector<int>> getWeightShapes();
-    std::tuple<std::unique_ptr<Matrix>, std::unique_ptr<Matrix>> getWeightAndBias(const std::string &layer_name, const std::map<std::string, vector<int>> &shape_map);
+
+    std::tuple<std::unique_ptr<Matrix>, std::unique_ptr<Matrix>>
+    getWeightAndBias(const std::string &layer_name, const std::map<std::string, vector<int>> &shape_map);
+
     vector<float> extractValues(const std::string &file_name);
+
 public:
     Net(const string &protoxt_path, const string &weights_dir);
 
     ~Net() {};
+
+    void printLayers();
 
 
 };

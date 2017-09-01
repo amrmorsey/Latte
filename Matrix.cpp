@@ -154,16 +154,41 @@ Matrix Matrix::conv(Matrix filter, int s) {
 }
 
 Matrix Matrix::MaxRow(Matrix filter, int s) {
-    Matrix im = this->im2col(filter.shape, s);
-    vector<int> out_shape = {X_col_shape.at(1), W_row_shape.at(0)};
-    Matrix out(out_shape);
-    int x_dim = 0;
-    int w_dim = 0;
+    int pad = filter.shape.at(0);
+    pad = pad -1;
+    pad = pad/2;
+    int x = this->shape.at(0);
+    x = x - filter.shape.at(0) + 2*pad;
+    x = x/s;
+    x = x +1;
+    int x_row = x*x;
+    int depth = this->shape.at(2);
+    vector<int> outSize = {x, x, depth};
+    Matrix out(outSize);
     int index = 0;
-    for (int i = 0; i <X_col_shape.at(1) ; i++) {
-        out.matrix.at(index) = std::max_element(im.matrix[i+x_dim], im.matrix[i+x_dim] + X_col_shape.at(0));
-        x_dim += X_col_shape.at(0);
-        index++;
+
+    for (int j = 0; j <this->shape.at(2) ; j++) { // depth z
+        for (int i = 0; i < this->shape.at(1); i = i + s) { //length y
+            for (int k = 0; k < this->shape.at(0); k = k + s) { //width x
+                float max = -(std::numeric_limits<float>::infinity());
+                for (int l = -pad; l <= pad; l++) { // for i
+                    for (int m = -pad; m <= pad; m++) { //for j
+                        int tem1 = k + m;
+                        int tem2 = i + l;
+                        if (tem1 < 0 || tem2 < 0 || tem1 >= this->shape.at(0) || tem2 >= shape.at(1)) {
+                            if( 0>max)
+                                max = 0;
+                        } else {
+                            vector<int> in = {tem1, tem2, j};
+                            if(this->at(in) > max)
+                                max = this->at(in);
+                        }
+                    }
+                }
+                out.matrix.at(index) = max;
+                index++;
+            }
+        }
     }
     return out;
 }

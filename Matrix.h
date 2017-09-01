@@ -16,6 +16,7 @@
 #include <algorithm>
 #include "VecNN.h"
 #include "VecAVX.h"
+#include <limits>
 
 using namespace std;
 

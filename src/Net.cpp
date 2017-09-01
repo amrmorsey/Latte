@@ -8,12 +8,18 @@
 #include "layers/Softmax.h"
 #include "layers/FullyConnected.h"
 
-Net::Net(const std::string &protoxt_path, const std::string &weights_dir) : prototxt_path(protoxt_path),
-                                                                            weights_dir(weights_dir) {
+Net::Net(const std::string &protoxt_path, const std::string &weights_dir, const std::string &mean_dir) : prototxt_path(
+        protoxt_path),
+                                                                                                         weights_dir(
+                                                                                                                 weights_dir) {
+    cout << "Creating network...\n";
+    cout << "Prototxt path - " + protoxt_path + "\n";
+    cout << "Weight dir - " + weights_dir + "\n";
     ifstream network_prototxt;
     std::string layer_type, layer_name;
     network_prototxt.open(protoxt_path);
 
+    this->mean_mat = this->loadMatrix(mean_dir, "mean");
     // Get a map of the shapes of the weighted layers
     // To be passed to getWeightAndBias
     std::map<std::string, vector<int>> shapes = this->getWeightShapes();
@@ -86,8 +92,8 @@ Net::getWeightAndBias(const std::string &layer_name, const std::map<std::string,
     vector<int> bias_shape = shape_map.at(layer_name + "_bias");
 
     // Get the actual weights and biases
-    vector<float> weights = this->extractValues(layer_name);
-    vector<float> bias = this->extractValues(layer_name + "_bias");
+    vector<float> weights = this->extractValues(this->weights_dir + "/" + layer_name + ".ahsf");
+    vector<float> bias = this->extractValues(this->weights_dir + "/" + layer_name + "_bias.ahsf");
 
     // Create the weight and bias matrices
     std::unique_ptr<Matrix> weights_mat(new Matrix(weights, weight_shape));
@@ -97,12 +103,12 @@ Net::getWeightAndBias(const std::string &layer_name, const std::map<std::string,
 }
 
 // Should return a pointer to the values here instead of returning by copy
-vector<float> Net::extractValues(const std::string &file_name) {
+vector<float> Net::extractValues(const std::string &file_path) {
     char c;
     float val;
 
     ifstream file;
-    file.open(this->weights_dir + "/" + file_name + ".ahsf");
+    file.open(file_path);
 
     vector<float> values;
 
@@ -127,6 +133,17 @@ void Net::predict(const Matrix &image) {
     for (auto &&layer : this->layers) {
 
     }
+}
+
+Matrix Net::loadMatrix(const string &matrix_dir, const string &matrix_name){
+    vector<float> image_vec(this->extractValues(matrix_dir + "/" + matrix_name + ".ahsf"));
+    vector<int> image_shape(3);
+
+    ifstream shape_file;
+    shape_file.open(matrix_dir + "/" + matrix_name + "_shape.ahsf");
+    shape_file >> image_shape[0] >> image_shape[1] >> image_shape[2];
+
+    return Matrix(image_vec, image_shape);
 }
 
 

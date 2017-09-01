@@ -15,6 +15,9 @@ class Net {
 private:
     const string prototxt_path;
     const string weights_dir;
+
+    Matrix mean_mat;
+
     vector<std::unique_ptr<AbstractLayer>> layers;
 
     std::map<std::string, vector<int>> getWeightShapes();
@@ -22,18 +25,17 @@ private:
     std::tuple<std::unique_ptr<Matrix>, std::unique_ptr<Matrix>>
     getWeightAndBias(const std::string &layer_name, const std::map<std::string, vector<int>> &shape_map);
 
-    vector<float> extractValues(const std::string &file_name);
+    vector<float> extractValues(const std::string &file_path);
 
+    Matrix loadMatrix(const string &matrix_dir, const string &matrix_name);
 public:
-    Net(const string &protoxt_path, const string &weights_dir);
+    Net(const string &protoxt_path, const string &weights_dir, const string &mean_dir);
 
     ~Net() {};
 
     void predict(const Matrix &image);
 
     void printLayers();
-
-
 };
 
 

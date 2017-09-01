@@ -7,25 +7,24 @@
 
 #include <string>
 #include <vector>
+#include "AbstractLayer.h"
 
-class AbstractPoolingLayer {
+class AbstractPoolingLayer : AbstractLayer {
 private:
     int kernel_size;
     int stride;
-    double *input;
-    double *output;
-    std::vector<int> input_dims;
-    std::vector<int> output_dims;
+    int padding;
+//    double *input;
+//    double *output;
+//    std::vector<int> input_dims;
+//    std::vector<int> output_dims;
 public:
-    std::string name;
-
-    AbstractPoolingLayer() {};
+    AbstractPoolingLayer(std::string name, int kernel_size, int stride, int padding)
+            : AbstractLayer(name), kernel_size(kernel_size),
+              stride(stride),
+              padding(padding) {};
 
     ~AbstractPoolingLayer() {};
-
-    void feedForward();
-
-    void setInput(double *);
 };
 
 

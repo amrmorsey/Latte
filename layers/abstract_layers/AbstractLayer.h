@@ -12,23 +12,14 @@
 #include "../../Matrix.h"
 
 class AbstractLayer {
-private:
-    Matrix weights;
-    Matrix bias;
-
 public:
     std::string name;
 
-    AbstractLayer(const string &name, const Matrix &weights, const Matrix &bias)
-            : name(name), weights(weights), bias(bias) {};
+    explicit AbstractLayer(std::string name) : name(name) {};
 
-    ~AbstractLayer() {}
+    virtual ~AbstractLayer() = default;
 
-    void setWeights(const Matrix &weights);
-
-    void setBias(const Matrix &bias);
-
-    Matrix calculateOutput(const Matrix &inputMat);
+    virtual Matrix calculateOutput(const Matrix &input_mat) = 0;
 };
 
 #endif //INFERENCEENGINE_LAYER_H

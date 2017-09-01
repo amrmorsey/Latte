@@ -7,21 +7,13 @@
 
 #include "abstract_layers/AbstractLayer.h"
 
-class inputLayer: public AbstractLayer {
+class InputLayer: public AbstractLayer {
 private:
-    int no_of_input;
-    int chanels;
-    int height;
-    int width;
-    double *input;
-    double *output;
-    vector<int> input_dims;
-    vector<int> output_dims;
+    vector<int> input_dim;
 public:
-    inputLayer(int, int, int, int, int);
-    ~inputLayer();
-    void feedForward();
-    void setInput(double *);
+    InputLayer(std::string name, vector<int> input_dim) : AbstractLayer(name), input_dim(input_dim) {};
+    ~InputLayer() {};
+    Matrix calculateOutput(const Matrix &input_mat) {};
 };
 
 

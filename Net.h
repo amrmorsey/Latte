@@ -7,16 +7,23 @@
 
 #include <vector>
 #include <string>
+#include <memory>
+#include <map>
 #include "layers/abstract_layers/AbstractLayer.h"
 
 class Net {
 private:
-    vector<AbstractLayer> layers;
-    vector<AbstractLayer> bias;
-public:
-    Net(const string &weight_dir);
+    const string prototxt_path;
+    const string weights_dir;
+    vector<std::unique_ptr<AbstractLayer>> layers;
 
-    ~Net() {}
+    std::map<std::string, vector<int>> getWeightShapes();
+    std::tuple<std::unique_ptr<Matrix>, std::unique_ptr<Matrix>> getWeightAndBias(const std::string &layer_name, const std::map<std::string, vector<int>> &shape_map);
+    vector<float> extractValues(const std::string &file_name);
+public:
+    Net(const string &protoxt_path, const string &weights_dir);
+
+    ~Net() {};
 
 
 };

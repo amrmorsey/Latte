@@ -8,11 +8,11 @@
 
 #include "abstract_layers/AbstractLayer.h"
 
-class RelU : public AbstractLayer {
+class ReLU : public AbstractLayer {
 public:
-    explicit RelU(std::string name) : AbstractLayer(name) {};
+    explicit ReLU(std::string name) : AbstractLayer(name) {};
 
-    ~RelU() {};
+    ~ReLU() {};
 
     Matrix calculateOutput(const Matrix &input_mat) {};
 };

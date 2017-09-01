@@ -17,6 +17,7 @@
 #include "VecNN.h"
 #include "VecAVX.h"
 #include <limits>
+#include <mm_malloc.h>
 
 using namespace std;
 
@@ -30,7 +31,7 @@ private:
     vector<int> X_col_shape;
     vector<int> W_row_shape;
 
-    Matrix im2col(vector<int>, int s, bool);
+    Matrix im2col(vector<int>, int s, int, int);
 
     int calcuteOutput(vector<int> index);
 
@@ -49,7 +50,7 @@ public:
 
     vector<int> calculateIndex(int x);
 
-    Matrix dot(Matrix);
+    Matrix dot(Matrix, int);
 
     Matrix conv(Matrix, int, bool);
 

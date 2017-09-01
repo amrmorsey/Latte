@@ -5,21 +5,7 @@
 #include "Matrix.h"
 
 
-Matrix Matrix::im2col(vector<int> filterShape, int s, bool padding) {
-    int pad = 0;
-    int filter_width = filterShape.at(0) / 2;
-    if (padding) {
-        pad = filterShape.at(0);
-        pad = pad - 1;
-        pad = pad / 2;
-    } else {
-        pad = 0;
-    }
-
-    int x = this->shape.at(0);
-    x = x - filterShape.at(0) + 2 * pad;
-    x = x / s;
-    x = x + 1;
+Matrix Matrix::im2col(vector<int> filterShape, int s, int pad, int x) {
     int x_row = x * x;
     int x_col = 1;
     for (int i = 0; i < filterShape.size() - 1; i++) {
@@ -30,8 +16,6 @@ Matrix Matrix::im2col(vector<int> filterShape, int s, bool padding) {
     int xx = filterShape.at(filterShape.size() - 1);
     W_row_shape.push_back(xx);
     W_row_shape.push_back(x_col);
-
-    //cout<<"So far so good!"<<endl;
 
     //(x, y, z) = Z*(Dim_Y*Dim_X) + y*DIM_X + x
     vector<int> out_shape = {X_col_shape.at(0), X_col_shape.at(1)};
@@ -130,20 +114,22 @@ Matrix::Matrix() {
 }
 
 // HAVE TO CALL im2col before doing it.
-Matrix Matrix::dot(Matrix filter) {
-    vector<int> out_shape = {X_col_shape.at(1), W_row_shape.at(0)};
+Matrix Matrix::dot(Matrix filter, int x) {
+    vector<int> out_shape = {x, x, filter.shape.at(3)};
     Matrix out(out_shape);
     int x_dim = 0;
     int w_dim = 0;
     int index = 0;
     for (int i = 0; i < W_row_shape.at(0); i++) {
-        __attribute__((aligned (32))) float b[W_row_shape.at(1)];
+        //__attribute__((aligned (32))) float b[W_row_shape.at(1)];
+        float *b = (float *)_mm_malloc(W_row_shape.at(1)*sizeof(float), 32);
         for (int k = 0; k < W_row_shape.at(1); k++) {
             b[k] = filter.matrix[k + w_dim];
         }
         VecAVX w(W_row_shape.at(1), b);
         for (int j = 0; j < X_col_shape.at(1); j++) {
-            __attribute__((aligned (32))) float a[X_col_shape.at(0)];// = &this->matrix[x_dim];
+           // __attribute__((aligned (32))) float a[X_col_shape.at(0)];// = &this->matrix[x_dim];
+            float *a = (float *)_mm_malloc(X_col_shape.at(0)*sizeof(float), 32);
             for (int k = 0; k < X_col_shape.at(0); k++) {
                 a[k] = this->matrix[k + x_dim];
             }
@@ -152,7 +138,10 @@ Matrix Matrix::dot(Matrix filter) {
             out.matrix.at(index) = res;
             x_dim += X_col_shape.at(0);
             index++;
+            _mm_free(a);
         }
+
+        _mm_free(b);
         x_dim = 0;
         w_dim += W_row_shape.at(1);
     }
@@ -161,8 +150,21 @@ Matrix Matrix::dot(Matrix filter) {
 }
 
 Matrix Matrix::conv(Matrix filter, int s, bool padding) {
-    Matrix out = this->im2col(filter.shape, s, padding);
-    return out.dot(filter);
+    int pad = 0;
+    if (padding) {
+        pad = filter.shape.at(0);
+        pad = pad - 1;
+        pad = pad / 2;
+    } else {
+        pad = 0;
+    }
+
+    int x = this->shape.at(0);
+    x = x - filter.shape.at(0) + 2 * pad;
+    x = x / s;
+    x = x + 1;
+    Matrix out = this->im2col(filter.shape, s, pad, x);
+    return out.dot(filter,x);
 }
 
 Matrix Matrix::MaxRow(Matrix filter, int s, bool padding) {

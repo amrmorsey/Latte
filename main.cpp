@@ -545,19 +545,19 @@ int main(int argc, char **argv)
 //    VecAVX vf(51, bb);
 //    VecNN vn(51, aa);
 //    VecNN fn(51, bb);
-    unsigned long long time = __rdtsc();
-    VecAVX vv(51, aa);
-    VecAVX vf(51, bb);
-    vv.dot(vf);
-    time = __rdtsc() - time;
-    cout<<"AVX dot product Time in seconds: "<<time<<endl;
-
-    time = __rdtsc();
-    VecNN vn(51, aa);
-    VecNN fn(51, bb);
-    vn.dot(fn);
-    time = __rdtsc() - time;
-    cout<<"SSE dot product Time in seconds: "<<time<<endl;
+//    unsigned long long time = __rdtsc();
+//    VecAVX vv(51, aa);
+//    VecAVX vf(51, bb);
+//    vv.dot(vf);
+//    time = __rdtsc() - time;
+//    cout<<"AVX dot product Time in seconds: "<<time<<endl;
+//
+//    time = __rdtsc();
+//    VecNN vn(51, aa);
+//    VecNN fn(51, bb);
+//    vn.dot(fn);
+//    time = __rdtsc() - time;
+//    cout<<"SSE dot product Time in seconds: "<<time<<endl;
 
 //    __m128 xx = _mm_load_ps(aa);
 //    __m128  yy = _mm_load_ps(bb);

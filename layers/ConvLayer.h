@@ -6,28 +6,28 @@
 #define INFERENCEENGINE_CONVLAYER_H
 
 #include <string>
+#include <memory>
 #include "abstract_layers/AbstractLayer.h"
 #include "abstract_layers/AbstractWeightedLayer.h"
-
-using namespace std;
 
 class ConvLayer : public AbstractWeightedLayer {
 
 private:
-    const int &kernel_size;
-    const int &stride;
-    const int &padding;
+    int kernel_size;
+    int stride;
+    int padding;
 
 public:
-    ConvLayer(const std::string &name, const int &num_of_outputs, const Matrix &weights, const Matrix &bias,
-              const int &kernel_size, const int &stride, const int &padding) : AbstractWeightedLayer(name, weights,
-                                                                                                     bias,
-                                                                                                     num_of_outputs),
-                                                                               kernel_size(kernel_size), stride(stride),
-                                                                               padding(padding) {};
+    ConvLayer(std::string name, int num_of_outputs, std::unique_ptr<Matrix> weights, std::unique_ptr<Matrix> bias,
+              int kernel_size, int stride, int padding) : AbstractWeightedLayer(name, std::move(weights),
+                                                                                std::move(bias),
+                                                                                num_of_outputs),
+                                                          kernel_size(kernel_size), stride(stride),
+                                                          padding(padding) {};
 
     ~ConvLayer() {};
 
+    Matrix calculateOutput(const Matrix &input_mat) {};
 };
 
 

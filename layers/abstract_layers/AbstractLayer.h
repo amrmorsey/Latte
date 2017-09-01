@@ -13,13 +13,13 @@
 
 class AbstractLayer {
 public:
-    const std::string &name;
+    std::string name;
 
-    AbstractLayer(const std::string &name) : name(name) {};
+    explicit AbstractLayer(std::string name) : name(name) {};
 
-    virtual ~AbstractLayer() {}
+    virtual ~AbstractLayer() = default;
 
-    Matrix calculateOutput(const Matrix &input_mat);
+    virtual Matrix calculateOutput(const Matrix &input_mat) = 0;
 };
 
 #endif //INFERENCEENGINE_LAYER_H

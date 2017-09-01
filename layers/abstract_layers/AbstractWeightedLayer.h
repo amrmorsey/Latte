@@ -6,17 +6,19 @@
 #define INFERENCEENGINE_ABSTRACTWEIGHTEDLAYER_H
 
 #include <string>
+#include <memory>
 #include "../../Matrix.h"
 #include "AbstractLayer.h"
 
-class AbstractWeightedLayer : AbstractLayer {
+class AbstractWeightedLayer : public AbstractLayer {
 private:
-    const Matrix &weights;
-    const Matrix &bias;
-    const int &num_of_outputs;
+    std::unique_ptr<Matrix> weights;
+    std::unique_ptr<Matrix> bias;
+    int num_of_outputs;
 public:
-    AbstractWeightedLayer(const std::string &name, const Matrix &weights, const Matrix &bias, const int &num_of_outputs)
-            : AbstractLayer(name), weights(weights), bias(bias), num_of_outputs(num_of_outputs) {};
+    AbstractWeightedLayer(std::string name, std::unique_ptr<Matrix> weights, std::unique_ptr<Matrix> bias,
+                          int num_of_outputs)
+            : AbstractLayer(name), weights(std::move(weights)), bias(std::move(bias)), num_of_outputs(num_of_outputs) {};
 
     ~AbstractWeightedLayer() {};
 
@@ -24,7 +26,7 @@ public:
 
     void setBias(const Matrix &bias);
 
-    Matrix calculateOutput(const Matrix &inputMat);
+    virtual Matrix calculateOutput(const Matrix &inputMat) = 0;
 };
 
 

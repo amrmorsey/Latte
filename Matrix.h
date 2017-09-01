@@ -29,9 +29,14 @@ private:
     int matrixSizeVector;
     vector<int> X_col_shape;
     vector<int> W_row_shape;
+
     Matrix im2col(vector<int>, int s, bool);
+
     int calcuteOutput(vector<int> index);
+
 public:
+    Matrix();
+
     explicit Matrix(vector<float> m, vector<int> s);
 
     explicit Matrix(vector<int> s);

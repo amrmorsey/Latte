@@ -126,6 +126,11 @@ Matrix::Matrix(vector<float> m, vector<int> s) : matrix(m), shape(s) {
     matrixSizeVector = m.size();
 }
 
+Matrix::Matrix() {
+    shape = {0};
+    matrixSizeVector = 0;
+}
+
 // HAVE TO CALL im2col before doing it.
 Matrix Matrix::dot(Matrix filter) {
     vector<int> out_shape = {X_col_shape.at(1), W_row_shape.at(0)};

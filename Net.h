@@ -29,6 +29,8 @@ public:
 
     ~Net() {};
 
+    void predict(const Matrix &image);
+
     void printLayers();
 
 

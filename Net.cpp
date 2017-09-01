@@ -122,4 +122,12 @@ void Net::printLayers() {
         std::cout << layer.get()->name << endl; // layer->name is better but gives a false error in clion
 }
 
+void Net::predict(const Matrix &image) {
+    Matrix out;
+    for (auto &&layer : this->layers) {
+
+    }
+}
+
+
 

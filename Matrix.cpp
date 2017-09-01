@@ -8,29 +8,28 @@
 Matrix Matrix::im2col(vector<int> filterShape, int s, bool padding) {
     int pad = 0;
     int sp = 0;
-    int filter_width = filterShape.at(0)/2;
-    if(padding){
+    int filter_width = filterShape.at(0) / 2;
+    if (padding) {
         pad = filterShape.at(0);
-        pad = pad -1;
-        pad = pad/2;
-    }
-    else{
+        pad = pad - 1;
+        pad = pad / 2;
+    } else {
         pad = 0;
         sp = filter_width;
     }
 
     int x = this->shape.at(0);
-    x = x - filterShape.at(0) + 2*pad;
-    x = x/s;
-    x = x +1;
-    int x_row = x*x;
+    x = x - filterShape.at(0) + 2 * pad;
+    x = x / s;
+    x = x + 1;
+    int x_row = x * x;
     int x_col = 1;
-    for(int i = 0; i<filterShape.size()-1; i++){
+    for (int i = 0; i < filterShape.size() - 1; i++) {
         x_col *= filterShape.at(i);
     }
     X_col_shape.push_back(x_col);
     X_col_shape.push_back(x_row);
-    int xx = filterShape.at(filterShape.size()-1);
+    int xx = filterShape.at(filterShape.size() - 1);
     W_row_shape.push_back(xx);
     W_row_shape.push_back(x_col);
 
@@ -41,17 +40,17 @@ Matrix Matrix::im2col(vector<int> filterShape, int s, bool padding) {
     Matrix out(out_shape);
     int index = 0;
 
-    for (int i = 0 + sp; i < this->shape.at(1); i= i+s) { //length y
-        for (int k = 0; k < this->shape.at(0); k= k+s) { //width x
-            for (int j = 0 + sp; j <this->shape.at(2) ; j++) { // depth z
-                for (int l = -filter_width; l <=filter_width ; l++) { // for i
-                    for (int m = -filter_width; m <=filter_width ; m++) { //for j
-                        int tem1 = k+m;
-                        int tem2 = i+l;
-                        if(tem1 <0 || tem2<0 || tem1 >= this->shape.at(0) || tem2 >= shape.at(1)){
+    for (int i = 0 + sp; i < this->shape.at(1); i = i + s) { //length y
+        for (int k = 0; k < this->shape.at(0); k = k + s) { //width x
+            for (int j = 0 + sp; j < this->shape.at(2); j++) { // depth z
+                for (int l = -filter_width; l <= filter_width; l++) { // for i
+                    for (int m = -filter_width; m <= filter_width; m++) { //for j
+                        int tem1 = k + m;
+                        int tem2 = i + l;
+                        if (tem1 < 0 || tem2 < 0 || tem1 >= this->shape.at(0) || tem2 >= shape.at(1)) {
                             index++;
-                        }else{
-                            vector<int> in ={tem1, tem2, j};
+                        } else {
+                            vector<int> in = {tem1, tem2, j};
                             out.matrix.at(index) = this->at(in);
                             index++;
                         }
@@ -68,22 +67,22 @@ Matrix Matrix::im2col(vector<int> filterShape, int s, bool padding) {
 
 float Matrix::at(vector<int> index) {
     float out = calcuteOutput(index);
-    if(out != -1)
+    if (out != -1)
         return matrix.at(out);
 }
 
 int Matrix::calcuteOutput(vector<int> index) {
     int out = 0;
-    for (int i = 0; i <this->shape.size() ; i++) {
+    for (int i = 0; i < this->shape.size(); i++) {
         int x = index.at(i);
         int y = 1;
-        for (int j = i-1; j >=0 ; j--) {
+        for (int j = i - 1; j >= 0; j--) {
             y *= this->shape.at(j);
         }
-        out += x*y;
+        out += x * y;
     }
 
-    if(out>=0 && out<matrixSizeVector )
+    if (out >= 0 && out < matrixSizeVector)
         return out;
     else
         return -1;
@@ -91,7 +90,7 @@ int Matrix::calcuteOutput(vector<int> index) {
 
 void Matrix::set(vector<int> index, float value) {
     int out = calcuteOutput(index);
-    if(out != -1){
+    if (out != -1) {
         this->matrix.at(out) = value;
     }
 }
@@ -99,15 +98,15 @@ void Matrix::set(vector<int> index, float value) {
 vector<int> Matrix::calculateIndex(int x) {
     vector<int> index;
     int temp = 0;
-    for (int i = this->shape.size()-1; i >=0; i--) {
+    for (int i = this->shape.size() - 1; i >= 0; i--) {
         temp = x;
         int y = 1;
-        for (int j = 0; j <i ; j++) {
+        for (int j = 0; j < i; j++) {
             y *= this->shape.at(j);
         }
-        int t = temp/y;
+        int t = temp / y;
         index.push_back(t);
-        x -= (t*y);
+        x -= (t * y);
     }
     std::reverse(index.begin(), index.end());
     return index;
@@ -117,13 +116,13 @@ Matrix::Matrix(vector<int> s) {
     shape = s;
     int x = 1;
     for (int i = 0; i < s.size(); ++i) {
-        x *=s.at(i);
+        x *= s.at(i);
     }
     matrix.resize(x);
     matrixSizeVector = x;
 }
 
-Matrix::Matrix(vector<float> m, vector<int> s): matrix(m), shape(s){
+Matrix::Matrix(vector<float> m, vector<int> s) : matrix(m), shape(s) {
     matrixSizeVector = m.size();
 }
 
@@ -134,16 +133,16 @@ Matrix Matrix::dot(Matrix filter) {
     int x_dim = 0;
     int w_dim = 0;
     int index = 0;
-    for(int i = 0; i < W_row_shape.at(0); i++){
+    for (int i = 0; i < W_row_shape.at(0); i++) {
         __attribute__((aligned (16))) float b[W_row_shape.at(1)];
-        for (int k = 0; k <W_row_shape.at(1) ; k++) {
-            b[k] = filter.matrix[k+w_dim];
+        for (int k = 0; k < W_row_shape.at(1); k++) {
+            b[k] = filter.matrix[k + w_dim];
         }
         VecAVX w(W_row_shape.at(1), b);
         for (int j = 0; j < X_col_shape.at(1); j++) {
             __attribute__((aligned (16))) float a[X_col_shape.at(0)];// = &this->matrix[x_dim];
-            for (int k = 0; k <X_col_shape.at(0) ; k++) {
-                a[k] = this->matrix[k+x_dim];
+            for (int k = 0; k < X_col_shape.at(0); k++) {
+                a[k] = this->matrix[k + x_dim];
             }
             VecAVX v(X_col_shape.at(0), a);
             float res = v.dot(w);
@@ -166,26 +165,26 @@ Matrix Matrix::conv(Matrix filter, int s, bool padding) {
 Matrix Matrix::MaxRow(Matrix filter, int s, bool padding) {
     int sp = 0;
     int pad = 0;
-    int filter_width = filter.shape.at(0)/2;
-    if(padding) {
+    int filter_width = filter.shape.at(0) / 2;
+    if (padding) {
         pad = filter.shape.at(0);
         pad = pad - 1;
         pad = pad / 2;
-    }else{
+    } else {
         pad = 0;
         sp = filter_width;
     }
     int x = this->shape.at(0);
-    x = x - filter.shape.at(0) + 2*pad;
-    x = x/s;
-    x = x +1;
-    int x_row = x*x;
+    x = x - filter.shape.at(0) + 2 * pad;
+    x = x / s;
+    x = x + 1;
+    int x_row = x * x;
     int depth = this->shape.at(2);
     vector<int> outSize = {x, x, depth};
     Matrix out(outSize);
     int index = 0;
 
-    for (int j = 0; j <this->shape.at(2) ; j++) { // depth z
+    for (int j = 0; j < this->shape.at(2); j++) { // depth z
         for (int i = 0 + sp; i < this->shape.at(1); i = i + s) { //length y
             for (int k = 0 + sp; k < this->shape.at(0); k = k + s) { //width x
                 float max = -(std::numeric_limits<float>::infinity());
@@ -194,11 +193,11 @@ Matrix Matrix::MaxRow(Matrix filter, int s, bool padding) {
                         int tem1 = k + m;
                         int tem2 = i + l;
                         if (tem1 < 0 || tem2 < 0 || tem1 >= this->shape.at(0) || tem2 >= shape.at(1)) {
-                            if( 0>max)
+                            if (0 > max)
                                 max = 0;
                         } else {
                             vector<int> in = {tem1, tem2, j};
-                            if(this->at(in) > max)
+                            if (this->at(in) > max)
                                 max = this->at(in);
                         }
                     }

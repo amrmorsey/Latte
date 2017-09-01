@@ -160,11 +160,11 @@ Matrix Matrix::MaxRow(Matrix filter, int s) {
     int x_dim = 0;
     int w_dim = 0;
     int index = 0;
-    for (int i = 0; i <X_col_shape.at(1) ; i++) {
-        out.matrix.at(index) = std::max_element(im.matrix[i+x_dim], im.matrix[i+x_dim] + X_col_shape.at(0));
-        x_dim += X_col_shape.at(0);
-        index++;
-    }
+//    for (int i = 0; i <X_col_shape.at(1) ; i++) {
+//        out.matrix.at(index) = std::max_element(im.matrix[i+x_dim], im.matrix[i+x_dim] + X_col_shape.at(0));
+//        x_dim += X_col_shape.at(0);
+//        index++;
+//    }
     return out;
 }
 

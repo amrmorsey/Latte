@@ -7,7 +7,6 @@
 
 Matrix Matrix::im2col(vector<int> filterShape, int s, bool padding) {
     int pad = 0;
-    int sp = 0;
     int filter_width = filterShape.at(0) / 2;
     if (padding) {
         pad = filterShape.at(0);
@@ -15,7 +14,6 @@ Matrix Matrix::im2col(vector<int> filterShape, int s, bool padding) {
         pad = pad / 2;
     } else {
         pad = 0;
-        sp = filter_width;
     }
 
     int x = this->shape.at(0);
@@ -40,13 +38,13 @@ Matrix Matrix::im2col(vector<int> filterShape, int s, bool padding) {
     Matrix out(out_shape);
     int index = 0;
 
-    for (int i = 0 + sp; i < this->shape.at(1); i = i + s) { //length y
+    for (int i = 0; i < this->shape.at(1); i = i + s) { //length y
         for (int k = 0; k < this->shape.at(0); k = k + s) { //width x
-            for (int j = 0 + sp; j < this->shape.at(2); j++) { // depth z
-                for (int l = -filter_width; l <= filter_width; l++) { // for i
-                    for (int m = -filter_width; m <= filter_width; m++) { //for j
-                        int tem1 = k + m;
-                        int tem2 = i + l;
+            for (int j = 0; j < this->shape.at(2); j++) { // depth z
+                for (int l = i-pad; l < i-pad+filterShape.at(0); l++) { // for i
+                    for (int m = k-pad; m < k-pad+filterShape.at(0); m++) { //for j
+                        int tem1 = m;
+                        int tem2 = l;
                         if (tem1 < 0 || tem2 < 0 || tem1 >= this->shape.at(0) || tem2 >= shape.at(1)) {
                             index++;
                         } else {
@@ -139,13 +137,13 @@ Matrix Matrix::dot(Matrix filter) {
     int w_dim = 0;
     int index = 0;
     for (int i = 0; i < W_row_shape.at(0); i++) {
-        __attribute__((aligned (16))) float b[W_row_shape.at(1)];
+        __attribute__((aligned (32))) float b[W_row_shape.at(1)];
         for (int k = 0; k < W_row_shape.at(1); k++) {
             b[k] = filter.matrix[k + w_dim];
         }
         VecAVX w(W_row_shape.at(1), b);
         for (int j = 0; j < X_col_shape.at(1); j++) {
-            __attribute__((aligned (16))) float a[X_col_shape.at(0)];// = &this->matrix[x_dim];
+            __attribute__((aligned (32))) float a[X_col_shape.at(0)];// = &this->matrix[x_dim];
             for (int k = 0; k < X_col_shape.at(0); k++) {
                 a[k] = this->matrix[k + x_dim];
             }

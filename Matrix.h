@@ -31,9 +31,9 @@ private:
     Matrix im2col(vector<int>, int s);
     int calcuteOutput(vector<int> index);
 public:
-    Matrix(vector<float> m, vector<int> s);
+    explicit Matrix(vector<float> m, vector<int> s);
 
-    Matrix(vector<int> s);
+    explicit Matrix(vector<int> s);
 
     ~Matrix() {};
 

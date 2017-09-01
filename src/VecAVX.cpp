@@ -37,7 +37,7 @@ VecAVX::~VecAVX() {
 
 float VecAVX::dot(VecAVX a) {
     if(this->getSize() == a.getSize()){
-        __m256 *res = new __m256[this->getSize()];
+        __m256 *res = (__m256 *)_mm_malloc(this->getSize(),256);
         for (int i = 0; i < this->getSize(); i++) {
             res[i] = _mm256_dp_ps(this->vec[i], a.vec[i], 0xff);
         }

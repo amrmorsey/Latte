@@ -59,7 +59,7 @@ Net::Net(const std::string &protoxt_path, const std::string &weights_dir) : prot
             std::string pool;
             int kernel_size, stride, padding;
             network_prototxt >> pool >> kernel_size >> stride >> padding;
-//            std::unique_ptr<AbstractLayer> ptr(new MaxPoolingLayer())
+//            std::unique_ptr<AbstractLayer> ptr(new MaxPool())
         }
     }
 }

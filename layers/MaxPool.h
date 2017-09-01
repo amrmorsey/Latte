@@ -7,19 +7,18 @@
 
 #include "abstract_layers/AbstractLayer.h"
 
-class MaxPoolingLayer: public AbstractLayer{
+class MaxPool : public AbstractLayer {
 private:
     int kernel_size;
     int stride;
-    double *input;
-    double *output;
-    vector<int> input_dims;
-    vector<int> output_dims;
+    int padding;
 public:
-    MaxPoolingLayer(int, int);
-    ~MaxPoolingLayer();
-    void feedForward();
-    void setInput(double *);
+    MaxPool(string name, int kernel_size, int stride, int padding) : AbstractLayer(name), kernel_size(kernel_size),
+                                                                     stride(stride), padding(padding) {};
+
+    ~MaxPool() {};
+
+    Matrix calculateOutput(const Matrix &input_mat) {};
 };
 
 

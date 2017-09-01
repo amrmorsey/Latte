@@ -6,20 +6,16 @@
 #define INFERENCEENGINE_FULLYCONNECTEDLAYER_H
 
 #include "abstract_layers/AbstractLayer.h"
+#include "abstract_layers/AbstractWeightedLayer.h"
 
-class FullyConnectedLayer: public AbstractLayer {
-private:
-    int num_of_neurons;
-    double *input;
-    double *weights;
-    double *output;
-    vector<int> input_dims;
-    vector<int> output_dims;
+class FullyConnected : public AbstractWeightedLayer {
 public:
-    FullyConnectedLayer(int);
-    ~FullyConnectedLayer();
-    void feedForward();
-    void setInput(double *);
+    FullyConnected(string name, int num_of_outputs, std::unique_ptr<Matrix> weights, std::unique_ptr<Matrix> bias)
+            : AbstractWeightedLayer(name, std::move(weights), std::move(bias), num_of_outputs) {};
+
+    ~FullyConnected() {};
+
+    Matrix calculateOutput(const Matrix &input_mat) {};
 };
 
 

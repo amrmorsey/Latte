@@ -6,8 +6,15 @@
 #define INFERENCEENGINE_RELU_H
 
 
-class RelU {
+#include "abstract_layers/AbstractLayer.h"
 
+class RelU : public AbstractLayer {
+public:
+    explicit RelU(std::string name) : AbstractLayer(name) {};
+
+    ~RelU() {};
+
+    Matrix calculateOutput(const Matrix &input_mat) {};
 };
 
 

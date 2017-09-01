@@ -6,8 +6,15 @@
 #define INFERENCEENGINE_SOFTMAX_H
 
 
-class Softmax {
+#include "abstract_layers/AbstractLayer.h"
 
+class Softmax : public AbstractLayer {
+public:
+    explicit Softmax(string name) : AbstractLayer(name) {};
+
+    ~Softmax() {};
+
+    Matrix calculateOutput(const Matrix &input_mat) {};
 };
 
 

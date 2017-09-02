@@ -12,12 +12,12 @@ if not os.path.exists(output_path):
 
 im = Image.open(image_path)
 im_data = np.asarray(im)
-
+im_data = im_data.T
 with open(os.path.join(output_path, 'image.ahsf'), 'w') as mean_file:
     dump(im_data.flatten(), mean_file)
 
 with open(os.path.join(output_path, 'image_shape.ahsf'), 'w') as shape_file:
     shape = im_data[None] if len(im_data.shape) == 2 else im_data.shape
-    for shape in im_data[None].shape:
+    for shape in im_data[None].T.shape:
         shape_file.write(str(shape) + ' ')
 

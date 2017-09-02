@@ -4,6 +4,12 @@ from json_tricks.np import dump, dumps, load, loads, strip_comments
 import os
 
 
+def rot90(W):
+    for i in range(W.shape[0]):
+        for j in range(W.shape[1]):
+            W[i, j] = np.rot90(W[i, j], 2)
+    return W
+
 def extract_caffe_model(model, weights, output_path):
     """extract caffe model's parameters to numpy array, and write them to files
     Args:
@@ -25,14 +31,15 @@ def extract_caffe_model(model, weights, output_path):
 
             num = 0
             for p in net.params[name]:
+                data = p.data.T
                 name = name.replace('/', '\\')
                 name = name if num == 0 else '{}_bias'.format(name)
 
                 with open(os.path.join(output_path, '{}.ahsf'.format(name)), 'w') as outfile:
-                    dump(p.data.flatten(), outfile)
+                    dump(data.flatten(), outfile)
 
                 shape_file.write("{} {} ".format(name, len(p.data.shape)))
-                for dim in p.data.shape:
+                for dim in data.shape:
                     shape_file.write(str(dim) + " ")
                 shape_file.write('\n')
                 num += 1

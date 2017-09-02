@@ -539,12 +539,15 @@ int main(int argc, char **argv)
     float bb[51];
     for(int i = 0; i< 51; i++){
         aa[i] = i;
-        bb[i] = i;
+    }
+    for(int i = 50; i>=0; i--){
+        bb[50-i] = i;
     }
 //    VecAVX vv(51, aa);
 //    VecAVX vf(51, bb);
-//    VecNN vn(51, aa);
-//    VecNN fn(51, bb);
+    VecNN vn(51, aa);
+    VecNN fn(51, bb);
+    float* res = vn.sub(fn);
 //    unsigned long long time = __rdtsc();
 //    VecAVX vv(51, aa);
 //    VecAVX vf(51, bb);

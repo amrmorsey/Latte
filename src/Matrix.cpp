@@ -5,7 +5,7 @@
 #include "Matrix.h"
 
 
-Matrix Matrix::im2col(vector<int> filterShape, int s, int pad, int x) {
+Matrix Matrix::im2col(vector<int> &filterShape, int s, int pad, int x) {
     int x_row = x * x;
     int x_col = 1;
     for (int i = 0; i < filterShape.size() - 1; i++) {
@@ -53,7 +53,7 @@ float Matrix::at(vector<int> index) {
         return matrix.at(out);
 }
 
-int Matrix::calcuteOutput(vector<int> index) {
+int Matrix::calcuteOutput(vector<int>& index) {
     int out = 0;
     for (int i = 0; i < this->shape.size(); i++) {
         int x = index.at(i);
@@ -122,26 +122,30 @@ Matrix Matrix::dot(Matrix filter, int x) {
     int index = 0;
     for (int i = 0; i < W_row_shape.at(0); i++) {
         //__attribute__((aligned (32))) float b[W_row_shape.at(1)];
-        float *b = (float *)_mm_malloc(W_row_shape.at(1)*sizeof(float), 32);
+        __attribute__((aligned (16))) float b[W_row_shape.at(1)];
+        //float *b = (float *)_mm_malloc(W_row_shape.at(1)*sizeof(float), 32);
         for (int k = 0; k < W_row_shape.at(1); k++) {
             b[k] = filter.matrix[k + w_dim];
         }
-        VecAVX w(W_row_shape.at(1), b);
+        VecNN w(W_row_shape.at(1), b);
+        //VecAVX w(W_row_shape.at(1), b);
         for (int j = 0; j < X_col_shape.at(1); j++) {
            // __attribute__((aligned (32))) float a[X_col_shape.at(0)];// = &this->matrix[x_dim];
-            float *a = (float *)_mm_malloc(X_col_shape.at(0)*sizeof(float), 32);
+            __attribute__((aligned (16))) float a[X_col_shape.at(0)];
+            //float *a = (float *)_mm_malloc(X_col_shape.at(0)*sizeof(float), 32);
             for (int k = 0; k < X_col_shape.at(0); k++) {
                 a[k] = this->matrix[k + x_dim];
             }
-            VecAVX v(X_col_shape.at(0), a);
+            VecNN v(X_col_shape.at(0), a);
+            //VecAVX v(X_col_shape.at(0), a);
             float res = v.dot(w);
             out.matrix.at(index) = res;
             x_dim += X_col_shape.at(0);
             index++;
-            _mm_free(a);
+            //_mm_free(a);
         }
 
-        _mm_free(b);
+       // _mm_free(b);
         x_dim = 0;
         w_dim += W_row_shape.at(1);
     }
@@ -149,7 +153,7 @@ Matrix Matrix::dot(Matrix filter, int x) {
     return out;
 }
 
-Matrix Matrix::conv(Matrix filter, int s, bool padding) {
+Matrix Matrix::conv(Matrix &filter, int s, bool padding) {
     int pad = 0;
     if (padding) {
         pad = filter.shape.at(0);
@@ -167,7 +171,7 @@ Matrix Matrix::conv(Matrix filter, int s, bool padding) {
     return out.dot(filter,x);
 }
 
-Matrix Matrix::MaxRow(Matrix filter, int s, bool padding) {
+Matrix Matrix::MaxRow(Matrix &filter, int s, bool padding) {
     int pad = 0;
     int filter_width = filter.shape.at(0) / 2;
     if (padding) {
@@ -211,6 +215,32 @@ Matrix Matrix::MaxRow(Matrix filter, int s, bool padding) {
         }
     }
     return out;
+}
+
+void Matrix::relU() {
+    for(int i = 0; i<this->matrix.size(); i++){
+        if(this->matrix[i] < 0)
+            this->matrix[i] = 0;
+    }
+}
+
+void Matrix::sigmoidApp() {
+    for (int i = 0; i < this->matrix.size(); i++) {
+        this->matrix[i] = this->matrix[i]/(1 + abs(this->matrix[i]));
+    }
+}
+
+vector<float> Matrix::softmax(float &temp) {
+    vector<float> probs;
+    double sum = 0;
+    for(auto weight : this->matrix) {
+        float pr = std::exp(weight/temp);
+        sum += pr;
+        probs.push_back(pr);
+    }
+    for(auto& pr : probs) {
+        pr /= sum;
+    }
 }
 
 

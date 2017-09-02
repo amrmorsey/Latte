@@ -31,9 +31,9 @@ private:
     vector<int> X_col_shape;
     vector<int> W_row_shape;
 
-    Matrix im2col(vector<int>, int s, int, int);
+    Matrix im2col(vector<int>&, int s, int, int);
 
-    int calcuteOutput(vector<int> index);
+    int calcuteOutput(vector<int> &index);
 
 public:
     Matrix();
@@ -52,9 +52,9 @@ public:
 
     Matrix dot(Matrix, int);
 
-    Matrix conv(Matrix, int, bool);
+    Matrix conv(Matrix&, int, bool);
 
-    Matrix MaxRow(Matrix, int, bool);
+    Matrix MaxRow(Matrix&, int, bool);
 
     void relU();
 };

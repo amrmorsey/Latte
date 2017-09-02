@@ -21,14 +21,14 @@ public:
     VecNN(int, const float*);
     VecNN(int);
     ~VecNN();
-    float dot(VecNN);
+    float dot(VecNN&);
     __m128 getAtIndex(int);
     int getSize();
     int getNoOfElements();
     void loadData(const float*);
     void setAtIndex(int, __m128);
-    float* sub(VecNN);
-    float* add(VecNN);
+    float* sub(VecNN&);
+    float* add(VecNN&);
 };
 
 

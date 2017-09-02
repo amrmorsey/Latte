@@ -5,7 +5,7 @@
 #include "Matrix.h"
 
 
-Matrix Matrix::im2col(vector<int> filterShape, int s, int pad, int x) {
+Matrix Matrix::im2col(vector<int> &filterShape, int s, int pad, int x) {
     int x_row = x * x;
     int x_col = 1;
     for (int i = 0; i < filterShape.size() - 1; i++) {
@@ -53,7 +53,7 @@ float Matrix::at(vector<int> index) {
         return matrix.at(out);
 }
 
-int Matrix::calcuteOutput(vector<int> index) {
+int Matrix::calcuteOutput(vector<int>& index) {
     int out = 0;
     for (int i = 0; i < this->shape.size(); i++) {
         int x = index.at(i);
@@ -153,7 +153,7 @@ Matrix Matrix::dot(Matrix filter, int x) {
     return out;
 }
 
-Matrix Matrix::conv(Matrix filter, int s, bool padding) {
+Matrix Matrix::conv(Matrix &filter, int s, bool padding) {
     int pad = 0;
     if (padding) {
         pad = filter.shape.at(0);
@@ -171,7 +171,7 @@ Matrix Matrix::conv(Matrix filter, int s, bool padding) {
     return out.dot(filter,x);
 }
 
-Matrix Matrix::MaxRow(Matrix filter, int s, bool padding) {
+Matrix Matrix::MaxRow(Matrix &filter, int s, bool padding) {
     int pad = 0;
     int filter_width = filter.shape.at(0) / 2;
     if (padding) {

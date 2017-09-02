@@ -47,7 +47,7 @@ int VecNN::getSize() {
     return N;
 }
 
-float VecNN::dot(VecNN a) {
+float VecNN::dot(VecNN& a) {
     if(this->getSize() == a.getSize()){
         __m128 *res = new __m128[this->getSize()];
         for (int i = 0; i < this->getSize(); i++) {
@@ -79,7 +79,7 @@ void VecNN::setAtIndex(int index, __m128 a) {
     }
 }
 
-float * VecNN::sub(VecNN a) {
+float * VecNN::sub(VecNN& a) {
     if(this->getSize() == a.getSize()){
         __m128 *res = new __m128[this->getSize()];
         for (int i = 0; i < this->getSize(); i++) {
@@ -99,7 +99,7 @@ float * VecNN::sub(VecNN a) {
     }
 }
 
-float *VecNN::add(VecNN a) {
+float *VecNN::add(VecNN& a) {
     if(this->getSize() == a.getSize()){
         __m128 *res = new __m128[this->getSize()];
         for (int i = 0; i < this->getSize(); i++) {

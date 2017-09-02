@@ -580,7 +580,7 @@ int main(int argc, char **argv)
 //    Matrix x = mm.im2col(filter, 2);
     vector<float> mFilter = {-1,1,-1,0,0,-1,-1,0,1,0,0,1,1,1,1,0,1,-1,-1,1,0,0,0,0,1,1,1,1,-1,-1,1,1,0,0,-1,0,-1,-1,-1,1,1,1,-1,1,1,1,1,0,-1,-1,1,0,1,-1};
     Matrix w(mFilter, filter);
-    Matrix xx = mm.conv(w, 2, true);
+    Matrix xx = mm.conv(&w, 2, true);
 //    x.dot(w);
 //    __m256 x = _mm256_load_ps(aa);
     return 0;

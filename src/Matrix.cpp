@@ -25,18 +25,24 @@ Matrix Matrix::im2col(vector<int> &filterShape, int s, int pad, int x) {
     for (int i = 0; i < this->shape.at(1); i = i + s) { //length y
         for (int k = 0; k < this->shape.at(0); k = k + s) { //width x
             for (int j = 0; j < this->shape.at(2); j++) { // depth z
-                for (int l = i-pad; l < i-pad+filterShape.at(0); l++) { // for i
-                    for (int m = k-pad; m < k-pad+filterShape.at(0); m++) { //for j
-                        int tem1 = m;
-                        int tem2 = l;
-                        if (tem1 < 0 || tem2 < 0 || tem1 >= this->shape.at(0) || tem2 >= shape.at(1)) {
-                            index++;
-                        } else {
-                            vector<int> in = {tem1, tem2, j};
-                            out.matrix.at(index) = this->at(in);
-                            index++;
-                        }
+                int tt = k-pad+filterShape.at(0)-1;
+                int yy = i-pad+filterShape.at(0)-1;
+                if(tt < this->shape.at(0)+pad && yy<this->shape.at(0)+pad ){
+                    for (int l = i-pad; l < i-pad+filterShape.at(0) && l<this->shape.at(1)+pad; l++) { // for i
+                        for (int m = k-pad; m < k-pad+filterShape.at(0) && m<this->shape.at(0)+pad; m++) { //for j
+                            int tem1 = m;
+                            int tem2 = l;
+                            if (tem1 < 0 || tem2 < 0 || tem1 >= this->shape.at(0) || tem2 >= shape.at(1)) {
+                                index++;
+                            } else {
+                                vector<int> in = {tem1, tem2, j};
+                                //ll.push_back(in);
+                                out.matrix.at(index) = this->at(in);
+                                //ll.push_back(this->at(in));
+                                index++;
+                            }
 
+                        }
                     }
                 }
             }

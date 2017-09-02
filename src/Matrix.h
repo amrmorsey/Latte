@@ -55,6 +55,8 @@ public:
     Matrix conv(Matrix, int, bool);
 
     Matrix MaxRow(Matrix, int, bool);
+
+    void relU();
 };
 
 

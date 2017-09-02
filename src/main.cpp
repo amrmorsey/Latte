@@ -539,12 +539,15 @@ int main(int argc, char **argv)
     float bb[51];
     for(int i = 0; i< 51; i++){
         aa[i] = i;
-        bb[i] = i;
+    }
+    for(int i = 50; i>=0; i--){
+        bb[50-i] = i;
     }
 //    VecAVX vv(51, aa);
 //    VecAVX vf(51, bb);
-//    VecNN vn(51, aa);
-//    VecNN fn(51, bb);
+    VecNN vn(51, aa);
+    VecNN fn(51, bb);
+    float* res = vn.sub(fn);
 //    unsigned long long time = __rdtsc();
 //    VecAVX vv(51, aa);
 //    VecAVX vf(51, bb);
@@ -570,14 +573,14 @@ int main(int argc, char **argv)
     //VecNN vv(4, aa);
     //VecNN vf(4, bb);
     //printf("%f", vv.dot(vf));
-    vector<float> matrix = {2, 0,2,2,2,1,0,1,0,2,2,0,1,0,0,0,2,1,2,0,0,2,2,1,0,0,2,1,2,0,2,1,1,1,2,2,2,1,0,1,1,2,1,1,1,0,0,1,0,1,1,1,1,0,0,1,0,2,1,0,2,2,1,1,2,1,2,0,0,1,0,0,1,1,0};
-    vector<int> shape= {5,5,3};
-    Matrix mm(matrix, shape);
-    vector<int> filter = {3,3,3,2};
-//    Matrix x = mm.im2col(filter, 2);
-    vector<float> mFilter = {-1,1,-1,0,0,-1,-1,0,1,0,0,1,1,1,1,0,1,-1,-1,1,0,0,0,0,1,1,1,1,-1,-1,1,1,0,0,-1,0,-1,-1,-1,1,1,1,-1,1,1,1,1,0,-1,-1,1,0,1,-1};
-    Matrix w(mFilter, filter);
-    Matrix xx = mm.conv(w, 2, true);
+//    vector<float> matrix = {2, 0,2,2,2,1,0,1,0,2,2,0,1,0,0,0,2,1,2,0,0,2,2,1,0,0,2,1,2,0,2,1,1,1,2,2,2,1,0,1,1,2,1,1,1,0,0,1,0,1,1,1,1,0,0,1,0,2,1,0,2,2,1,1,2,1,2,0,0,1,0,0,1,1,0};
+//    vector<int> shape= {5,5,3};
+//    Matrix mm(matrix, shape);
+//    vector<int> filter = {3,3,3,2};
+////    Matrix x = mm.im2col(filter, 2);
+//    vector<float> mFilter = {-1,1,-1,0,0,-1,-1,0,1,0,0,1,1,1,1,0,1,-1,-1,1,0,0,0,0,1,1,1,1,-1,-1,1,1,0,0,-1,0,-1,-1,-1,1,1,1,-1,1,1,1,1,0,-1,-1,1,0,1,-1};
+//    Matrix w(mFilter, filter);
+//    Matrix xx = mm.conv(w, 2, true);
 //    x.dot(w);
 //    __m256 x = _mm256_load_ps(aa);
     return 0;

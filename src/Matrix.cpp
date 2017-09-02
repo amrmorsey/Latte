@@ -122,26 +122,30 @@ Matrix Matrix::dot(Matrix filter, int x) {
     int index = 0;
     for (int i = 0; i < W_row_shape.at(0); i++) {
         //__attribute__((aligned (32))) float b[W_row_shape.at(1)];
-        float *b = (float *)_mm_malloc(W_row_shape.at(1)*sizeof(float), 32);
+        __attribute__((aligned (16))) float b[W_row_shape.at(1)];
+        //float *b = (float *)_mm_malloc(W_row_shape.at(1)*sizeof(float), 32);
         for (int k = 0; k < W_row_shape.at(1); k++) {
             b[k] = filter.matrix[k + w_dim];
         }
-        VecAVX w(W_row_shape.at(1), b);
+        VecNN w(W_row_shape.at(1), b);
+        //VecAVX w(W_row_shape.at(1), b);
         for (int j = 0; j < X_col_shape.at(1); j++) {
            // __attribute__((aligned (32))) float a[X_col_shape.at(0)];// = &this->matrix[x_dim];
-            float *a = (float *)_mm_malloc(X_col_shape.at(0)*sizeof(float), 32);
+            __attribute__((aligned (16))) float a[X_col_shape.at(0)];
+            //float *a = (float *)_mm_malloc(X_col_shape.at(0)*sizeof(float), 32);
             for (int k = 0; k < X_col_shape.at(0); k++) {
                 a[k] = this->matrix[k + x_dim];
             }
-            VecAVX v(X_col_shape.at(0), a);
+            VecNN v(X_col_shape.at(0), a);
+            //VecAVX v(X_col_shape.at(0), a);
             float res = v.dot(w);
             out.matrix.at(index) = res;
             x_dim += X_col_shape.at(0);
             index++;
-            _mm_free(a);
+            //_mm_free(a);
         }
 
-        _mm_free(b);
+       // _mm_free(b);
         x_dim = 0;
         w_dim += W_row_shape.at(1);
     }
@@ -211,6 +215,13 @@ Matrix Matrix::MaxRow(Matrix filter, int s, bool padding) {
         }
     }
     return out;
+}
+
+void Matrix::relU() {
+    for(int i = 0; i<this->matrix.size(); i++){
+        if(this->matrix[i] < 0)
+            this->matrix[i] = 0;
+    }
 }
 
 

@@ -27,6 +27,8 @@ public:
     int getNoOfElements();
     void loadData(const float*);
     void setAtIndex(int, __m128);
+    float* sub(VecNN);
+    float* add(VecNN);
 };
 
 

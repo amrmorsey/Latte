@@ -16,8 +16,9 @@ public:
     ~FullyConnected() {};
 
     void calculateOutput(Matrix &input_mat) {
-        input_mat.shape = {1, 1, input_mat.shape[0]};
+        this->weights->shape = {1, 1, input_mat.shape[0], 1};
         input_mat.conv(this->weights.get(), 1, 0);
+       // this->weights->conv(&input_mat,1,0);
     };
 };
 

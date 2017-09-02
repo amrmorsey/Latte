@@ -186,23 +186,27 @@ Matrix Matrix::MaxRow(int kernel_size, int stride, int padding) {
     for (int j = 0; j < this->shape.at(2); j++) { // depth z
         for (int i = 0; i < this->shape.at(1); i = i + stride) { //length y
             for (int k = 0; k < this->shape.at(0); k = k + stride) { //width x
-                float max = -(std::numeric_limits<float>::infinity());
-                for (int l = i-pad; l <= i-pad + kernel_size; l++) { // for i
-                    for (int m = k-pad; m <= k-pad+shape.at(0); m++) { //for j
-                        int tem1 = m;
-                        int tem2 = l;
-                        if (tem1 < 0 || tem2 < 0 || tem1 >= this->shape.at(0) || tem2 >= shape.at(1)) {
-                            if (0 > max)
-                                max = 0;
-                        } else {
-                            vector<int> in = {tem1, tem2, j};
-                            if (this->at(in) > max)
-                                max = this->at(in);
+                int tt = k-pad+kernel_size-1;
+                int yy = i-pad+kernel_size-1;
+                if(tt < this->shape.at(0)+pad && yy<this->shape.at(0)+pad ){
+                    float max = -(std::numeric_limits<float>::infinity());
+                    for (int l = i-pad; l <= i-pad + kernel_size && l<this->shape.at(1)+pad; l++) { // for i int l = i-pad; l < i-pad+filterShape.at(0) && l<this->shape.at(1)+pad; l++
+                        for (int m = k-pad; m <= k-pad+kernel_size && m<this->shape.at(0)+pad; m++) { //for j
+                            int tem1 = m;
+                            int tem2 = l;
+                            if (tem1 < 0 || tem2 < 0 || tem1 >= this->shape.at(0) || tem2 >= shape.at(1)) {
+                                if (0 > max)
+                                    max = 0;
+                            } else {
+                                vector<int> in = {tem1, tem2, j};
+                                if (this->at(in) > max)
+                                    max = this->at(in);
+                            }
                         }
                     }
+                    out.matrix.at(index) = max;
+                    index++;
                 }
-                out.matrix.at(index) = max;
-                index++;
             }
         }
     }

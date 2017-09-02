@@ -24,10 +24,6 @@ using namespace std;
 
 class Matrix {
 private:
-//    unique_ptr<vector<int>> shape;
-//    unique_ptr<vector<float>> matrix;
-    vector<int> shape;
-    vector<float> matrix;
     int matrixSizeVector;
     vector<int> X_col_shape;
     vector<int> W_row_shape;
@@ -37,6 +33,11 @@ private:
     int calcuteOutput(vector<int> &index);
 
 public:
+
+    // matrix should be a private membder
+    vector<int> shape;
+    vector<float> matrix;
+
     Matrix();
 
     explicit Matrix(vector<float> m, vector<int> s);
@@ -51,17 +52,15 @@ public:
 
     vector<int> calculateIndex(int x);
 
-    Matrix dot(Matrix, int);
+    Matrix dot(Matrix*, int);
 
-    Matrix conv(Matrix&, int, bool);
+    Matrix conv(Matrix* filter, int s, int padding);
 
-    Matrix MaxRow(Matrix&, int, bool);
+    Matrix MaxRow(int kernel_size, int stride, int padding);
 
-    void relU();
-
-    void sigmoidApp();
-
-    vector<float> softmax(float& temp);
+    unsigned long size() {
+        return this->matrix.size();
+    }
 };
 
 

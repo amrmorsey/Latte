@@ -11,7 +11,7 @@
 #include "AbstractLayer.h"
 
 class AbstractWeightedLayer : public AbstractLayer {
-private:
+protected:
     std::unique_ptr<Matrix> weights;
     std::unique_ptr<Matrix> bias;
     int num_of_outputs;
@@ -26,7 +26,7 @@ public:
 
     void setBias(const Matrix &bias);
 
-    virtual Matrix calculateOutput(const Matrix &inputMat) = 0;
+    virtual void calculateOutput(Matrix &inputMat) = 0;
 };
 
 

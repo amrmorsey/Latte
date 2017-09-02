@@ -114,8 +114,8 @@ Matrix::Matrix() {
 }
 
 // HAVE TO CALL im2col before doing it.
-Matrix Matrix::dot(Matrix filter, int x) {
-    vector<int> out_shape = {x, x, filter.shape.at(3)};
+Matrix Matrix::dot(Matrix *filter, int x) {
+    vector<int> out_shape = {x, x, filter->shape.at(3)};
     Matrix out(out_shape);
     int x_dim = 0;
     int w_dim = 0;
@@ -125,7 +125,7 @@ Matrix Matrix::dot(Matrix filter, int x) {
         __attribute__((aligned (16))) float b[W_row_shape.at(1)];
         //float *b = (float *)_mm_malloc(W_row_shape.at(1)*sizeof(float), 32);
         for (int k = 0; k < W_row_shape.at(1); k++) {
-            b[k] = filter.matrix[k + w_dim];
+            b[k] = filter->matrix[k + w_dim];
         }
         VecNN w(W_row_shape.at(1), b);
         //VecAVX w(W_row_shape.at(1), b);
@@ -153,37 +153,23 @@ Matrix Matrix::dot(Matrix filter, int x) {
     return out;
 }
 
-Matrix Matrix::conv(Matrix &filter, int s, bool padding) {
-    int pad = 0;
-    if (padding) {
-        pad = filter.shape.at(0);
-        pad = pad - 1;
-        pad = pad / 2;
-    } else {
-        pad = 0;
-    }
+Matrix Matrix::conv(Matrix *filter, int stride, int padding) {
+    int pad = padding;
 
     int x = this->shape.at(0);
-    x = x - filter.shape.at(0) + 2 * pad;
-    x = x / s;
+    x = x - filter->shape.at(0) + 2 * pad;
+    x = x / stride;
     x = x + 1;
-    Matrix out = this->im2col(filter.shape, s, pad, x);
+    Matrix out = this->im2col(filter->shape, stride, pad, x);
     return out.dot(filter,x);
 }
 
-Matrix Matrix::MaxRow(Matrix &filter, int s, bool padding) {
-    int pad = 0;
-    int filter_width = filter.shape.at(0) / 2;
-    if (padding) {
-        pad = filter.shape.at(0);
-        pad = pad - 1;
-        pad = pad / 2;
-    } else {
-        pad = 0;
-    }
+// Should avoid returning by value here
+Matrix Matrix::MaxRow(int kernel_size, int stride, int padding) {
+    int pad = padding;
     int x = this->shape.at(0);
-    x = x - filter.shape.at(0) + 2 * pad;
-    x = x / s;
+    x = x - kernel_size + 2 * pad;
+    x = x / stride;
     x = x + 1;
     int x_row = x * x;
     int depth = this->shape.at(2);
@@ -192,10 +178,10 @@ Matrix Matrix::MaxRow(Matrix &filter, int s, bool padding) {
     int index = 0;
 
     for (int j = 0; j < this->shape.at(2); j++) { // depth z
-        for (int i = 0; i < this->shape.at(1); i = i + s) { //length y
-            for (int k = 0; k < this->shape.at(0); k = k + s) { //width x
+        for (int i = 0; i < this->shape.at(1); i = i + stride) { //length y
+            for (int k = 0; k < this->shape.at(0); k = k + stride) { //width x
                 float max = -(std::numeric_limits<float>::infinity());
-                for (int l = i-pad; l <= i-pad + filter.shape.at(0); l++) { // for i
+                for (int l = i-pad; l <= i-pad + kernel_size; l++) { // for i
                     for (int m = k-pad; m <= k-pad+shape.at(0); m++) { //for j
                         int tem1 = m;
                         int tem2 = l;
@@ -215,32 +201,6 @@ Matrix Matrix::MaxRow(Matrix &filter, int s, bool padding) {
         }
     }
     return out;
-}
-
-void Matrix::relU() {
-    for(int i = 0; i<this->matrix.size(); i++){
-        if(this->matrix[i] < 0)
-            this->matrix[i] = 0;
-    }
-}
-
-void Matrix::sigmoidApp() {
-    for (int i = 0; i < this->matrix.size(); i++) {
-        this->matrix[i] = this->matrix[i]/(1 + abs(this->matrix[i]));
-    }
-}
-
-vector<float> Matrix::softmax(float &temp) {
-    vector<float> probs;
-    double sum = 0;
-    for(auto weight : this->matrix) {
-        float pr = std::exp(weight/temp);
-        sum += pr;
-        probs.push_back(pr);
-    }
-    for(auto& pr : probs) {
-        pr /= sum;
-    }
 }
 
 

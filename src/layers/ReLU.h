@@ -14,7 +14,11 @@ public:
 
     ~ReLU() {};
 
-    Matrix calculateOutput(const Matrix &input_mat) {};
+    void calculateOutput(Matrix &input_mat) {
+        for (int i = 0; i < input_mat.matrix.size(); i++)
+            if (input_mat.matrix[i] < 0)
+                input_mat.matrix[i] = 0;
+    };
 };
 
 

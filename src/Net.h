@@ -27,7 +27,6 @@ private:
 
     vector<float> extractValues(const std::string &file_path);
 
-    Matrix loadMatrix(const string &matrix_dir, const string &matrix_name);
 public:
     Net(const string &protoxt_path, const string &weights_dir, const string &mean_dir);
 
@@ -36,6 +35,8 @@ public:
     void predict(const Matrix &image);
 
     void printLayers();
+
+    Matrix loadMatrix(const string &matrix_dir, const string &matrix_name);
 };
 
 

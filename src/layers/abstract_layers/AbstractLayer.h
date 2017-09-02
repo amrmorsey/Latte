@@ -18,7 +18,7 @@ public:
 
     virtual ~AbstractLayer() = default;
 
-    virtual Matrix calculateOutput(const Matrix &input_mat) = 0;
+    virtual void calculateOutput(Matrix &input_mat) = 0;
 };
 
 #endif //INFERENCEENGINE_LAYER_H

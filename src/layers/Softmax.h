@@ -14,7 +14,23 @@ public:
 
     ~Softmax() {};
 
-    Matrix calculateOutput(const Matrix &input_mat) {};
+    // Can this calculation be done inplace?
+    void calculateOutput(Matrix &input_mat) {
+        float temp = 10;    // What is this?
+        vector<float> probs;
+        double sum = 0;
+        for (auto weight : input_mat.matrix) {
+            float pr = std::exp(weight / temp);
+            sum += pr;
+            probs.push_back(pr);
+        }
+        for (auto &pr : probs) {
+            pr /= sum;
+        }
+
+        // Set input mat to probs
+        input_mat = Matrix(probs, input_mat.shape);
+    };
 };
 
 

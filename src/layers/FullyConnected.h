@@ -15,7 +15,10 @@ public:
 
     ~FullyConnected() {};
 
-    Matrix calculateOutput(const Matrix &input_mat) {};
+    void calculateOutput(Matrix &input_mat) {
+        input_mat.shape = {1, 1, input_mat.shape[0]};
+        input_mat.conv(this->weights.get(), 1, 0);
+    };
 };
 
 

@@ -27,7 +27,9 @@ public:
 
     ~ConvLayer() {};
 
-    Matrix calculateOutput(const Matrix &input_mat) {};
+    void calculateOutput(Matrix &input_mat) {
+        input_mat = input_mat.conv(this->weights.get(), this->stride, this->padding);
+    };
 };
 
 

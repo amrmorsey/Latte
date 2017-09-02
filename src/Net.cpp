@@ -9,12 +9,11 @@
 #include "layers/FullyConnected.h"
 
 Net::Net(const std::string &protoxt_path, const std::string &weights_dir, const std::string &mean_dir) : prototxt_path(
-        protoxt_path),
-                                                                                                         weights_dir(
-                                                                                                                 weights_dir) {
+        protoxt_path), weights_dir(weights_dir) {
     cout << "Creating network...\n";
     cout << "Prototxt path - " + protoxt_path + "\n";
     cout << "Weight dir - " + weights_dir + "\n";
+
     ifstream network_prototxt;
     std::string layer_type, layer_name;
     network_prototxt.open(protoxt_path);
@@ -129,13 +128,15 @@ void Net::printLayers() {
 }
 
 void Net::predict(const Matrix &image) {
-    Matrix out;
+    Matrix out = image;
     for (auto &&layer : this->layers) {
-
+        layer.get()->calculateOutput(out);
     }
+    cout << "Works" << endl;
+    // Get top predictions code from caffe
 }
 
-Matrix Net::loadMatrix(const string &matrix_dir, const string &matrix_name){
+Matrix Net::loadMatrix(const string &matrix_dir, const string &matrix_name) {
     vector<float> image_vec(this->extractValues(matrix_dir + "/" + matrix_name + ".ahsf"));
     vector<int> image_shape(3);
 

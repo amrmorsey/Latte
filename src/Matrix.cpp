@@ -224,6 +224,25 @@ void Matrix::relU() {
     }
 }
 
+void Matrix::sigmoidApp() {
+    for (int i = 0; i < this->matrix.size(); i++) {
+        this->matrix[i] = this->matrix[i]/(1 + abs(this->matrix[i]));
+    }
+}
+
+vector<float> Matrix::softmax(float &temp) {
+    vector<float> probs;
+    double sum = 0;
+    for(auto weight : this->matrix) {
+        float pr = std::exp(weight/temp);
+        sum += pr;
+        probs.push_back(pr);
+    }
+    for(auto& pr : probs) {
+        pr /= sum;
+    }
+}
+
 
 
 //void im2col_cpu(const Dtype* data_im, const int channels,

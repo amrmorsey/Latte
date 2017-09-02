@@ -17,6 +17,7 @@
 #include "VecNN.h"
 #include "VecAVX.h"
 #include <limits>
+#include <cmath>
 #include <mm_malloc.h>
 
 using namespace std;
@@ -57,6 +58,10 @@ public:
     Matrix MaxRow(Matrix&, int, bool);
 
     void relU();
+
+    void sigmoidApp();
+
+    vector<float> softmax(float& temp);
 };
 
 

@@ -66,6 +66,8 @@ public:
     Matrix dotMM(Matrix&);
 
     Matrix sub(Matrix&);
+
+    void addBias(Matrix&);
 };
 
 

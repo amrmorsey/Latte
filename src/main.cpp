@@ -545,13 +545,13 @@ int main(int argc, char **argv)
     }
 //    VecAVX vv(51, aa);
 //    VecAVX vf(51, bb);
-    vector<int> size = {51};
-    Matrix vv(size);
-    Matrix vf(size);
-    vv.matrix = aa;
-    vf.matrix = bb;
-    Matrix oo = vv.sub(vf);
-    cout<<"Here"<<endl;
+//    vector<int> size = {51};
+//    Matrix vv(size);
+//    Matrix vf(size);
+//    vv.matrix = aa;
+//    vf.matrix = bb;
+//    Matrix oo = vv.sub(vf);
+//    cout<<"Here"<<endl;
 
 //    unsigned long long time = __rdtsc();
 //    VecAVX vv(51, aa);
@@ -578,30 +578,34 @@ int main(int argc, char **argv)
     //VecNN vv(4, aa);
     //VecNN vf(4, bb);
     //printf("%f", vv.dot(vf));
-//    vector<float> matrix = {2,0,2,2,2,
-//                            1,0,1,0,2,
-//                            2,0,1,0,0,
-//                            0,2,1,2,0,
-//                            0,2,2,1,0,
-//
-//                            0,2,1,2,0,
-//                            2,1,1,1,2,
-//                            2,2,1,0,1,
-//                            1,2,1,1,1,
-//                            0,0,1,0,1,
-//
-//                            1,1,1,0,0,
-//                            1,0,2,1,0,
-//                            2,2,1,1,2,
-//                            1,2,0,0,1,
-//                            0,0,1,1,0};
-//    vector<int> shape= {5,5,3};
-//    Matrix mm(matrix, shape);
-//    vector<int> filter = {3,3,3,2};
-////    Matrix x = mm.im2col(filter, 2);
-//    vector<float> mFilter = {-1,1,-1,0,0,-1,-1,0,1,0,0,1,1,1,1,0,1,-1,-1,1,0,0,0,0,1,1,1,1,-1,-1,1,1,0,0,-1,0,-1,-1,-1,1,1,1,-1,1,1,1,1,0,-1,-1,1,0,1,-1};
-//    Matrix w(mFilter, filter);
-//    Matrix xx = mm.MaxRow(2, 2, 0);
+    vector<float> matrix = {2,0,2,2,2,
+                            1,0,1,0,2,
+                            2,0,1,0,0,
+                            0,2,1,2,0,
+                            0,2,2,1,0,
+
+                            0,2,1,2,0,
+                            2,1,1,1,2,
+                            2,2,1,0,1,
+                            1,2,1,1,1,
+                            0,0,1,0,1,
+
+                            1,1,1,0,0,
+                            1,0,2,1,0,
+                            2,2,1,1,2,
+                            1,2,0,0,1,
+                            0,0,1,1,0};
+    vector<int> shape= {5,5,3};
+    Matrix mm(matrix, shape);
+    vector<int> filter = {3,3,3,2};
+//    Matrix x = mm.im2col(filter, 2);
+    vector<float> mFilter = {-1,1,-1,0,0,-1,-1,0,1,0,0,1,1,1,1,0,1,-1,-1,1,0,0,0,0,1,1,1,1,-1,-1,1,1,0,0,-1,0,-1,-1,-1,1,1,1,-1,1,1,1,1,0,-1,-1,1,0,1,-1};
+    Matrix w(mFilter, filter);
+    Matrix xx = mm.conv(&w, 2, 1);
+    vector<float> ba = {1,0};
+    vector<int> bs = {2};
+    Matrix bias(ba,bs);
+    xx.addBias(bias);
 //    x.dot(w);
 //    __m256 x = _mm256_load_ps(aa);
     return 0;

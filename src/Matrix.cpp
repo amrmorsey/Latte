@@ -280,6 +280,14 @@ Matrix Matrix::sub(Matrix &w) {
     return out;
 }
 
+void Matrix::addBias(Matrix &bias) {
+    for (int i = 0; i<bias.shape.at(0); i++) {
+        for (int j = 0 + i*this->shape.at(0)*this->shape.at(1); j < this->shape.at(0)*this->shape.at(1) + i*this->shape.at(0)*this->shape.at(1); j++) {
+            this->matrix[j] = this->matrix[j] + bias.matrix[i];
+        }
+    }
+}
+
 
 
 //void im2col_cpu(const Dtype* data_im, const int channels,

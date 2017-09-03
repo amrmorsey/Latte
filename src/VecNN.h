@@ -10,7 +10,7 @@
 #include <stdlib.h>
 #include <emmintrin.h>
 #include <string.h>
-
+#include <vector>
 class VecNN {
 private:
     int N;
@@ -27,7 +27,7 @@ public:
     int getNoOfElements();
     void loadData(const float*);
     void setAtIndex(int, __m128);
-    float* sub(VecNN&);
+    std::vector<float> sub(VecNN&);
     float* add(VecNN&);
 };
 

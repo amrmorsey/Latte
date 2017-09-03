@@ -79,13 +79,13 @@ void VecNN::setAtIndex(int index, __m128 a) {
     }
 }
 
-float * VecNN::sub(VecNN& a) {
+std::vector<float> VecNN::sub(VecNN& a) {
     if(this->getSize() == a.getSize()){
         __m128 *res = new __m128[this->getSize()];
         for (int i = 0; i < this->getSize(); i++) {
             res[i] = _mm_sub_ps(this->getAtIndex(i), a.getAtIndex(i));
         }
-        float *ress = new float[this->size*4];
+        std::vector<float> ress(this->size);
 
         for (int j = 0; j <this->getSize() ; j++) {
             float x[4];

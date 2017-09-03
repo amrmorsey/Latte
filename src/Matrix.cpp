@@ -265,6 +265,21 @@ Matrix Matrix::transpose() {
     return matrix_transposed;
 }
 
+Matrix Matrix::sub(Matrix &w) {
+    Matrix out(this->shape);
+    __attribute__((aligned (16))) float a[this->matrixSizeVector];
+    __attribute__((aligned (16))) float b[this->matrixSizeVector];
+    for (int k = 0; k < this->matrixSizeVector; k++) {
+        a[k] = this->matrix[k];
+        b[k] = w.matrix[k];
+    }
+
+    VecNN v(this->matrixSizeVector, a);
+    VecNN ww(w.matrixSizeVector, b);
+    out.matrix = v.sub(ww);
+    return out;
+}
+
 
 
 //void im2col_cpu(const Dtype* data_im, const int channels,

@@ -24,7 +24,6 @@ using namespace std;
 
 class Matrix {
 private:
-    int matrixSizeVector;
     vector<int> X_col_shape;
     vector<int> W_row_shape;
 
@@ -33,7 +32,7 @@ private:
     int calcuteOutput(vector<int> &index);
 
 public:
-
+    int matrixSizeVector;
     // matrix should be a private membder
     vector<int> shape;
     vector<float> matrix;
@@ -65,6 +64,8 @@ public:
     }
 
     Matrix dotMM(Matrix&);
+
+    Matrix sub(Matrix&);
 };
 
 

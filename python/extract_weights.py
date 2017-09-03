@@ -10,6 +10,7 @@ def rot90(W):
             W[i, j] = np.rot90(W[i, j], 2)
     return W
 
+
 def extract_caffe_model(model, weights, output_path):
     """extract caffe model's parameters to numpy array, and write them to files
     Args:

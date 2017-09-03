@@ -58,6 +58,8 @@ public:
 
     Matrix MaxRow(int kernel_size, int stride, int padding);
 
+    Matrix transpose();
+
     unsigned long size() {
         return this->matrix.size();
     }

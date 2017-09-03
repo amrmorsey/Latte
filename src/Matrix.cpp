@@ -2,6 +2,7 @@
 // Created by Amr on 8/27/17.
 //
 
+#include <exception>
 #include "Matrix.h"
 
 
@@ -25,11 +26,13 @@ Matrix Matrix::im2col(vector<int> &filterShape, int s, int pad, int x) {
     for (int i = 0; i < this->shape.at(1); i = i + s) { //length y
         for (int k = 0; k < this->shape.at(0); k = k + s) { //width x
             for (int j = 0; j < this->shape.at(2); j++) { // depth z
-                int tt = k-pad+filterShape.at(0)-1;
-                int yy = i-pad+filterShape.at(0)-1;
-                if(tt < this->shape.at(0)+pad && yy<this->shape.at(0)+pad ){
-                    for (int l = i-pad; l < i-pad+filterShape.at(0) && l<this->shape.at(1)+pad; l++) { // for i
-                        for (int m = k-pad; m < k-pad+filterShape.at(0) && m<this->shape.at(0)+pad; m++) { //for j
+                int tt = k - pad + filterShape.at(0) - 1;
+                int yy = i - pad + filterShape.at(0) - 1;
+                if (tt < this->shape.at(0) + pad && yy < this->shape.at(0) + pad) {
+                    for (int l = i - pad;
+                         l < i - pad + filterShape.at(0) && l < this->shape.at(1) + pad; l++) { // for i
+                        for (int m = k - pad;
+                             m < k - pad + filterShape.at(0) && m < this->shape.at(0) + pad; m++) { //for j
                             int tem1 = m;
                             int tem2 = l;
                             if (tem1 < 0 || tem2 < 0 || tem1 >= this->shape.at(0) || tem2 >= shape.at(1)) {
@@ -59,7 +62,7 @@ float Matrix::at(vector<int> index) {
         return matrix.at(out);
 }
 
-int Matrix::calcuteOutput(vector<int>& index) {
+int Matrix::calcuteOutput(vector<int> &index) {
     int out = 0;
     for (int i = 0; i < this->shape.size(); i++) {
         int x = index.at(i);
@@ -136,7 +139,7 @@ Matrix Matrix::dot(Matrix *filter, int x) {
         VecNN w(W_row_shape.at(1), b);
         //VecAVX w(W_row_shape.at(1), b);
         for (int j = 0; j < X_col_shape.at(1); j++) {
-           // __attribute__((aligned (32))) float a[X_col_shape.at(0)];// = &this->matrix[x_dim];
+            // __attribute__((aligned (32))) float a[X_col_shape.at(0)];// = &this->matrix[x_dim];
             __attribute__((aligned (16))) float a[X_col_shape.at(0)];
             //float *a = (float *)_mm_malloc(X_col_shape.at(0)*sizeof(float), 32);
             for (int k = 0; k < X_col_shape.at(0); k++) {
@@ -151,7 +154,7 @@ Matrix Matrix::dot(Matrix *filter, int x) {
             //_mm_free(a);
         }
 
-       // _mm_free(b);
+        // _mm_free(b);
         x_dim = 0;
         w_dim += W_row_shape.at(1);
     }
@@ -167,7 +170,7 @@ Matrix Matrix::conv(Matrix *filter, int stride, int padding) {
     x = ceil(float(x) / float(stride));
     x = x + 1;
     Matrix out = this->im2col(filter->shape, stride, pad, x);
-    return out.dot(filter,x);
+    return out.dot(filter, x);
 }
 
 // Should avoid returning by value here
@@ -186,12 +189,13 @@ Matrix Matrix::MaxRow(int kernel_size, int stride, int padding) {
     for (int j = 0; j < this->shape.at(2); j++) { // depth z
         for (int i = 0; i < this->shape.at(1); i = i + stride) { //length y
             for (int k = 0; k < this->shape.at(0); k = k + stride) { //width x
-                int tt = k-pad+kernel_size-1;
-                int yy = i-pad+kernel_size-1;
-                if(tt < this->shape.at(0)+pad && yy<this->shape.at(0)+pad ){
+                int tt = k - pad + kernel_size - 1;
+                int yy = i - pad + kernel_size - 1;
+                if (tt < this->shape.at(0) + pad && yy < this->shape.at(0) + pad) {
                     float max = -(std::numeric_limits<float>::infinity());
-                    for (int l = i-pad; l <= i-pad + kernel_size && l<this->shape.at(1)+pad; l++) { // for i int l = i-pad; l < i-pad+filterShape.at(0) && l<this->shape.at(1)+pad; l++
-                        for (int m = k-pad; m <= k-pad+kernel_size && m<this->shape.at(0)+pad; m++) { //for j
+                    for (int l = i - pad; l <= i - pad + kernel_size && l < this->shape.at(1) +
+                                                                            pad; l++) { // for i int l = i-pad; l < i-pad+filterShape.at(0) && l<this->shape.at(1)+pad; l++
+                        for (int m = k - pad; m <= k - pad + kernel_size && m < this->shape.at(0) + pad; m++) { //for j
                             int tem1 = m;
                             int tem2 = l;
                             if (tem1 < 0 || tem2 < 0 || tem1 >= this->shape.at(0) || tem2 >= shape.at(1)) {
@@ -215,6 +219,29 @@ Matrix Matrix::MaxRow(int kernel_size, int stride, int padding) {
 
 vector<float> Matrix::dotMM(Matrix &) {
     return vector<float>();
+}
+
+Matrix Matrix::transpose() {
+    if (this->shape.size() != 2) {
+        std::string str;
+        for (int x : this->shape) {
+            str += x + ", ";
+        }
+        throw std::logic_error("Cannot transpose matrix of shape [" + str + "], matrix must be 2D");
+    }
+
+    int N = this->shape[0];
+    int M = this->shape[1];
+
+    Matrix matrix_transposed({M, N});
+
+    for (int n = 0; n < N * M; n++) {
+        int i = n / N;
+        int j = n % N;
+        matrix_transposed.matrix[n] = this->matrix[M * j + i];
+    }
+
+    return matrix_transposed;
 }
 
 

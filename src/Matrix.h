@@ -64,7 +64,7 @@ public:
         return this->matrix.size();
     }
 
-    vector<float> dotMM(Matrix&);
+    Matrix dotMM(Matrix&);
 };
 
 

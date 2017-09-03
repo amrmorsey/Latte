@@ -193,8 +193,6 @@ Matrix Matrix::MaxRow(int kernel_size, int stride, int padding) {
             for (int k = 0; k < this->shape.at(0); k = k + stride) { //width x
                 int tt = k - pad + kernel_size - 1;
                 int yy = i - pad + kernel_size - 1;
-                vector <int> ss = {k, i, j};
-                vector <int> kk = {tt, yy, j};
                 if (tt < this->shape.at(0) + pad && yy < this->shape.at(0) + pad) {
                     float max = -(std::numeric_limits<float>::infinity());
                     for (int l = i - pad; l <= i - pad + kernel_size && l < this->shape.at(1) +
@@ -221,16 +219,27 @@ Matrix Matrix::MaxRow(int kernel_size, int stride, int padding) {
     return out;
 }
 
-vector<float> Matrix::dotMM(Matrix &w) {
-    vector<float> out;
-    int height = this->shape[0], width = this->shape[1], depth = this->shape[2];
-
-    for (int i = 0; i <w.shape.at(0); i++) {
-        for (int j = 0; j < w.shape.at(1); j++) {
-
-        }
+Matrix Matrix::dotMM(Matrix &w) {
+    vector<int> out_shape = {1, w.shape.at(1)};
+    Matrix out(out_shape);
+    int index = 0;
+    __attribute__((aligned (16))) float a[w.shape.at(0)];
+    for (int j = 0; j < w.shape.at(0); j++) {
+        a[j] =  this->matrix.at(j);
     }
-    return vector<float>();
+    VecNN v(w.shape.at(0), a);
+    for (int i = 0; i < w.matrixSizeVector; i = i + w.shape.at(0)) {
+
+        __attribute__((aligned (16))) float b[w.shape.at(0)];
+
+        for (int j = 0; j < w.shape.at(0); j++) {
+            b[j] = w.matrix.at(j + i);
+        }
+        VecNN ww(w.shape.at(0), b);
+        out.matrix[index] = v.dot(ww);
+        index++;
+    }
+    return out;
 }
 
 Matrix Matrix::transpose() {

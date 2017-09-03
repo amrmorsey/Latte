@@ -167,7 +167,7 @@ Matrix Matrix::conv(Matrix *filter, int stride, int padding) {
 
     int x = this->shape.at(0);
     x = x - filter->shape.at(0) + 2 * pad;
-    x = ceil(float(x) / float(stride));
+    x = floor(float(x) / float(stride));
     x = x + 1;
     Matrix out = this->im2col(filter->shape, stride, pad, x);
     return out.dot(filter, x);
@@ -178,19 +178,23 @@ Matrix Matrix::MaxRow(int kernel_size, int stride, int padding) {
     int pad = padding;
     int x = this->shape.at(0);
     x = x - kernel_size + 2 * pad;
+    if(x%stride != 0)
+        pad = 1;
     x = ceil(float(x) / float(stride));
+
     x = x + 1;
     int x_row = x * x;
     int depth = this->shape.at(2);
     vector<int> outSize = {x, x, depth};
     Matrix out(outSize);
     int index = 0;
-
     for (int j = 0; j < this->shape.at(2); j++) { // depth z
         for (int i = 0; i < this->shape.at(1); i = i + stride) { //length y
             for (int k = 0; k < this->shape.at(0); k = k + stride) { //width x
                 int tt = k - pad + kernel_size - 1;
                 int yy = i - pad + kernel_size - 1;
+                vector <int> ss = {k, i, j};
+                vector <int> kk = {tt, yy, j};
                 if (tt < this->shape.at(0) + pad && yy < this->shape.at(0) + pad) {
                     float max = -(std::numeric_limits<float>::infinity());
                     for (int l = i - pad; l <= i - pad + kernel_size && l < this->shape.at(1) +
@@ -217,7 +221,15 @@ Matrix Matrix::MaxRow(int kernel_size, int stride, int padding) {
     return out;
 }
 
-vector<float> Matrix::dotMM(Matrix &) {
+vector<float> Matrix::dotMM(Matrix &w) {
+    vector<float> out;
+    int height = this->shape[0], width = this->shape[1], depth = this->shape[2];
+
+    for (int i = 0; i <w.shape.at(0); i++) {
+        for (int j = 0; j < w.shape.at(1); j++) {
+
+        }
+    }
     return vector<float>();
 }
 

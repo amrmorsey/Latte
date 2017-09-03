@@ -164,7 +164,7 @@ Matrix Matrix::conv(Matrix *filter, int stride, int padding) {
 
     int x = this->shape.at(0);
     x = x - filter->shape.at(0) + 2 * pad;
-    x = x / stride;
+    x = ceil(float(x) / float(stride));
     x = x + 1;
     Matrix out = this->im2col(filter->shape, stride, pad, x);
     return out.dot(filter,x);
@@ -175,7 +175,7 @@ Matrix Matrix::MaxRow(int kernel_size, int stride, int padding) {
     int pad = padding;
     int x = this->shape.at(0);
     x = x - kernel_size + 2 * pad;
-    x = x / stride;
+    x = ceil(float(x) / float(stride));
     x = x + 1;
     int x_row = x * x;
     int depth = this->shape.at(2);

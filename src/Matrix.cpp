@@ -122,6 +122,13 @@ Matrix::Matrix() {
     matrixSizeVector = 0;
 }
 
+float Matrix::dotNoSSE(vector<float> &a, vector<float> &b) {
+    float product = 0;
+    for (int i = 0; i <= a.size()-1; i++)
+            product = product + (a.at(i)*(b.at(i)));
+    return product;
+}
+
 // HAVE TO CALL im2col before doing it.
 Matrix Matrix::dot(Matrix *filter, int x) {
     vector<int> out_shape = {x, x, filter->shape.at(3)};
@@ -130,24 +137,31 @@ Matrix Matrix::dot(Matrix *filter, int x) {
     int w_dim = 0;
     int index = 0;
     for (int i = 0; i < W_row_shape.at(0); i++) {
-        //__attribute__((aligned (32))) float b[W_row_shape.at(1)];
-        __attribute__((aligned (16))) float b[W_row_shape.at(1)];
-        //float *b = (float *)_mm_malloc(W_row_shape.at(1)*sizeof(float), 32);
-        for (int k = 0; k < W_row_shape.at(1); k++) {
-            b[k] = filter->matrix[k + w_dim];
-        }
-        VecNN w(W_row_shape.at(1), b);
+//        //__attribute__((aligned (32))) float b[W_row_shape.at(1)];
+//        __attribute__((aligned (16))) float b[W_row_shape.at(1)];
+//        //float *b = (float *)_mm_malloc(W_row_shape.at(1)*sizeof(float), 32);
+//        for (int k = 0; k < W_row_shape.at(1); k++) {
+//            b[k] = filter->matrix[k + w_dim];
+//        }
+//        VecNN w(W_row_shape.at(1), b);
+        vector<float>::const_iterator first =filter->matrix.begin() + w_dim;
+        vector<float>::const_iterator last = filter->matrix.begin() + w_dim + W_row_shape.at(1);
+        vector<float> b(first, last);
         //VecAVX w(W_row_shape.at(1), b);
         for (int j = 0; j < X_col_shape.at(1); j++) {
-            // __attribute__((aligned (32))) float a[X_col_shape.at(0)];// = &this->matrix[x_dim];
-            __attribute__((aligned (16))) float a[X_col_shape.at(0)];
-            //float *a = (float *)_mm_malloc(X_col_shape.at(0)*sizeof(float), 32);
-            for (int k = 0; k < X_col_shape.at(0); k++) {
-                a[k] = this->matrix[k + x_dim];
-            }
-            VecNN v(X_col_shape.at(0), a);
+//            // __attribute__((aligned (32))) float a[X_col_shape.at(0)];// = &this->matrix[x_dim];
+//            __attribute__((aligned (16))) float a[X_col_shape.at(0)];
+//            //float *a = (float *)_mm_malloc(X_col_shape.at(0)*sizeof(float), 32);
+//            for (int k = 0; k < X_col_shape.at(0); k++) {
+//                a[k] = this->matrix[k + x_dim];
+//            }
+//            VecNN v(X_col_shape.at(0), a);
+            vector<float>::const_iterator first1 =this->matrix.begin() + x_dim;
+            vector<float>::const_iterator last1 = this->matrix.begin() + x_dim + X_col_shape.at(0);
+            vector<float> a(first1, last1);
             //VecAVX v(X_col_shape.at(0), a);
-            float res = v.dot(w);
+//            float res = v.dot(w);
+            float res = dotNoSSE(a, b);
             out.matrix.at(index) = res;
             x_dim += X_col_shape.at(0);
             index++;
@@ -280,13 +294,23 @@ Matrix Matrix::sub(Matrix &w) {
     return out;
 }
 
-void Matrix::addBias(Matrix &bias) {
+void Matrix::addBiasNoSSE(Matrix &bias) {
     for (int i = 0; i<bias.shape.at(0); i++) {
         for (int j = 0 + i*this->shape.at(0)*this->shape.at(1); j < this->shape.at(0)*this->shape.at(1) + i*this->shape.at(0)*this->shape.at(1); j++) {
             this->matrix[j] = this->matrix[j] + bias.matrix[i];
         }
     }
 }
+
+void Matrix::subNoSSE(Matrix &m) {
+    for(int i = 0; i< m.size(); i++){
+        this->matrix[i] = this->matrix[i] - m.matrix[i];
+    }
+}
+
+
+
+
 
 
 

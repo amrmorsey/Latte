@@ -578,6 +578,10 @@ int main(int argc, char **argv)
     //VecNN vv(4, aa);
     //VecNN vf(4, bb);
     //printf("%f", vv.dot(vf));
+
+    vector<float> ll = {1,2,3};
+    vector<float> kk = {1,2,3};
+    Matrix al();
     vector<float> matrix = {2,0,2,2,2,
                             1,0,1,0,2,
                             2,0,1,0,0,
@@ -601,11 +605,12 @@ int main(int argc, char **argv)
 //    Matrix x = mm.im2col(filter, 2);
     vector<float> mFilter = {-1,1,-1,0,0,-1,-1,0,1,0,0,1,1,1,1,0,1,-1,-1,1,0,0,0,0,1,1,1,1,-1,-1,1,1,0,0,-1,0,-1,-1,-1,1,1,1,-1,1,1,1,1,0,-1,-1,1,0,1,-1};
     Matrix w(mFilter, filter);
+    float ress = w.dotNoSSE(ll, kk);
     Matrix xx = mm.conv(&w, 2, 1);
     vector<float> ba = {1,0};
     vector<int> bs = {2};
     Matrix bias(ba,bs);
-    xx.addBias(bias);
+    xx.addBiasNoSSE(bias);
 //    x.dot(w);
 //    __m256 x = _mm256_load_ps(aa);
     return 0;

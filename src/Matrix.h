@@ -31,6 +31,7 @@ private:
 
     int calcuteOutput(vector<int> &index);
 
+    Matrix dot(Matrix*, int);
 public:
     int matrixSizeVector;
     // matrix should be a private membder
@@ -51,7 +52,6 @@ public:
 
     vector<int> calculateIndex(int x);
 
-    Matrix dot(Matrix*, int);
 
     Matrix conv(Matrix* filter, int s, int padding);
 
@@ -67,7 +67,11 @@ public:
 
     Matrix sub(Matrix&);
 
-    void addBias(Matrix&);
+    void addBiasNoSSE(Matrix&);
+
+    void subNoSSE(Matrix&);
+
+    float dotNoSSE(vector<float> &a, vector<float> &b);
 };
 
 

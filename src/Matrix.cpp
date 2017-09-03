@@ -237,20 +237,27 @@ Matrix Matrix::dotMM(Matrix &w) {
     vector<int> out_shape = {1, w.shape.at(1)};
     Matrix out(out_shape);
     int index = 0;
-    __attribute__((aligned (16))) float a[w.shape.at(0)];
-    for (int j = 0; j < w.shape.at(0); j++) {
-        a[j] =  this->matrix.at(j);
-    }
-    VecNN v(w.shape.at(0), a);
+//    __attribute__((aligned (16))) float a[w.shape.at(0)];
+//    for (int j = 0; j < w.shape.at(0); j++) {
+//        a[j] =  this->matrix.at(j);
+//    }
+//    VecNN v(w.shape.at(0), a);
+    vector<float>::const_iterator first =w.matrix.begin();
+    vector<float>::const_iterator last = w.matrix.begin() + w.shape.at(0);
+    vector<float> b(first, last);
     for (int i = 0; i < w.matrixSizeVector; i = i + w.shape.at(0)) {
 
-        __attribute__((aligned (16))) float b[w.shape.at(0)];
+//        __attribute__((aligned (16))) float b[w.shape.at(0)];
+//
+//        for (int j = 0; j < w.shape.at(0); j++) {
+//            b[j] = w.matrix.at(j + i);
+//        }
+//        VecNN ww(w.shape.at(0), b);
+        vector<float>::const_iterator first1 =this->matrix.begin() + i;
+        vector<float>::const_iterator last1 = this->matrix.begin() + i + w.shape.at(0);
+        vector<float> a(first1, last1);
 
-        for (int j = 0; j < w.shape.at(0); j++) {
-            b[j] = w.matrix.at(j + i);
-        }
-        VecNN ww(w.shape.at(0), b);
-        out.matrix[index] = v.dot(ww);
+        out.matrix[index] = dotNoSSE(a,b);
         index++;
     }
     return out;

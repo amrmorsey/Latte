@@ -61,6 +61,8 @@ public:
     unsigned long size() {
         return this->matrix.size();
     }
+
+    vector<float> dotMM(Matrix&);
 };
 
 

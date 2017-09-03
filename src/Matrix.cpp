@@ -213,6 +213,10 @@ Matrix Matrix::MaxRow(int kernel_size, int stride, int padding) {
     return out;
 }
 
+vector<float> Matrix::dotMM(Matrix &) {
+    return vector<float>();
+}
+
 
 
 //void im2col_cpu(const Dtype* data_im, const int channels,

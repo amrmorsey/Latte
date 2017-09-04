@@ -129,7 +129,7 @@ void Net::printLayers() {
 
 void Net::predict(const Matrix &image) {
     Matrix out = image;
-    out = out.sub(mean_mat);
+    out.subNoSSE(mean_mat);
     for (auto &&layer : this->layers) {
         layer.get()->calculateOutput(out);
     }

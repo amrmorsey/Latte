@@ -19,6 +19,7 @@ public:
         //this->weights->shape = {1, input_mat.shape.at(1), input_mat.shape[0], 1};
         Matrix transposedW = this->weights->transpose();
         input_mat = input_mat.dotMM(*this->weights);
+        input_mat.addBiasNoSSE(*this->bias);
        // this->weights->conv(&input_mat,1,0);
     };
 };

@@ -29,6 +29,7 @@ public:
 
     void calculateOutput(Matrix &input_mat) {
         input_mat = input_mat.conv(this->weights.get(), this->stride, this->padding);
+        input_mat.addBiasNoSSE(*this->bias);
     };
 };
 

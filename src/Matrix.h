@@ -29,10 +29,11 @@ private:
 
     Matrix im2col(vector<int>&, int s, int, int);
 
-    int calcuteOutput(vector<int> &index);
+
 
     Matrix dot(Matrix*, int);
 public:
+    int calcuteOutput(vector<int> &index);
     int matrixSizeVector;
     // matrix should be a private membder
     vector<int> shape;
@@ -72,6 +73,8 @@ public:
     void subNoSSE(Matrix&);
 
     float dotNoSSE(vector<float> &a, vector<float> &b);
+
+    Matrix maxPooling(int, int, int);
 };
 
 

@@ -192,8 +192,8 @@ Matrix Matrix::MaxRow(int kernel_size, int stride, int padding) {
     int pad = padding;
     int x = this->shape.at(0);
     x = x - kernel_size + 2 * pad;
-    if(x%stride != 0)
-        pad = 1;
+//    if(x%stride != 0)
+//        pad = 1;
     x = ceil(float(x) / float(stride));
 
     x = x + 1;
@@ -311,7 +311,7 @@ void Matrix::addBiasNoSSE(Matrix &bias) {
 
 void Matrix::subNoSSE(Matrix &m) {
     for(int i = 0; i< m.size(); i++){
-        this->matrix[i] = this->matrix[i] - m.matrix[i];
+        this->matrix[i] = this->matrix[i] - 221.68877551;
     }
 }
 
@@ -362,3 +362,45 @@ void Matrix::subNoSSE(Matrix &m) {
 //inline bool is_a_ge_zero_and_a_lt_b(int a, int b) {
 //    return static_cast<unsigned>(a) < static_cast<unsigned>(b);
 //}
+
+Matrix Matrix::maxPooling(int kernel_size, int stride, int padding) {
+    int pad = padding;
+    int x = this->shape.at(0);
+    x = x - kernel_size + 2 * pad;
+//    if(x%stride != 0)
+//        pad = 1;
+    x = ceil(float(x) / float(stride));
+
+    x = x + 1;
+    int x_row = x * x;
+    int depth = this->shape.at(2);
+    vector<int> outSize = {x, x, depth};
+    Matrix out(outSize);
+    int index = 0;
+
+   // for (int n = 0; n < bottom[0]->num(); ++n) {
+        for (int c = 0; c < this->shape.at(2); ++c) {
+            for (int ph = 0; ph < outSize.at(1); ++ph) {
+                for (int pw = 0; pw < outSize.at(0); ++pw) {
+                    int hstart = ph * stride - pad;
+                    int wstart = pw * stride - pad;
+                    int hend = min(hstart + kernel_size, this->shape.at(0));
+                    int wend = min(wstart + kernel_size, this->shape.at(1));
+                    hstart = max(hstart, 0);
+                    wstart = max(wstart, 0);
+                    const int pool_index = ph * outSize.at(0) + pw;
+                    for (int h = hstart; h < hend; ++h) {
+                        for (int w = wstart; w < wend; ++w) {
+                            const int index = h * this->shape.at(1) + w;
+                            if (this->matrix[index] > out.matrix[pool_index]) {
+                                out.matrix[pool_index] = this->matrix[index];
+                            }
+                        }
+                    }
+                }
+            }
+        }
+  //  }
+
+    return out;
+}

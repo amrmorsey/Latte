@@ -5,7 +5,7 @@ using namespace std;
 
 
 int main() {
-    Net net("simple_what.ahsf", "weights", "mean");
+    Net net("simple_what.ahsf", "weights_original", "mean");
     Matrix image = net.loadMatrix("image_original", "image");
     std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
     net.predict(image);

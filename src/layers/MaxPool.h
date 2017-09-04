@@ -19,7 +19,7 @@ public:
     ~MaxPool() {};
 
     void calculateOutput(Matrix &input_mat) {
-        input_mat = input_mat.MaxRow(this->kernel_size, this->stride, this->padding);
+        input_mat = input_mat.maxPooling(this->kernel_size, this->stride, this->padding);
     };
 };
 

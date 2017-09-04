@@ -1,8 +1,0 @@
-conv1 4 3 3 1 5 
-conv1_bias 1 5 
-conv2 4 3 3 5 5 
-conv2_bias 1 5 
-fc3 2 125 20 
-fc3_bias 1 20 
-fc4 2 20 10 
-fc4_bias 1 10 

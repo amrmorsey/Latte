@@ -318,16 +318,16 @@ void Matrix::addBiasNoSSE(Matrix &bias) {
 }
 
 void Matrix::subNoSSE(Matrix &m) {
+    float average = 0;
+    int j = 0;
+    for (j = 0; j <m.matrix.size() ; ++j) {
+        average += m.matrix[j];
+    }
+    average /= j;
     for(int i = 0; i< m.size(); i++){
-        this->matrix[i] = this->matrix[i] - 221.68877551;
+        this->matrix[i] = this->matrix[i] - average;
     }
 }
-
-
-
-
-
-
 
 //void im2col_cpu(const Dtype* data_im, const int channels,
 //                const int height, const int width, const int kernel_h, const int kernel_w,

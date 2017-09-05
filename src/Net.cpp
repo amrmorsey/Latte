@@ -129,7 +129,7 @@ void Net::printLayers() {
 
 void Net::predict(const Matrix &image) {
     Matrix out = image;
-    out.subNoSSE(mean_mat);
+    //out.subNoSSE(mean_mat);
     for (auto &&layer : this->layers) {
         layer.get()->calculateOutput(out);
         cout<<"Here"<<endl;
@@ -147,6 +147,10 @@ Matrix Net::loadMatrix(const string &matrix_dir, const string &matrix_name) {
     shape_file >> image_shape[0] >> image_shape[1] >> image_shape[2];
 
     return Matrix(image_vec, image_shape);
+}
+
+void Net::preprocess(Matrix& m) {
+    m.subNoSSE(mean_mat);
 }
 
 

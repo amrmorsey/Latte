@@ -64,12 +64,9 @@ public:
     }
 
     void softMaxFunction3(Matrix &input_mat){
-        for (int i = 0; i < input_mat.matrix.size(); ++i) {
-            input_mat.matrix[i] = exp(input_mat.matrix[i]);
-        }
-
         float sum = 0;
         for (int i = 0; i < input_mat.matrix.size(); ++i) {
+            input_mat.matrix[i] = exp(input_mat.matrix[i]);
             sum+= input_mat.matrix[i];
         }
 

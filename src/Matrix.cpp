@@ -242,8 +242,8 @@ Matrix Matrix::dotMM(Matrix &w) {
 //        a[j] =  this->matrix.at(j);
 //    }
 //    VecNN v(w.shape.at(0), a);
-    vector<float>::const_iterator first =w.matrix.begin();
-    vector<float>::const_iterator last = w.matrix.begin() + w.shape.at(0);
+    vector<float>::const_iterator first =this->matrix.begin();
+    vector<float>::const_iterator last = this->matrix.end();
     vector<float> b(first, last);
     for (int i = 0; i < w.matrixSizeVector; i = i + w.shape.at(0)) {
 
@@ -253,13 +253,21 @@ Matrix Matrix::dotMM(Matrix &w) {
 //            b[j] = w.matrix.at(j + i);
 //        }
 //        VecNN ww(w.shape.at(0), b);
-        vector<float>::const_iterator first1 =this->matrix.begin() + i;
-        vector<float>::const_iterator last1 = this->matrix.begin() + i + w.shape.at(0);
+        vector<float>::const_iterator first1 =w.matrix.begin() + i;
+        vector<float>::const_iterator last1 = w.matrix.begin() + i + w.shape.at(0);
         vector<float> a(first1, last1);
 
-        out.matrix[index] = dotNoSSE(a,b);
+        out.matrix[index] = dotNoSSE(b, a);
         index++;
     }
+//    for (int i = 0; i < w.shape.at(1); ++i) {
+//        vector<float> a;
+//        for (int j = i; j < w.matrixSizeVector; j = j + w.shape.at(1)) {
+//            a.push_back(w.matrix[j]);
+//        }
+//        out.matrix[index] = dotNoSSE(b, a);
+//        index++;
+//    }
     return out;
 }
 

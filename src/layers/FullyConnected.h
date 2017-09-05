@@ -16,9 +16,11 @@ public:
     ~FullyConnected() {};
 
     void calculateOutput(Matrix &input_mat) {
-        //this->weights->shape = {1, input_mat.shape.at(1), input_mat.shape[0], 1};
+        this->weights->shape = {input_mat.shape.at(0), input_mat.shape.at(1), input_mat.shape.at(2), this->weights->shape.at(1)};
+        input_mat = input_mat.conv(this->weights.get(),1, 0); //either do this
         //Matrix transposedW = this->weights->transpose();
-        input_mat = input_mat.dotMM(*this->weights);
+        //input_mat = input_mat.dotMM(*this->weights);
+//        input_mat = input_mat.dotMM(*this->weights); //or that
         input_mat.addBiasNoSSE(*this->bias);
        // this->weights->conv(&input_mat,1,0);
     };

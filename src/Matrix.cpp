@@ -388,10 +388,10 @@ Matrix Matrix::maxPooling(int kernel_size, int stride, int padding) {
                     int wend = min(wstart + kernel_size, this->shape.at(1));
                     hstart = max(hstart, 0);
                     wstart = max(wstart, 0);
-                    const int pool_index = ph * outSize.at(0) + pw;
+                    const int pool_index = ph * outSize.at(0) + pw + c*out.shape.at(0)*out.shape.at(1);
                     for (int h = hstart; h < hend; ++h) {
                         for (int w = wstart; w < wend; ++w) {
-                            const int index = h * this->shape.at(1) + w;
+                            const int index = h * this->shape.at(1) + w + c*this->shape.at(0)*this->shape.at(1);
                             if (this->matrix[index] > out.matrix[pool_index]) {
                                 out.matrix[pool_index] = this->matrix[index];
                             }

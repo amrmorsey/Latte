@@ -131,7 +131,7 @@ void Net::predict(const Matrix &image) {
     Matrix out = image;
     //out.subNoSSE(mean_mat);
     for (auto &&layer : this->layers) {
-        layer.get()->calculateOutput(out);
+        layer.get()->calculateOutput(out);//adasdasdasd
     }
     // Get top predictions code from caffe
 }

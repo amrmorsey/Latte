@@ -133,7 +133,6 @@ void Net::predict(const Matrix &image) {
     for (auto &&layer : this->layers) {
         layer.get()->calculateOutput(out);
     }
-    cout << "Works" << endl;
     // Get top predictions code from caffe
 }
 

@@ -258,8 +258,8 @@ Matrix Matrix::dotMM(Matrix &w) {
         vector<float>::const_iterator first1 =w.matrix.begin() + i;
         vector<float>::const_iterator last1 = w.matrix.begin() + i + w.shape.at(0);
         vector<float> a(first1, last1);
-
-        out.matrix[index] = dotNoSSE(b, a);
+        out.matrix[index] = float(std::inner_product(a.begin(), a.end(), b.begin(), 0.0));
+        //out.matrix[index] = dotNoSSE(b, a);
         index++;
     }
 //    for (int i = 0; i < w.shape.at(1); ++i) {

@@ -129,11 +129,10 @@ void Net::printLayers() {
 
 void Net::predict(const Matrix &image) {
     Matrix out = image;
-    //out.subNoSSE(mean_mat);
     for (auto &&layer : this->layers) {
         layer.get()->calculateOutput(out);//adasdasdasd
     }
-    // Get top predictions code from caffe
+//    cout << out.matrix[3] << std::endl;
 }
 
 Matrix Net::loadMatrix(const string &matrix_dir, const string &matrix_name) {

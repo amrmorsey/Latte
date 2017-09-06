@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 3.6)
 project(InferenceEngine)
 
 set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m64 -msse4.1 -mavx -std=c++11")
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m64 -msse4.1 -mavx -std=c++11 -O3 -DNDEBUG -fPIC -Wall -Wno-sign-compare -Wno-uninitialized")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m64 -msse4.1 -mavx -std=c++11")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m64 -msse4.1 -mavx -std=c++11 -O3 -DNDEBUG -fPIC -Wall -Wno-sign-compare -Wno-uninitialized")
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -ftree-vectorize -m64 -mavx -msse4.1")
 
 set(SOURCE_FILES src/main.cpp src/layers/ConvLayer.h src/Net.cpp src/Net.h src/layers/abstract_layers/AbstractLayer.h src/layers/MaxPool.h src/layers/FullyConnected.h src/layers/InputLayer.h src/VecNN.cpp src/VecNN.h src/Matrix.cpp src/Matrix.h src/layers/abstract_layers/AbstractPoolingLayer.h src/VecAVX.cpp src/VecAVX.h src/layers/abstract_layers/AbstractWeightedLayer.h src/layers/ReLU.h src/layers/Softmax.h src/layers/Sigmoid.h)

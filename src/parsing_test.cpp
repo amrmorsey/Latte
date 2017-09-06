@@ -1,16 +1,22 @@
 #include <chrono>
+#include <ctime>
+#include <ratio>
 #include "Net.h"
 
 using namespace std;
 
-
 int main() {
     Net net("simple_what.ahsf", "weights_original", "mean");
     Matrix image = net.loadMatrix("image_original", "image");
-    net.preprocess(image);
-    std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-    net.predict(image);
-    std::chrono::steady_clock::time_point end= std::chrono::steady_clock::now();
-    std::cout << "Time difference(microseconds) = " << std::chrono::duration_cast<std::chrono::microseconds> (end - begin).count() <<std::endl;
+
+    auto start = std::chrono::system_clock::now();
+    for (size_t counter = 0; counter < 10000; ++counter)
+        net.predict(image);
+
+    auto duration =
+            std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now() - start) / 10000;
+
+    std::cout << "Completed function in " << duration.count() << " microseconds." << std::endl;
+
     return 0;
 }

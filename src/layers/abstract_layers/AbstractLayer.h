@@ -7,7 +7,6 @@
 
 #include <vector>
 #include <string>
-#include "../../VecNN.h"
 #include "../../Matrix.h"
 
 class AbstractLayer {

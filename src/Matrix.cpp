@@ -4,7 +4,6 @@
 
 #include <exception>
 #include <numeric>
-#include <chrono>
 #include "Matrix.h"
 
 
@@ -25,9 +24,6 @@ Matrix Matrix::im2col(vector<int> &filterShape, int s, int pad, int x) {
     Matrix out(out_shape);
     int index = 0;
 
-    vector<int> in(3);
-    int tem1;
-    int tem2;
     for (int i = 0; i < this->shape.at(1); i = i + s) { //length y
         for (int k = 0; k < this->shape.at(0); k = k + s) { //width x
             for (int j = 0; j < this->shape.at(2); j++) { // depth z
@@ -38,14 +34,14 @@ Matrix Matrix::im2col(vector<int> &filterShape, int s, int pad, int x) {
                          l < i - pad + filterShape.at(0) && l < this->shape.at(1) + pad; l++) { // for i
                         for (int m = k - pad;
                              m < k - pad + filterShape.at(0) && m < this->shape.at(0) + pad; m++) { //for j
-                            tem1 = m;
-                            tem2 = l;
+                            int tem1 = m;
+                            int tem2 = l;
                             if (tem1 < 0 || tem2 < 0 || tem1 >= this->shape.at(0) || tem2 >= shape.at(1)) {
                                 index++;
                             } else {
-                                in = {tem1, tem2, j};
-                                //ll.push_back(in);
-                                out.matrix.at(index) = this->at(in);
+//                                vector<int> in = {tem1, tem2, j};
+                                //sdasdasll.push_back(in);
+                                out.matrix.at(index) = this->matrix[tem1 + tem2*this->shape[0] + j*this->shape[0]*this->shape[1]];
                                 //ll.push_back(this->at(in));
                                 index++;
                             }
@@ -69,10 +65,9 @@ float Matrix::at(vector<int> index) {
 
 int Matrix::calcuteOutput(vector<int> &index) {
     int out = 0;
-    int x, y;
     for (int i = 0; i < this->shape.size(); i++) {
-        x = index.at(i);
-        y = 1;
+        int x = index.at(i);
+        int y = 1;
         for (int j = i - 1; j >= 0; j--) {
             y *= this->shape.at(j);
         }
@@ -95,14 +90,13 @@ void Matrix::set(vector<int> index, float value) {
 vector<int> Matrix::calculateIndex(int x) {
     vector<int> index;
     int temp = 0;
-    int y, t;
     for (int i = this->shape.size() - 1; i >= 0; i--) {
         temp = x;
-        y = 1;
+        int y = 1;
         for (int j = 0; j < i; j++) {
             y *= this->shape.at(j);
         }
-        t = temp / y;
+        int t = temp / y;
         index.push_back(t);
         x -= (t * y);
     }
@@ -131,8 +125,8 @@ Matrix::Matrix() {
 
 float Matrix::dotNoSSE(vector<float> &a, vector<float> &b) {
     float product = 0;
-    for (int i = 0; i <= a.size() - 1; i++)
-        product = product + (a.at(i) * (b.at(i)));
+    for (int i = 0; i <= a.size()-1; i++)
+            product = product + (a.at(i)*(b.at(i)));
     return product;
 }
 
@@ -143,8 +137,6 @@ Matrix Matrix::dot(Matrix *filter, int x) {
     int x_dim = 0;
     int w_dim = 0;
     int index = 0;
-    vector<float>::const_iterator first, last, first1, last1;
-    vector<float> a, b;
     for (int i = 0; i < W_row_shape.at(0); i++) {
 //        //__attribute__((aligned (32))) float b[W_row_shape.at(1)];
 //        __attribute__((aligned (16))) float b[W_row_shape.at(1)];
@@ -153,9 +145,9 @@ Matrix Matrix::dot(Matrix *filter, int x) {
 //            b[k] = filter->matrix[k + w_dim];
 //        }
 //        VecNN w(W_row_shape.at(1), b);
-        first = filter->matrix.begin() + w_dim;
-        last = filter->matrix.begin() + w_dim + W_row_shape.at(1);
-        b = {first, last};
+        vector<float>::const_iterator first =filter->matrix.begin() + w_dim;
+        vector<float>::const_iterator last = filter->matrix.begin() + w_dim + W_row_shape.at(1);
+        vector<float> b(first, last);
         //VecAVX w(W_row_shape.at(1), b);
         for (int j = 0; j < X_col_shape.at(1); j++) {
 //            // __attribute__((aligned (32))) float a[X_col_shape.at(0)];// = &this->matrix[x_dim];
@@ -165,9 +157,9 @@ Matrix Matrix::dot(Matrix *filter, int x) {
 //                a[k] = this->matrix[k + x_dim];
 //            }
 //            VecNN v(X_col_shape.at(0), a);
-            first1 = this->matrix.begin() + x_dim;
-            last1 = this->matrix.begin() + x_dim + X_col_shape.at(0);
-            a = {first1, last1};
+            vector<float>::const_iterator first1 =this->matrix.begin() + x_dim;
+            vector<float>::const_iterator last1 = this->matrix.begin() + x_dim + X_col_shape.at(0);
+            vector<float> a(first1, last1);
             //VecAVX v(X_col_shape.at(0), a);
 //            float res = v.dot(w);
             //float res = dotNoSSE(a, b); // can either do this
@@ -193,17 +185,7 @@ Matrix Matrix::conv(Matrix *filter, int stride, int padding) {
     x = x - filter->shape.at(0) + 2 * pad;
     x = floor(float(x) / float(stride));
     x = x + 1;
-
     Matrix out = this->im2col(filter->shape, stride, pad, x);
-
-//    auto start = std::chrono::system_clock::now();
-//    for (size_t counter = 0; counter < 10000; ++counter)
-//        this->im2col(filter->shape, stride, pad, x);
-//
-//    auto duration =
-//            std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now() - start) / 10000;
-//
-//    std::cout << "Completed function in " << duration.count() << " microseconds." << std::endl;
     return out.dot(filter, x);
 }
 
@@ -222,7 +204,6 @@ Matrix Matrix::MaxRow(int kernel_size, int stride, int padding) {
     vector<int> outSize = {x, x, depth};
     Matrix out(outSize);
     int index = 0;
-    vector<int> in;
     for (int j = 0; j < this->shape.at(2); j++) { // depth z
         for (int i = 0; i < this->shape.at(1); i = i + stride) { //length y
             for (int k = 0; k < this->shape.at(0); k = k + stride) { //width x
@@ -239,7 +220,7 @@ Matrix Matrix::MaxRow(int kernel_size, int stride, int padding) {
                                 if (0 > max)
                                     max = 0;
                             } else {
-                                in = {tem1, tem2, j};
+                                vector<int> in = {tem1, tem2, j};
                                 if (this->at(in) > max)
                                     max = this->at(in);
                             }
@@ -263,20 +244,20 @@ Matrix Matrix::dotMM(Matrix &w) {
 //        a[j] =  this->matrix.at(j);
 //    }
 //    VecNN v(w.shape.at(0), a);
-    vector<float>::const_iterator first1, last1;
-    vector<float>::const_iterator first = this->matrix.begin();
+    vector<float>::const_iterator first =this->matrix.begin();
     vector<float>::const_iterator last = this->matrix.end();
-    vector<float> b(first, last), a;
+    vector<float> b(first, last);
     for (int i = 0; i < w.matrixSizeVector; i = i + w.shape.at(0)) {
+
 //        __attribute__((aligned (16))) float b[w.shape.at(0)];
 //
 //        for (int j = 0; j < w.shape.at(0); j++) {
 //            b[j] = w.matrix.at(j + i);
 //        }
 //        VecNN ww(w.shape.at(0), b);
-        first1 = w.matrix.begin() + i;
-        last1 = w.matrix.begin() + i + w.shape.at(0);
-        a = {first1, last1};
+        vector<float>::const_iterator first1 =w.matrix.begin() + i;
+        vector<float>::const_iterator last1 = w.matrix.begin() + i + w.shape.at(0);
+        vector<float> a(first1, last1);
         out.matrix[index] = float(std::inner_product(a.begin(), a.end(), b.begin(), 0.0));
         //out.matrix[index] = dotNoSSE(b, a);
         index++;
@@ -315,25 +296,24 @@ Matrix Matrix::transpose() {
     return matrix_transposed;
 }
 
-Matrix Matrix::sub(Matrix &w) {
-    Matrix out(this->shape);
-    __attribute__((aligned (16))) float a[this->matrixSizeVector];
-    __attribute__((aligned (16))) float b[this->matrixSizeVector];
-    for (int k = 0; k < this->matrixSizeVector; k++) {
-        a[k] = this->matrix[k];
-        b[k] = w.matrix[k];
-    }
-
-    VecNN v(this->matrixSizeVector, a);
-    VecNN ww(w.matrixSizeVector, b);
-    out.matrix = v.sub(ww);
-    return out;
-}
+//Matrix Matrix::sub(Matrix &w) {
+//    Matrix out(this->shape);
+//    __attribute__((aligned (16))) float a[this->matrixSizeVector];
+//    __attribute__((aligned (16))) float b[this->matrixSizeVector];
+//    for (int k = 0; k < this->matrixSizeVector; k++) {
+//        a[k] = this->matrix[k];
+//        b[k] = w.matrix[k];
+//    }
+//
+//    VecNN v(this->matrixSizeVector, a);
+//    VecNN ww(w.matrixSizeVector, b);
+//    out.matrix = v.sub(ww);
+//    return out;
+//}
 
 void Matrix::addBiasNoSSE(Matrix &bias) {
-    for (int i = 0; i < bias.shape.at(0); i++) {
-        for (int j = 0 + i * this->shape.at(0) * this->shape.at(1);
-             j < this->shape.at(0) * this->shape.at(1) + i * this->shape.at(0) * this->shape.at(1); j++) {
+    for (int i = 0; i<bias.shape.at(0); i++) {
+        for (int j = 0 + i*this->shape.at(0)*this->shape.at(1); j < this->shape.at(0)*this->shape.at(1) + i*this->shape.at(0)*this->shape.at(1); j++) {
             this->matrix[j] = this->matrix[j] + bias.matrix[i];
         }
     }
@@ -342,11 +322,11 @@ void Matrix::addBiasNoSSE(Matrix &bias) {
 void Matrix::subNoSSE(Matrix &m) {
     float average = 0;
     int j = 0;
-    for (j = 0; j < m.matrix.size(); ++j) {
+    for (j = 0; j <m.matrix.size() ; ++j) {
         average += m.matrix[j];
     }
     average /= j;
-    for (int i = 0; i < m.size(); i++) {
+    for(int i = 0; i< m.size(); i++){
         this->matrix[i] = this->matrix[i] - average;
     }
 }
@@ -366,29 +346,61 @@ Matrix Matrix::maxPooling(int kernel_size, int stride, int padding) {
     Matrix out(outSize);
     int index = 0;
 
-    // for (int n = 0; n < bottom[0]->num(); ++n) {
-    for (int c = 0; c < this->shape.at(2); ++c) {
-        for (int ph = 0; ph < outSize.at(1); ++ph) {
-            for (int pw = 0; pw < outSize.at(0); ++pw) {
-                int hstart = ph * stride - pad;
-                int wstart = pw * stride - pad;
-                int hend = min(hstart + kernel_size, this->shape.at(0));
-                int wend = min(wstart + kernel_size, this->shape.at(1));
-                hstart = max(hstart, 0);
-                wstart = max(wstart, 0);
-                const int pool_index = ph * outSize.at(0) + pw + c * out.shape.at(0) * out.shape.at(1);
-                for (int h = hstart; h < hend; ++h) {
-                    for (int w = wstart; w < wend; ++w) {
-                        const int index = h * this->shape.at(1) + w + c * this->shape.at(0) * this->shape.at(1);
-                        if (this->matrix[index] > out.matrix[pool_index]) {
-                            out.matrix[pool_index] = this->matrix[index];
+   // for (int n = 0; n < bottom[0]->num(); ++n) {
+        for (int c = 0; c < this->shape.at(2); ++c) {
+            for (int ph = 0; ph < outSize.at(1); ++ph) {
+                for (int pw = 0; pw < outSize.at(0); ++pw) {
+                    int hstart = ph * stride - pad;
+                    int wstart = pw * stride - pad;
+                    int hend = min(hstart + kernel_size, this->shape.at(0));
+                    int wend = min(wstart + kernel_size, this->shape.at(1));
+                    hstart = max(hstart, 0);
+                    wstart = max(wstart, 0);
+                    const int pool_index = ph * outSize.at(0) + pw + c*out.shape.at(0)*out.shape.at(1);
+                    for (int h = hstart; h < hend; ++h) {
+                        for (int w = wstart; w < wend; ++w) {
+                            const int index = h * this->shape.at(1) + w + c*this->shape.at(0)*this->shape.at(1);
+                            if (this->matrix[index] > out.matrix[pool_index]) {
+                                out.matrix[pool_index] = this->matrix[index];
+                            }
                         }
                     }
                 }
             }
         }
-    }
-    //  }
+  //  }
 
     return out;
+}
+
+void Matrix::im2col_cpu( Matrix* data_im, int pad_h, const int stride_h, Matrix* data_col, vector<int>& filterShape) {
+    int index = 0;
+    int output_h = ((data_im->shape[0] + (2 * pad_h) - filterShape[0]) / (stride_h)) + 1;
+    const int channel_size = data_im->shape[0] * data_im->shape[1];
+    //for (int channel = data_im->shape[2]; channel--; data_im += channel_size) {
+        for (int kernel_row = 0; kernel_row < filterShape[0]; kernel_row++) {
+            for (int kernel_col = 0; kernel_col < filterShape[0]; kernel_col++) {
+                int input_row = -pad_h + kernel_row;
+                for (int output_rows = output_h; output_rows; output_rows--) {
+                    if (!(0 < input_row && input_row< data_im->shape[0])) {
+                        for (int output_cols = output_h; output_cols; output_cols--) {
+                            data_col->matrix[index++] = 0;
+                        }
+                    } else {
+                        int input_col = -pad_h + kernel_col;
+                        for (int output_col = output_h; output_col; output_col--) {
+                            if ((0< input_col && input_col< data_im->shape[1])) {
+                                data_col->matrix[index++] = data_im->matrix[(input_row-pad_h) * data_im->shape[1] + (input_col-pad_h)];
+                            } else {
+                                data_col->matrix[index++] = 0;
+                            }
+                            input_col += stride_h;
+                        }
+                    }
+                    input_row += stride_h;
+                }
+            }
+        }
+    //}
+    cout<<"works"<<endl;
 }

@@ -5,6 +5,7 @@
 #include <exception>
 #include <numeric>
 #include "Matrix.h"
+#include "old_vec/VecNN.h"
 
 
 Matrix Matrix::im2col(vector<int> &filterShape, int s, int pad, int x) {

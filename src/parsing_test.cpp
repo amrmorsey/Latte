@@ -10,7 +10,7 @@ using namespace std;
 int main() {
     Net net("simple_what.ahsf", "weights_original", "mean");
     Matrix image = net.loadMatrix("image_original", "image");
-    MatrixAVX what({1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0}, {1, 9});
+    MatrixAVX what({1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.2}, {2, 5});
     __m256 odds = _mm256_set_ps(1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 3.0, 6.0);
 
 //    __m256 c =  _mm256_mul_ps(evens, odds);

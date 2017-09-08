@@ -14,10 +14,11 @@ public:
 
     ~ReLU() {};
 
-    void calculateOutput(Matrix &input_mat) {
-        for (int i = 0; i < input_mat.matrix.size(); i++)
-            if (input_mat.matrix[i] < 0)
-                input_mat.matrix[i] = 0;
+    // use get and set chunks
+    void calculateOutput(MatrixAVX &input_mat) {
+        for (unsigned int i = 0; i < input_mat.size; i++)
+            if (input_mat.getElement(i) < 0)
+                input_mat.setElement(i, 0);
     };
 };
 

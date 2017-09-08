@@ -10,19 +10,19 @@
 
 class InputLayer : public AbstractLayer {
 private:
-    vector<int> input_dim;
+    std::vector<int> input_dim;
 public:
-    InputLayer(std::string name, vector<int> input_dim) : AbstractLayer(name), input_dim(input_dim) {};
+    InputLayer(std::string name, std::vector<int> input_dim) : AbstractLayer(name), input_dim(input_dim) {};
 
     ~InputLayer() {};
 
-    void calculateOutput(Matrix &input_mat) {
+    void calculateOutput(MatrixAVX &input_mat) {
         int input_size = 1;
 
         for (int dim : input_dim)
             input_size *= dim;
 
-        if (input_size != input_mat.size())
+        if (input_size != input_mat.size)
             throw std::length_error("Input image dimensions does not match dimensions of input layer");
     };
 };

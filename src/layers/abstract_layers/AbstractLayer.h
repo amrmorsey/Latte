@@ -7,7 +7,7 @@
 
 #include <vector>
 #include <string>
-#include "../../Matrix.h"
+#include "../../MatrixAVX.h"
 
 class AbstractLayer {
 public:
@@ -17,7 +17,7 @@ public:
 
     virtual ~AbstractLayer() = default;
 
-    virtual void calculateOutput(Matrix &input_mat) = 0;
+    virtual void calculateOutput(MatrixAVX &input_mat) = 0;
 };
 
 #endif //INFERENCEENGINE_LAYER_H

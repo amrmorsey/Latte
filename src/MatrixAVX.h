@@ -14,6 +14,7 @@
 #include <exception>
 #include <string>
 #include <algorithm>
+#include <ostream>
 
 class MatrixAVX {
 private:
@@ -37,25 +38,25 @@ private:
     };
 
 public:
-    unsigned long matrix_size;
-    std::vector<int> matrix_shape;
+    unsigned long size;
+    std::vector<int> shape;
 
-    explicit MatrixAVX(std::vector<float> vec, std::vector<int> shape) : matrix_shape(shape) {
-        matrix_size = 1;
+    explicit MatrixAVX(std::vector<float> vec, std::vector<int> shape) : shape(shape) {
+        size = 1;
 
         for (int x : shape)
-            matrix_size *= x;
+            size *= x;
 
-        xmm_size = static_cast<unsigned long>(ceil(matrix_size / 8.0f));
+        xmm_size = static_cast<unsigned long>(ceil(size / 8.0f));
 
-        aligned_size = matrix_size / matrix_size % 8;
+        aligned_size = size / 8;
 
         for (int i = 0; i < aligned_size; i++) {
-            xmm.push_back(_mm256_load_ps(&vec[i * 8]));
+            xmm.push_back(_mm256_loadu_ps(&vec[i * 8]));
         }
 
         // Check for stranglers in case matrix size is not divisible by 8
-        stranglers = static_cast<unsigned int>(matrix_size % 8);
+        stranglers = static_cast<unsigned int>(size % 8);
         if (stranglers) {
             // Set up a mask for partial loading.
             // Highest bit -> 1 in mask element means corresponding array element will be taken (i.e negative values)
@@ -66,13 +67,13 @@ public:
         }
     };
 
-    explicit MatrixAVX(std::vector<int> shape) : matrix_shape(shape), aligned_size(0), stranglers(0) {
-        matrix_size = 1;
+    explicit MatrixAVX(std::vector<int> shape) : shape(shape), aligned_size(0), stranglers(0) {
+        size = 1;
 
         for (int x : shape)
-            matrix_size *= x;
+            size *= x;
 
-        xmm_size = static_cast<unsigned long>(ceil(matrix_size / 8.0f));
+        xmm_size = static_cast<unsigned long>(ceil(size / 8.0f));
 
 
         for (int i = 0; i < xmm_size; i++) {
@@ -85,17 +86,17 @@ public:
     }
 
     // Get a single element (float value) from the matrix
-    float getElement(unsigned int index) {
+    inline float getElement(unsigned int index) {
         _mm256_store_ps(aligned_float_arr, xmm[index / 8]);
         return aligned_float_arr[index % 8];
     }
 
     // Set a single element (float value) into the matrix
     // Caution: This might be an expensive operation if called multiple times. Use setChunk instead
-    void setElement(unsigned int index, float value) {
-        if (index >= matrix_size) {
-            throw std::out_of_range("Index " + to_string(index) + " is out of range. Matrix size is " +
-                                    to_string(matrix_size));
+    inline void setElement(unsigned int index, float value) {
+        if (index >= size) {
+            throw std::out_of_range("Index " + std::to_string(index) + " is out of range. Matrix size is " +
+                                    std::to_string(size));
         }
         _mm256_store_ps(aligned_float_arr, xmm[index / 8]);
         aligned_float_arr[index % 8] = value;
@@ -104,10 +105,11 @@ public:
 
     // Set a whole chunk (8 float values) into the matrix
     // This is prefered over setElement
-    void setChunk(unsigned int index, __m256 chunk) {
+    inline void setChunk(unsigned int index, __m256 chunk) {
         if (index >= xmm_size) {
             throw std::out_of_range(
-                    "Index " + to_string(index) + " is out of range. Total number of chunks is " + to_string(xmm_size));
+                    "Index " + std::to_string(index) + " is out of range. Total number of chunks is " +
+                    std::to_string(xmm_size));
         }
         xmm[index] = chunk;
     }
@@ -118,9 +120,9 @@ public:
     }
 
     void add(const MatrixAVX &a, MatrixAVX &out) {
-        if (matrix_size != a.matrix_size) {
+        if (size != a.size) {
             throw std::logic_error(
-                    "Matrices not of equal size (" + to_string(matrix_size) + ") vs (" + to_string(a.matrix_size) +
+                    "Matrices not of equal size (" + std::to_string(size) + ") vs (" + std::to_string(a.size) +
                     ")");
         }
         for (unsigned int i = 0; i < xmm_size; i++) {
@@ -129,9 +131,9 @@ public:
     }
 
     void sub(const MatrixAVX &a, MatrixAVX &out) {
-        if (matrix_size != a.matrix_size) {
+        if (size != a.size) {
             throw std::logic_error(
-                    "Matrices not of equal size (" + to_string(matrix_size) + ") vs (" + to_string(a.matrix_size) +
+                    "Matrices not of equal size (" + std::to_string(size) + ") vs (" + std::to_string(a.size) +
                     ")");
         }
         for (unsigned int i = 0; i < xmm_size; i++) {
@@ -150,8 +152,10 @@ public:
     // Calculates dot product of two matricies
     // Out is expected to be initialized with its xmm vector already resize to the correct length
     void dot_product(const MatrixAVX &a, MatrixAVX &out) {
-        if (matrix_size != a.matrix_size) {
-            throw std::logic_error("Matrices not of equal size");
+        if (size != a.size) {
+            throw std::logic_error(
+                    "Matrices not of equal size (" + std::to_string(size) + ") vs (" + std::to_string(a.size) +
+                    ")");
         }
 
         std::fill(aligned_float_arr, aligned_float_arr + 8, 0);
@@ -169,12 +173,12 @@ public:
     }
 
     // operator << : Displays contents of matrix
-    friend std::ostream& operator<< (std::ostream& stream, const MatrixAVX& matrix) {
-        for(unsigned int i = 0; i < matrix.xmm_size; i++) {
+    friend std::ostream &operator<<(std::ostream &stream, const MatrixAVX &matrix) {
+        for (unsigned int i = 0; i < matrix.xmm_size; i++) {
             stream << "[";
-            for(unsigned int j = 0; j < 7; j++)
-                stream << to_string(matrix.xmm[i][j]) + " ";
-            stream << to_string(matrix.xmm[i][7]);
+            for (unsigned int j = 0; j < 7; j++)
+                stream << std::to_string(matrix.xmm[i][j]) + " ";
+            stream << std::to_string(matrix.xmm[i][7]);
             stream << "]\n";
         }
 

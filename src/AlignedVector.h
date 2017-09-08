@@ -9,8 +9,7 @@
 #include <malloc.h>
 #endif
 
-#include <avxintrin.h>
-#include <xmmintrin.h>
+#include <immintrin.h>
 #include <vector>
 #include <cmath>
 #include <exception>

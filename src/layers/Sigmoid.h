@@ -9,14 +9,14 @@
 
 class Sigmoid : public AbstractLayer {
 public:
-    explicit Sigmoid(string name) : AbstractLayer(name) {};
+    explicit Sigmoid(std::string name) : AbstractLayer(name) {};
 
     ~Sigmoid() {};
 
-    void calculateOutput(Matrix &input_mat) {
-        for (int i = 0; i < input_mat.matrix.size(); i++) {
-            input_mat.matrix[i] = input_mat.matrix[i] / (1 + abs(input_mat.matrix[i]));
-        }
+    void calculateOutput(MatrixAVX &input_mat) {
+//        for (int i = 0; i < input_mat.matrix.size(); i++) {
+//            input_mat.matrix[i] = input_mat.matrix[i] / (1 + abs(input_mat.matrix[i]));
+//        }
     };
 };
 

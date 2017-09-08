@@ -10,12 +10,12 @@
 
 class Softmax : public AbstractLayer {
 public:
-    explicit Softmax(string name) : AbstractLayer(name) {};
+    explicit Softmax(std::string name) : AbstractLayer(name) {};
 
     ~Softmax() {};
 
     // Can this calculation be done inplace?
-    void calculateOutput(Matrix &input_mat) {
+    void calculateOutput(MatrixAVX &input_mat) {
 //        float temp = 10;    // What is this?
 //        vector<float> probs;
 //        double sum = 0;
@@ -33,45 +33,45 @@ public:
         softMaxFunction3(input_mat);
     };
 
-    void softMaxFunction(Matrix &input_mat){
-        vector <float> y = input_mat.matrix;
-        float ymax = *std::max_element(y.begin(), y.end());
-        float sumofelements = 0;
-        for (auto& n : y)
-            sumofelements += n;
-        for(int f = 0; f < y.size(); f++) {
-            y.at(f) = exp(y.at(f) - ymax);
-            float ysum = 0;
-            for (int i = 0; i <=f ; i++) {
-                ysum +=y.at(i);
-            }
-            y.at(f) = y.at(f) / ysum;
-        }
-        input_mat.matrix = y;
-    }
+//    void softMaxFunction(MatrixAVX &input_mat){
+//        std::vector <float> y = input_mat.matrix;
+//        float ymax = *std::max_element(y.begin(), y.end());
+//        float sumofelements = 0;
+//        for (auto& n : y)
+//            sumofelements += n;
+//        for(int f = 0; f < y.size(); f++) {
+//            y.at(f) = exp(y.at(f) - ymax);
+//            float ysum = 0;
+//            for (int i = 0; i <=f ; i++) {
+//                ysum +=y.at(i);
+//            }
+//            y.at(f) = y.at(f) / ysum;
+//        }
+//        input_mat.matrix = y;
+//    }
+//
+//    void softMaxFunction2(MatrixAVX &input_mat){
+//        std::vector<float> y = input_mat.matrix;
+//        for (int i = 0; i < y.size(); i++) {
+//            float sum = 0;
+//            float ymax = *std::max_element(y.begin(), y.begin()+i);
+//            for (int j = 0; j <=i ; j++) {
+//                sum += exp(y[j] - ymax);
+//            }
+//            y[i] = exp(input_mat.matrix[i] - ymax - log(sum));
+//        }
+//        input_mat.matrix = y;
+//    }
 
-    void softMaxFunction2(Matrix &input_mat){
-        vector<float> y = input_mat.matrix;
-        for (int i = 0; i < y.size(); i++) {
-            float sum = 0;
-            float ymax = *std::max_element(y.begin(), y.begin()+i);
-            for (int j = 0; j <=i ; j++) {
-                sum += exp(y[j] - ymax);
-            }
-            y[i] = exp(input_mat.matrix[i] - ymax - log(sum));
-        }
-        input_mat.matrix = y;
-    }
-
-    void softMaxFunction3(Matrix &input_mat){
+    void softMaxFunction3(MatrixAVX &input_mat){
         float sum = 0;
-        for (int i = 0; i < input_mat.matrix.size(); ++i) {
-            input_mat.matrix[i] = exp(input_mat.matrix[i]);
-            sum+= input_mat.matrix[i];
+        for (unsigned int i = 0; i < input_mat.size; ++i) {
+            input_mat.setElement(i, std::exp(input_mat.getElement(i)));
+            sum += input_mat.getElement(i);
         }
 
-        for (int i = 0; i < input_mat.matrix.size(); ++i) {
-            input_mat.matrix[i] /= sum;
+        for (unsigned int i = 0; i < input_mat.size; ++i) {
+            input_mat.setElement(i, input_mat.getElement(i) / sum);
         }
     }
 

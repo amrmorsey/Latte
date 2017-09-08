@@ -152,11 +152,8 @@ public:
     // Calculates dot product of two matricies
     // Out is expected to be initialized with its xmm vector already resize to the correct length
     void dot_product(const MatrixAVX &a, MatrixAVX &out) {
-        if (size != a.size) {
-            throw std::logic_error(
-                    "Matrices not of equal size (" + std::to_string(size) + ") vs (" + std::to_string(a.size) +
-                    ")");
-        }
+        if (shape[1] != a.shape[0])
+            throw std::logic_error("Matrices not of correct dimensions " + shape_str() + " vs " + a.shape_str());
 
         std::fill(aligned_float_arr, aligned_float_arr + 8, 0);
 
@@ -172,19 +169,27 @@ public:
         out.setChunk(out_index, _mm256_load_ps(aligned_float_arr));
     }
 
-    void reshape(const std::vector<int> &new_shape) {
-        unsigned long new_size = 1;
+    std::string shape_str() const {
         std::string shape_str = "(";
 
+        for(int i = 0; i < shape.size() - 1; i++) {
+            shape_str += std::to_string(shape[i]) + ", ";
+        }
+        shape_str += std::to_string(shape[shape.size() - 1]) + ")";
+        return shape_str;
+
+    }
+
+    void reshape(const std::vector<int> &new_shape) {
+        unsigned long new_size = 1;
+
         for (int x : new_shape) {
-            shape_str += x + " ";
             new_size *= x;
         }
-        shape_str += ")";
 
         if (size != new_size)
             throw std::logic_error(
-                    "Cannot reshape matrix of size " + std::to_string(size) + " into shape " + shape_str);
+                    "Cannot reshape matrix of size " + std::to_string(size) + " into shape " + shape_str());
 
         shape = new_shape;
     }

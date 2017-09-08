@@ -48,7 +48,7 @@ public:
 
         xmm_size = static_cast<unsigned long>(ceil(matrix_size / 8.0f));
 
-        aligned_size = matrix_size / matrix_size % 8;
+        aligned_size = matrix_size / 8;
 
         for (int i = 0; i < aligned_size; i++) {
             xmm.push_back(_mm256_load_ps(&vec[i * 8]));
@@ -163,7 +163,7 @@ public:
                 out.setChunk(out_index++, _mm256_load_ps(aligned_float_arr));
                 std::fill(aligned_float_arr, aligned_float_arr + 8, 0);
             }
-            aligned_float_arr[i - 1 % 8] = _mm256_cvtss_f32(hsums(_mm256_mul_ps(xmm[i - 1], a.xmm[i - 1])));
+            aligned_float_arr[i - 1 % 8] = float(hsums(_mm256_mul_ps(xmm[i - 1], a.xmm[i - 1]))[0]);
         }
         out.setChunk(out_index, _mm256_load_ps(aligned_float_arr));
     }

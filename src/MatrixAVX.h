@@ -167,7 +167,7 @@ public:
                 out.setChunk(out_index++, _mm256_load_ps(aligned_float_arr));
                 std::fill(aligned_float_arr, aligned_float_arr + 8, 0);
             }
-            aligned_float_arr[i - 1 % 8] = _mm256_cvtss_f32(hsums(_mm256_mul_ps(xmm[i - 1], a.xmm[i - 1])));
+            aligned_float_arr[i - 1 % 8] = float(hsums(_mm256_mul_ps(xmm[i - 1], a.xmm[i - 1]))[0]);
         }
         out.setChunk(out_index, _mm256_load_ps(aligned_float_arr));
     }

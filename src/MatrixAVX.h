@@ -21,6 +21,7 @@ private:
     unsigned long xmm_size;
     unsigned long aligned_size;
     unsigned int stranglers;
+
     // TODO: Change this to support windows
     __attribute__((aligned(sizeof(__m256)))) float aligned_float_arr[8];
 
@@ -135,6 +136,14 @@ public:
         }
         for (unsigned int i = 0; i < xmm_size; i++) {
             out.setChunk(i, _mm256_sub_ps(xmm[i], a.xmm[i]));
+        }
+    }
+
+    // Sub that takes a single value instead of an entire matrix
+    void sub(const float &a, MatrixAVX &out) {
+        __m256 sub_chunk = _mm256_set1_ps(a);
+        for (unsigned int i = 0; i < xmm_size; i++) {
+            out.setChunk(i, _mm256_sub_ps(xmm[i], sub_chunk));
         }
     }
 

@@ -172,6 +172,23 @@ public:
         out.setChunk(out_index, _mm256_load_ps(aligned_float_arr));
     }
 
+    void reshape(const std::vector<int> &new_shape) {
+        unsigned long new_size = 1;
+        std::string shape_str = "(";
+
+        for (int x : new_shape) {
+            shape_str += x + " ";
+            new_size *= x;
+        }
+        shape_str += ")";
+
+        if (size != new_size)
+            throw std::logic_error(
+                    "Cannot reshape matrix of size " + std::to_string(size) + " into shape " + shape_str);
+
+        shape = new_shape;
+    }
+
     // operator << : Displays contents of matrix
     friend std::ostream &operator<<(std::ostream &stream, const MatrixAVX &matrix) {
         for (unsigned int i = 0; i < matrix.xmm_size; i++) {

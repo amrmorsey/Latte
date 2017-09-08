@@ -21,8 +21,11 @@ private:
     unsigned long xmm_size;
     unsigned long aligned_size;
     unsigned int stranglers;
+    // TODO: Change this to support windows
     __attribute__((aligned(sizeof(__m256)))) float aligned_float_arr[8];
 
+    // Does horizontal sum of a chunk v
+    // Only works if v is __m256, __m128 requires less instructions
     static inline __m256 hsums(__m256 const &v) {
         auto x = _mm256_permute2f128_ps(v, v, 1);
         auto y = _mm256_add_ps(v, x);
@@ -80,11 +83,14 @@ public:
         return getChunk(index);
     }
 
+    // Get a single element (float value) from the matrix
     float getElement(unsigned int index) {
         _mm256_store_ps(aligned_float_arr, xmm[index / 8]);
         return aligned_float_arr[index % 8];
     }
 
+    // Set a single element (float value) into the matrix
+    // Caution: This might be an expensive operation if called multiple times. Use setChunk instead
     void setElement(unsigned int index, float value) {
         if (index >= matrix_size) {
             throw std::out_of_range("Index " + to_string(index) + " is out of range. Matrix size is " +
@@ -95,6 +101,8 @@ public:
         xmm[index / 8] = _mm256_load_ps(aligned_float_arr);
     }
 
+    // Set a whole chunk (8 float values) into the matrix
+    // This is prefered over setElement
     void setChunk(unsigned int index, __m256 chunk) {
         if (index >= xmm_size) {
             throw std::out_of_range(
@@ -103,6 +111,7 @@ public:
         xmm[index] = chunk;
     }
 
+    // Retrieve a chunk from the matrix
     __m256 getChunk(unsigned int index) const {
         return xmm[index];
     }
@@ -128,6 +137,9 @@ public:
             out.setChunk(i, _mm256_sub_ps(xmm[i], a.xmm[i]));
         }
     }
+
+    // Calculates dot product of two matricies
+    // Out is expected to be initialized with its xmm vector already resize to the correct length
     void dot_product(const MatrixAVX &a, MatrixAVX &out) {
         if (matrix_size != a.matrix_size) {
             throw std::logic_error("Matrices not of equal size");
@@ -147,6 +159,7 @@ public:
         out.setChunk(out_index, _mm256_load_ps(aligned_float_arr));
     }
 
+    // operator << : Displays contents of matrix
     friend std::ostream& operator<< (std::ostream& stream, const MatrixAVX& matrix) {
         for(unsigned int i = 0; i < matrix.xmm_size; i++) {
             stream << "[";

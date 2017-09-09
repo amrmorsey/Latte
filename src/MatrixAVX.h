@@ -16,6 +16,7 @@
 #include <algorithm>
 #include <ostream>
 #include <iostream>
+
 class MatrixAVX {
 private:
     aligned_vector xmm;
@@ -78,8 +79,7 @@ public:
 
     // Get a single element (float value) from the matrix
     inline float getElement(unsigned int index) {
-        _mm256_store_ps(aligned_float_arr, xmm[index / 8]);
-        return aligned_float_arr[index % 8];
+        return xmm[index / 8][index % 8];
     }
 
     // Set a single element (float value) into the matrix
@@ -89,9 +89,7 @@ public:
             throw std::out_of_range("Index " + std::to_string(index) + " is out of range. Matrix size is " +
                                     std::to_string(size));
         }
-        _mm256_store_ps(aligned_float_arr, xmm[index / 8]);
-        aligned_float_arr[index % 8] = value;
-        xmm[index / 8] = _mm256_load_ps(aligned_float_arr);
+        xmm[index / 8][index % 8] = value;
     }
 
     // Set a whole chunk (8 float values) into the matrix
@@ -115,6 +113,7 @@ public:
             out.setChunk(i, _mm256_add_ps(xmm[i], a.xmm[0]));
         }
     }
+
     void sub(const MatrixAVX &a, MatrixAVX &out) {
         if (size != a.size) {
             throw std::logic_error(
@@ -167,27 +166,27 @@ public:
 
         unsigned int i = 0;
         unsigned int vec_index = 0;
-        while(i < bigger_mat.size) {
-            for(int j = 0; j < kept_dim; j++) {
-                big_matrix_vec[vec_index+j] = bigger_mat.getElement(i+j);
+        while (i < bigger_mat.size) {
+            for (int j = 0; j < kept_dim; j++) {
+                big_matrix_vec[vec_index + j] = bigger_mat.getElement(i + j);
             }
             vec_index += kept_dim;
             i += kept_dim;
 
-            while(vec_index % 8 != 0)
+            while (vec_index % 8 != 0)
                 ++vec_index;
         }
         vec_index = 0;
         i = 0;
 
-        while(i < smaller_mat.size) {
-            for(int j = 0; j < kept_dim; j++) {
-                small_matrix_vec[vec_index+j] = smaller_mat.getElement(i+j);
+        while (i < smaller_mat.size) {
+            for (int j = 0; j < kept_dim; j++) {
+                small_matrix_vec[vec_index + j] = smaller_mat.getElement(i + j);
             }
             vec_index += kept_dim;
             i += kept_dim;
 
-            while(vec_index % 8 != 0)
+            while (vec_index % 8 != 0)
                 ++vec_index;
         }
 
@@ -198,16 +197,17 @@ public:
         unsigned int array_ind = 1;
         std::fill(aligned_float_arr, aligned_float_arr + 8, 0);
 
-        for(int small_chunk = 0; small_chunk < small.xmm_size; small_chunk+=chunk_range) {
-            for(int big_chunk = 0; big_chunk < big.xmm_size; big_chunk+=chunk_range) {
-                if(array_ind % 8 == 0) {
+        for (int small_chunk = 0; small_chunk < small.xmm_size; small_chunk += chunk_range) {
+            for (int big_chunk = 0; big_chunk < big.xmm_size; big_chunk += chunk_range) {
+                if (array_ind % 8 == 0) {
                     out.setChunk(out_index++, _mm256_load_ps(aligned_float_arr));
                     std::fill(aligned_float_arr, aligned_float_arr + 8, 0);
                 }
                 res = 0;
-                for(int partial_index = 0; partial_index < chunk_range; partial_index++) {
+                for (int partial_index = 0; partial_index < chunk_range; partial_index++) {
                     // AVX2 float conversion is ~10-20microseconds faster
-                    res += float(hsums(_mm256_mul_ps(big.xmm[big_chunk+partial_index], small.xmm[small_chunk+partial_index]))[0]);
+                    res += float(hsums(_mm256_mul_ps(big.xmm[big_chunk + partial_index],
+                                                     small.xmm[small_chunk + partial_index]))[0]);
                 }
                 aligned_float_arr[(array_ind - 1) % 8] = res;
                 ++array_ind;
@@ -257,7 +257,7 @@ public:
             new_size *= x;
         }
 
-        if (size != new_size){
+        if (size != new_size) {
             std::string shape_str = "(";
 
             for (int i = 0; i < new_shape.size() - 1; i++) {
@@ -282,6 +282,7 @@ public:
         y = _mm256_shuffle_ps(x, x, _MM_SHUFFLE(1, 0, 3, 2));
         return _mm256_add_ps(x, y);
     };
+
     // operator << : Displays contents of matrix
     friend std::ostream &operator<<(std::ostream &stream, const MatrixAVX &matrix) {
         for (unsigned int i = 0; i < matrix.xmm_size; i++) {

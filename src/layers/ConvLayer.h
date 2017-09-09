@@ -55,23 +55,22 @@ public:
         //(x, y, z) = Z*(Dim_Y*Dim_X) + y*DIM_X + x
         std::vector<int> out_shape = {X_col_shape.at(0), X_col_shape.at(1)};
         MatrixAVX out(out_shape), out_dot({26, 26, 5}), out_bias(out_shape);
+            im2col(input_mat, weights.get()->shape, out, stride, padding, x);
+            weights.get()->reshape({9, 5});
+            out.reshape({676, 9});
+        auto start = std::chrono::system_clock::now();
+        for (size_t counter = 0; counter < 10000; ++counter) {
+                out.dot_product(*weights.get(), out_dot);
+        }
 
-        im2col(input_mat, weights.get()->shape, out, stride, padding, x);
-            auto start = std::chrono::system_clock::now();
-    for (size_t counter = 0; counter < 10000; ++counter) {
-        weights.get()->reshape({9, 5});
-        out.reshape({676, 9});
-        out.dot_product(*weights.get(), out_dot);
-    }
+        auto duration =
+                std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now() - start) / 10000;
 
-    auto duration =
-            std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now() - start) / 10000;
+        std::cout << "Completed function in " << duration.count() << " microseconds." << std::endl;
 
-    std::cout << "Completed function in " << duration.count() << " microseconds." << std::endl;
-
-//            std::cout << out_dot << std::endl;
+            std::cout << out_dot << std::endl;
         //out_dot.add(*bias, out_bias);
-          //  std::cout << out_bias;
+        //  std::cout << out_bias;
         input_mat = out_bias;
     };
 };

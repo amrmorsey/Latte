@@ -122,40 +122,14 @@ void Matrix::dot(Matrix& filter, Matrix& out) {
     int index = 0;
     vector<float>::const_iterator first, last, first1, last1;
     vector<float> a, b;
-//    __attribute__((aligned(sizeof(__m256)))) float aa[8],bb[8];
-////    float aa[8], bb[8];
-//    __m256 xx,yy;
     for (int i = 0; i < W_row_shape.at(0); i++) {
         first =filter.matrix.begin() + w_dim;
         last = filter.matrix.begin() + w_dim + W_row_shape.at(1);
         b = {first, last};
-        //VecAVX w(W_row_shape.at(1), b);
         for (int j = 0; j < X_col_shape.at(1); j++) {
             first1 =this->matrix.begin() + x_dim;
             last1 = this->matrix.begin() + x_dim + X_col_shape.at(0);
             a = {first1, last1};
-//            int size_mod_8 = a.size() % 8;
-//            int number_of_iterations = std::ceil(a.size() / 8.0);
-//            float sum = 0;
-//            int size = 0;
-//            for(int j = 0; j<number_of_iterations; j++){
-//                for (int k = 0; k < 8; ++k) {
-//                    if(size < a.size()){
-//                        aa[k] = a[j*8 + k];
-//                        bb[k] = b[j*8 + k];
-//                    }
-//                    else{
-//                        aa[k] = 0;
-//                        bb[k] = 0;
-//                    }
-//                    size++;
-//                }
-//
-//                xx = _mm256_load_ps(aa);
-//                yy = _mm256_load_ps(bb);
-//                sum += dot_product( xx , yy);
-//            }
-            //float res = dotNoSSE(a, b); // can either do this
             float res = float(std::inner_product(a.begin(), a.end(), b.begin(), 0.0)); //or this
 
             out.matrix.at(index) = res;
@@ -169,51 +143,14 @@ void Matrix::dot(Matrix& filter, Matrix& out) {
 
 void Matrix::conv(Matrix& filter, int stride, int padding, Matrix& im, Matrix& out) {
     this->im2col(filter.shape, stride, padding, im);
-    im.dot(filter, out);
-}
+    //auto start = std::chrono::system_clock::now();
+    //for (size_t counter = 0; counter < 10000; ++counter)
+        im.dot(filter, out);
 
-// Should avoid returning by value here
-Matrix Matrix::MaxRow(int kernel_size, int stride, int padding) {
-    int pad = padding;
-    int x = this->shape.at(0);
-    x = x - kernel_size + 2 * pad;
-    x = ceil(float(x) / float(stride));
+    //auto duration =
+      //      std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now() - start) / 10000;
+    //std::cout << "Completed function in " << duration.count() << " microseconds." << std::endl;
 
-    x = x + 1;
-    int x_row = x * x;
-    int depth = this->shape.at(2);
-    vector<int> outSize = {x, x, depth};
-    Matrix out(outSize);
-    int index = 0;
-    for (int j = 0; j < this->shape.at(2); j++) { // depth z
-        for (int i = 0; i < this->shape.at(1); i = i + stride) { //length y
-            for (int k = 0; k < this->shape.at(0); k = k + stride) { //width x
-                int tt = k - pad + kernel_size - 1;
-                int yy = i - pad + kernel_size - 1;
-                if (tt < this->shape.at(0) + pad && yy < this->shape.at(0) + pad) {
-                    float max = -(std::numeric_limits<float>::infinity());
-                    for (int l = i - pad; l <= i - pad + kernel_size && l < this->shape.at(1) +
-                                                                            pad; l++) { // for i int l = i-pad; l < i-pad+filterShape.at(0) && l<this->shape.at(1)+pad; l++
-                        for (int m = k - pad; m <= k - pad + kernel_size && m < this->shape.at(0) + pad; m++) { //for j
-                            int tem1 = m;
-                            int tem2 = l;
-                            if (tem1 < 0 || tem2 < 0 || tem1 >= this->shape.at(0) || tem2 >= shape.at(1)) {
-                                if (0 > max)
-                                    max = 0;
-                            } else {
-                                vector<int> in = {tem1, tem2, j};
-                                if (this->at(in) > max)
-                                    max = this->at(in);
-                            }
-                        }
-                    }
-                    out.matrix.at(index) = max;
-                    index++;
-                }
-            }
-        }
-    }
-    return out;
 }
 
 Matrix Matrix::dotMM(Matrix &w) {
@@ -237,43 +174,6 @@ Matrix Matrix::dotMM(Matrix &w) {
     return out;
 }
 
-Matrix Matrix::transpose() {
-    if (this->shape.size() != 2) {
-        std::string str;
-        for (int x : this->shape) {
-            str += x + ", ";
-        }
-        throw std::logic_error("Cannot transpose matrix of shape [" + str + "], matrix must be 2D");
-    }
-
-    int N = this->shape[0];
-    int M = this->shape[1];
-
-    Matrix matrix_transposed({M, N});
-
-    for (int n = 0; n < N * M; n++) {
-        int i = n / N;
-        int j = n % N;
-        matrix_transposed.matrix[n] = this->matrix[M * j + i];
-    }
-
-    return matrix_transposed;
-}
-
-//Matrix Matrix::sub(Matrix &w) {
-//    Matrix out(this->shape);
-//    __attribute__((aligned (16))) float a[this->matrixSizeVector];
-//    __attribute__((aligned (16))) float b[this->matrixSizeVector];
-//    for (int k = 0; k < this->matrixSizeVector; k++) {
-//        a[k] = this->matrix[k];
-//        b[k] = w.matrix[k];
-//    }
-//
-//    VecNN v(this->matrixSizeVector, a);
-//    VecNN ww(w.matrixSizeVector, b);
-//    out.matrix = v.sub(ww);
-//    return out;
-//}
 
 void Matrix::addBiasNoSSE(Matrix &bias) {
     for (int i = 0; i<bias.shape.at(0); i++) {
@@ -319,36 +219,3 @@ void Matrix::maxPooling(int kernel_size, int stride, int padding, Matrix& out) {
         }
     }
 }
-
-void Matrix::im2col_cpu( Matrix* data_im, int pad_h, const int stride_h, Matrix* data_col, vector<int>& filterShape) {
-    int index = 0;
-    int output_h = ((data_im->shape[0] + (2 * pad_h) - filterShape[0]) / (stride_h)) + 1;
-    const int channel_size = data_im->shape[0] * data_im->shape[1];
-    //for (int channel = data_im->shape[2]; channel--; data_im += channel_size) {
-        for (int kernel_row = 0; kernel_row < filterShape[0]; kernel_row++) {
-            for (int kernel_col = 0; kernel_col < filterShape[0]; kernel_col++) {
-                int input_row = -pad_h + kernel_row;
-                for (int output_rows = output_h; output_rows; output_rows--) {
-                    if (!(0 < input_row && input_row< data_im->shape[0])) {
-                        for (int output_cols = output_h; output_cols; output_cols--) {
-                            data_col->matrix[index++] = 0;
-                        }
-                    } else {
-                        int input_col = -pad_h + kernel_col;
-                        for (int output_col = output_h; output_col; output_col--) {
-                            if ((0< input_col && input_col< data_im->shape[1])) {
-                                data_col->matrix[index++] = data_im->matrix[(input_row-pad_h) * data_im->shape[1] + (input_col-pad_h)];
-                            } else {
-                                data_col->matrix[index++] = 0;
-                            }
-                            input_col += stride_h;
-                        }
-                    }
-                    input_row += stride_h;
-                }
-            }
-        }
-    //}
-    cout<<"works"<<endl;
-}
-

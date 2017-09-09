@@ -142,22 +142,24 @@ public:
 
         MatrixAVX smaller_mat, bigger_mat;
 
-        int repeated_dim, kept_dim;
+        int repeated_dim, kept_dim, other_dim;
         if (size < a.size) {
             smaller_mat = *this;
             bigger_mat = a;
             kept_dim = a.shape[0];
             repeated_dim = a.shape[1];
+            other_dim = shape[0];
         } else {
             smaller_mat = a;
             bigger_mat = *this;
             kept_dim = shape[1];
             repeated_dim = shape[0];
+            other_dim = a.shape[1];
         }
 
         unsigned int chunk_range = std::ceil(kept_dim / 8.0);
-        unsigned int big_reserve_size = 10816;
-        unsigned int small_reserve_size = 80;
+        unsigned int big_reserve_size = chunk_range * 8 * repeated_dim;
+        unsigned int small_reserve_size = chunk_range * 8 * other_dim;
         unsigned long aligned_sec_size = static_cast<unsigned long>(chunk_range * 8);
 
         std::vector<float> small_matrix_vec(small_reserve_size, 0.0f);
@@ -196,16 +198,16 @@ public:
         unsigned int array_ind = 1;
         std::fill(aligned_float_arr, aligned_float_arr + 8, 0);
 
-        for(int big_chunk = 0; big_chunk < big.xmm_size; big_chunk+=chunk_range) {
-            for(int small_chunk = 0; small_chunk < small.xmm_size; small_chunk+=chunk_range) {
+        for(int small_chunk = 0; small_chunk < small.xmm_size; small_chunk+=chunk_range) {
+            for(int big_chunk = 0; big_chunk < big.xmm_size; big_chunk+=chunk_range) {
                 if(array_ind % 8 == 0) {
                     out.setChunk(out_index++, _mm256_load_ps(aligned_float_arr));
                     std::fill(aligned_float_arr, aligned_float_arr + 8, 0);
                 }
                 res = 0;
                 for(int partial_index = 0; partial_index < chunk_range; partial_index++) {
-                    auto x = _mm256_mul_ps(big.xmm[big_chunk+partial_index], small.xmm[small_chunk+partial_index]);
-                    res += _mm256_cvtss_f32(hsums(x));
+                    // AVX2 float conversion is ~10-20microseconds faster
+                    res += float(hsums(_mm256_mul_ps(big.xmm[big_chunk+partial_index], small.xmm[small_chunk+partial_index]))[0]);
                 }
                 aligned_float_arr[(array_ind - 1) % 8] = res;
                 ++array_ind;

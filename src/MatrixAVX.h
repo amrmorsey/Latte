@@ -15,7 +15,7 @@
 #include <string>
 #include <algorithm>
 #include <ostream>
-
+#include <iostream>
 class MatrixAVX {
 private:
     aligned_vector xmm;
@@ -111,16 +111,10 @@ public:
     }
 
     void add(const MatrixAVX &a, MatrixAVX &out) {
-        if (size != a.size) {
-            throw std::logic_error(
-                    "Matrices not of equal size (" + std::to_string(size) + ") vs (" + std::to_string(a.size) +
-                    ")");
-        }
         for (unsigned int i = 0; i < xmm_size; i++) {
-            out.setChunk(i, _mm256_add_ps(xmm[i], a.xmm[i]));
+            out.setChunk(i, _mm256_add_ps(xmm[i], a.xmm[0]));
         }
     }
-
     void sub(const MatrixAVX &a, MatrixAVX &out) {
         if (size != a.size) {
             throw std::logic_error(
@@ -161,33 +155,86 @@ public:
             repeated_dim = shape[0];
         }
 
-        unsigned long aligned_sec_size = static_cast<unsigned long>(std::ceil(smaller_mat.size / 8.0) * 8);
+        unsigned int chunk_range = std::ceil(kept_dim / 8.0);
+        unsigned int big_reserve_size = 10816;
+        unsigned int small_reserve_size = 80;
+        unsigned long aligned_sec_size = static_cast<unsigned long>(chunk_range * 8);
 
-        std::vector<float> sequence_vec(aligned_sec_size, 0.0f);
-        std::vector<float> matrix_vec;
-        matrix_vec.reserve(static_cast<unsigned long>(shape[0] * a.shape[1]));
+        std::vector<float> small_matrix_vec(small_reserve_size, 0.0f);
+        std::vector<float> big_matrix_vec(big_reserve_size, 0.0f);
 
-        for (unsigned int i = 0; i < smaller_mat.size; i++)
-            sequence_vec[i] = smaller_mat.getElement(i);
+        unsigned int i = 0;
+        unsigned int vec_index = 0;
+        while(i < bigger_mat.size) {
+            for(int j = 0; j < kept_dim; j++) {
+                big_matrix_vec[vec_index+j] = bigger_mat.getElement(i+j);
+            }
+            vec_index += kept_dim;
+            i += kept_dim;
 
+            while(vec_index % 8 != 0)
+                ++vec_index;
+        }
+        vec_index = 0;
+        i = 0;
 
-        for (int i = 0; i < repeated_dim; i++) {
-            matrix_vec.insert(matrix_vec.end(), sequence_vec.begin(), sequence_vec.end());
+        while(i < smaller_mat.size) {
+            for(int j = 0; j < kept_dim; j++) {
+                small_matrix_vec[vec_index+j] = smaller_mat.getElement(i+j);
+            }
+            vec_index += kept_dim;
+            i += kept_dim;
+
+            while(vec_index % 8 != 0)
+                ++vec_index;
         }
 
-        MatrixAVX repeated_mat(matrix_vec, {1, matrix_vec.size()});
+        MatrixAVX small(small_matrix_vec, {small_reserve_size, 1});
+        MatrixAVX big(big_matrix_vec, {big_reserve_size, 1});
+        float res;
+        unsigned int out_index = 0;
+        unsigned int array_ind = 1;
         std::fill(aligned_float_arr, aligned_float_arr + 8, 0);
 
-        unsigned int out_index = 0;
-
-        for (unsigned int i = 1; i <= xmm_size; i++) {
-            if (i % 8 == 0) {
-                out.setChunk(out_index++, _mm256_load_ps(aligned_float_arr));
-                std::fill(aligned_float_arr, aligned_float_arr + 8, 0);
+        for(int big_chunk = 0; big_chunk < big.xmm_size; big_chunk+=chunk_range) {
+            for(int small_chunk = 0; small_chunk < small.xmm_size; small_chunk+=chunk_range) {
+                if(array_ind % 8 == 0) {
+                    out.setChunk(out_index++, _mm256_load_ps(aligned_float_arr));
+                    std::fill(aligned_float_arr, aligned_float_arr + 8, 0);
+                }
+                res = 0;
+                for(int partial_index = 0; partial_index < chunk_range; partial_index++) {
+                    auto x = _mm256_mul_ps(big.xmm[big_chunk+partial_index], small.xmm[small_chunk+partial_index]);
+                    res += _mm256_cvtss_f32(hsums(x));
+                }
+                aligned_float_arr[(array_ind - 1) % 8] = res;
+                ++array_ind;
             }
-            aligned_float_arr[i - 1 % 8] = float(hsums(_mm256_mul_ps(bigger_mat.xmm[i - 1], repeated_mat.xmm[i - 1]))[0]);
         }
         out.setChunk(out_index, _mm256_load_ps(aligned_float_arr));
+//        for (unsigned int i = 0; i < smaller_mat.size;) {
+//            small_matrix_vec[i] = smaller_mat.getElement(i);
+//            if (i%row_col_size)
+//        }
+
+//
+//        for (int i = 0; i < row_col_size; i++) {
+//            matrix_vec.insert(matrix_vec.end(), sequence_vec.begin(), sequence_vec.end());
+//        }
+//
+//        MatrixAVX repeated_mat(matrix_vec, {1, matrix_vec.size()});
+//        std::fill(aligned_float_arr, aligned_float_arr + 8, 0);
+//
+//        unsigned int out_index = 0;
+//
+//        for (unsigned int i = 1; i <= xmm_size; i++) {
+//            if (i % 8 == 0) {
+//                out.setChunk(out_index++, _mm256_load_ps(aligned_float_arr));
+//                std::fill(aligned_float_arr, aligned_float_arr + 8, 0);
+//            }
+//            aligned_float_arr[i - 1 % 8] = float(hsums(_mm256_mul_ps(bigger_mat.xmm[i - 1], repeated_mat.xmm[i - 1]))[0]);
+//        }
+//        out.setChunk(out_index, _mm256_load_ps(aligned_float_arr));
     }
 
     std::string shape_str() const {
@@ -208,10 +255,18 @@ public:
             new_size *= x;
         }
 
-        if (size != new_size)
-            throw std::logic_error(
-                    "Cannot reshape matrix of size " + std::to_string(size) + " into shape " + shape_str());
+        if (size != new_size){
+            std::string shape_str = "(";
 
+            for (int i = 0; i < new_shape.size() - 1; i++) {
+                shape_str += std::to_string(new_shape[i]) + ", ";
+            }
+            shape_str += std::to_string(new_shape[new_shape.size() - 1]) + ")";
+
+            throw std::logic_error(
+                    "Cannot reshape matrix of size " + std::to_string(size) + " into shape " + shape_str);
+
+        }
         shape = new_shape;
     }
 
@@ -234,9 +289,8 @@ public:
             stream << std::to_string(matrix.xmm[i][7]);
             stream << "]\n";
         }
-
+        return stream;
     }
-
 };
 
 #endif //INFERENCEENGINE_MATRIXAVX_H

@@ -53,10 +53,13 @@ public:
 
         //(x, y, z) = Z*(Dim_Y*Dim_X) + y*DIM_X + x
         std::vector<int> out_shape = {X_col_shape.at(0), X_col_shape.at(1)};
-        MatrixAVX out(out_shape), out_dot(out_shape), out_bias(out_shape);
+        MatrixAVX out(out_shape), out_dot({26, 26, 5}), out_bias(out_shape);
 
         im2col(input_mat, weights.get()->shape, out, stride, padding, x);
+            weights.get()->reshape({9, 5});
+            out.reshape({676, 9});
         out.dot_product(*weights.get(), out_dot);
+            std::cout << out_dot;
         out_dot.add(*bias, out_bias);
         input_mat = out_bias;
     };

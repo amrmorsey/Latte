@@ -31,7 +31,7 @@ public:
 //        // Set input mat to probs
 //        input_mat = Matrix(probs, input_mat.shape);
         softMaxFunction3(input_mat);
-        output.matrix = input_mat.matrix;
+        //output.matrix = input_mat.matrix;
     };
 
     void softMaxFunction(Matrix &input_mat){
@@ -67,12 +67,12 @@ public:
     void softMaxFunction3(Matrix &input_mat){
         float sum = 0;
         for (int i = 0; i < input_mat.matrix.size(); ++i) {
-            input_mat.matrix[i] = exp(input_mat.matrix[i]);
-            sum+= input_mat.matrix[i];
+            output.matrix[i] = exp(input_mat.matrix[i]);
+            sum+= output.matrix[i];
         }
 
-        for (int i = 0; i < input_mat.matrix.size(); ++i) {
-            input_mat.matrix[i] /= sum;
+        for (int i = 0; i < output.matrix.size(); ++i) {
+            output.matrix[i] /= sum;
         }
     }
 

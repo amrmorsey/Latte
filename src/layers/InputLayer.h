@@ -30,7 +30,7 @@ public:
     void precompute(Matrix& in_mat){
         input = Matrix(in_mat.shape);
         //input = in_mat;
-        output = Matrix(in_mat.shape);
+        output = in_mat;
     }
 };
 

@@ -15,9 +15,8 @@ public:
 
     void calculateOutput(Matrix &input_mat) {
         for (int i = 0; i < input_mat.matrix.size(); i++) {
-            input_mat.matrix[i] = input_mat.matrix[i] / (1 + abs(input_mat.matrix[i]));
+            output.matrix[i] = input_mat.matrix[i] / (1 + abs(input_mat.matrix[i]));
         }
-        output.matrix = input_mat.matrix;
     };
 
     void precompute(Matrix& a){

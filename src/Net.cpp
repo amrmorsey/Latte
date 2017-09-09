@@ -127,14 +127,17 @@ void Net::printLayers() {
         std::cout << layer.get()->name << endl; // layer->name is better but gives a false error in clion
 }
 
-void Net::predict(const Matrix &image) {
-    Matrix out = image;
-    //out.subNoSSE(mean_mat);
-    for (auto &&layer : this->layers) {
-        layer.get()->calculateOutput(out);
-        out = layer->output;//adasdasdasd
+void Net::predict() {
+    //Matrix out = image;
+//    //out.subNoSSE(mean_mat);
+//    for (auto &&layer : this->layers) {
+//        layer.get()->calculateOutput(out);
+//        out = layer->output;//adasdasdasd
+//    }
+    for (int i = 1; i < layers.size() ; ++i) {
+        layers[i].get()->calculateOutput(layers[i-1]->output);
     }
-//    cout<<"works"<<endl;
+    //cout<<"works"<<endl;
     // Get top predictions code from caffe
 }
 
@@ -153,7 +156,7 @@ void Net::preprocess(Matrix& m) {
     m.subNoSSE(mean_mat);
 }
 
-void Net::precompute(Matrix& image) {
+void Net::setup(Matrix& image) {
     Matrix in_mat = image;
     for(auto &&layer : this->layers){
         layer.get()->precompute(in_mat);

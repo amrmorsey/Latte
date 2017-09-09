@@ -32,7 +32,7 @@ public:
 
     ~Net() {};
 
-    void predict(const Matrix &image);
+    void predict();
 
     void printLayers();
 
@@ -40,7 +40,7 @@ public:
 
     void preprocess(Matrix&);
 
-    void precompute( Matrix &image);
+    void setup( Matrix &image);
 };
 
 

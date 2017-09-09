@@ -21,11 +21,11 @@ int main() {
 
 //    __m256 c =  _mm256_mul_ps(evens, odds);
 //    cout <<  _mm256_cvtss_f32(hsums(c));
-    net.precompute(image);
     net.preprocess(image);
+    net.setup(image);
     auto start = std::chrono::system_clock::now();
     for (size_t counter = 0; counter < 10000; ++counter)
-        net.predict(image);
+        net.predict();
 
     auto duration =
             std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now() - start) / 10000;

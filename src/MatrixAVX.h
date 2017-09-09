@@ -16,7 +16,7 @@
 #include <algorithm>
 
 class MatrixAVX {
-private:
+public:
     aligned_vector xmm;
     unsigned long xmm_size;
     unsigned long aligned_size;
@@ -36,7 +36,7 @@ private:
         return _mm256_add_ps(x, y);
     };
 
-public:
+
     unsigned long matrix_size;
     std::vector<int> matrix_shape;
 

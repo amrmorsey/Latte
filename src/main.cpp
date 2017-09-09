@@ -582,39 +582,43 @@ int main(int argc, char **argv)
 //    vector<float> ll = {1,2,3};
 //    vector<float> kk = {1,2,3};
 //    Matrix al();
-    vector<float> matrix = {2,0,2,2,2,
-                            1,0,1,0,2,
-                            2,0,1,0,0,
-                            0,2,1,2,0,
-                            0,2,2,1,0,
-
-                            0,2,1,2,0,
-                            2,1,1,1,2,
-                            2,2,1,0,1,
-                            1,2,1,1,1,
-                            0,0,1,0,1,
-
-                            1,1,1,0,0,
-                            1,0,2,1,0,
-                            2,2,1,1,2,
-                            1,2,0,0,1,
-                            0,0,1,1,0};
-    vector<int> shape= {5,5,3};
-    Matrix mm(matrix, shape);
-    vector<int> filter = {3,3,3,2};
-    int output_h = (5 + 2 * 1 - 3) / 2 + 1;
-    vector<int> out_shape = {27,9};
-    Matrix out(out_shape);
-    mm.im2col_cpu(&mm, 1, 2, &out, filter);
-    vector<float> mFilter = {-1,1,-1,0,0,-1,-1,0,1,0,0,1,1,1,1,0,1,-1,-1,1,0,0,0,0,1,1,1,1,-1,-1,1,1,0,0,-1,0,-1,-1,-1,1,1,1,-1,1,1,1,1,0,-1,-1,1,0,1,-1};
-    Matrix w(mFilter, filter);
-//    float ress = w.dotNoSSE(ll, kk);
-    Matrix xx = mm.conv(&w, 2, 1);
+//    vector<float> matrix = {2,0,2,2,2,
+//                            1,0,1,0,2,
+//                            2,0,1,0,0,
+//                            0,2,1,2,0,
+//                            0,2,2,1,0,
+//
+//                            0,2,1,2,0,
+//                            2,1,1,1,2,
+//                            2,2,1,0,1,
+//                            1,2,1,1,1,
+//                            0,0,1,0,1,
+//
+//                            1,1,1,0,0,
+//                            1,0,2,1,0,
+//                            2,2,1,1,2,
+//                            1,2,0,0,1,
+//                            0,0,1,1,0};
+//    vector<int> shape= {5,5,3};
+//    Matrix mm(matrix, shape);
+//    vector<int> filter = {3,3,3,2};
+//    int output_h = (5 + 2 * 1 - 3) / 2 + 1;
+//    vector<int> out_shape = {27,9};
+//    Matrix out(out_shape);
+//    mm.im2col_cpu(&mm, 1, 2, &out, filter);
+//    vector<float> mFilter = {-1,1,-1,0,0,-1,-1,0,1,0,0,1,1,1,1,0,1,-1,-1,1,0,0,0,0,1,1,1,1,-1,-1,1,1,0,0,-1,0,-1,-1,-1,1,1,1,-1,1,1,1,1,0,-1,-1,1,0,1,-1};
+//    Matrix w(mFilter, filter);
+////    float ress = w.dotNoSSE(ll, kk);
+//    Matrix xx = mm.conv(&w, 2, 1);
 //    vector<float> ba = {1,0};
 //    vector<int> bs = {2};
 //    Matrix bias(ba,bs);
 //    xx.addBiasNoSSE(bias);
 ////    x.dot(w);
 ////    __m256 x = _mm256_load_ps(aa);
+
+    float first[4] = {1,2,3,4};
+    float second[4] = {1,1,1,1};
+    __m128  res = _mm_mul_ps(  *reinterpret_cast<__m128*>( first ) , *reinterpret_cast<__m128*>( second ) );
     return 0;
 }

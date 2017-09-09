@@ -5,15 +5,16 @@
 #include <exception>
 #include <numeric>
 #include "Matrix.h"
+#include "utils.h"
 #include "old_vec/VecNN.h"
 
 
 Matrix Matrix::im2col(vector<int> &filterShape, int s, int pad, int x) {
     int x_row = x * x;
-    int x_col = 1;
-    for (int i = 0; i < filterShape.size() - 1; i++) {
-        x_col *= filterShape.at(i);
-    }
+    int x_col = filterShape[0]*filterShape[1]*filterShape[2];
+//    for (int i = 0; i < filterShape.size() - 1; i++) {
+//        x_col *= filterShape.at(i);
+//    }
     X_col_shape.push_back(x_col);
     X_col_shape.push_back(x_row);
     int xx = filterShape.at(filterShape.size() - 1);
@@ -138,40 +139,48 @@ Matrix Matrix::dot(Matrix *filter, int x) {
     int x_dim = 0;
     int w_dim = 0;
     int index = 0;
+    vector<float>::const_iterator first, last, first1, last1;
+    vector<float> a, b;
+    //__attribute__((aligned(sizeof(__m256)))) float aa[8],bb[8];
+    //float aa[8], bb[8];
+    //__m256 xx,yy;
     for (int i = 0; i < W_row_shape.at(0); i++) {
-//        //__attribute__((aligned (32))) float b[W_row_shape.at(1)];
-//        __attribute__((aligned (16))) float b[W_row_shape.at(1)];
-//        //float *b = (float *)_mm_malloc(W_row_shape.at(1)*sizeof(float), 32);
-//        for (int k = 0; k < W_row_shape.at(1); k++) {
-//            b[k] = filter->matrix[k + w_dim];
-//        }
-//        VecNN w(W_row_shape.at(1), b);
-        vector<float>::const_iterator first =filter->matrix.begin() + w_dim;
-        vector<float>::const_iterator last = filter->matrix.begin() + w_dim + W_row_shape.at(1);
-        vector<float> b(first, last);
+        first =filter->matrix.begin() + w_dim;
+        last = filter->matrix.begin() + w_dim + W_row_shape.at(1);
+        b = {first, last};
         //VecAVX w(W_row_shape.at(1), b);
         for (int j = 0; j < X_col_shape.at(1); j++) {
-//            // __attribute__((aligned (32))) float a[X_col_shape.at(0)];// = &this->matrix[x_dim];
-//            __attribute__((aligned (16))) float a[X_col_shape.at(0)];
-//            //float *a = (float *)_mm_malloc(X_col_shape.at(0)*sizeof(float), 32);
-//            for (int k = 0; k < X_col_shape.at(0); k++) {
-//                a[k] = this->matrix[k + x_dim];
+            first1 =this->matrix.begin() + x_dim;
+            last1 = this->matrix.begin() + x_dim + X_col_shape.at(0);
+            a = {first1, last1};
+//            int size_mod_8 = a.size() % 8;
+//            int number_of_iterations = std::ceil(a.size() / 8.0);
+//            float sum = 0;
+//            int size = 0;
+//            for(int j = 0; j<number_of_iterations; j++){
+////                for (int k = 0; k < 8; ++k) {
+////                    if(size < a.size()){
+////                        aa[k] = a[j*8 + k];
+////                        bb[k] = b[j*8 + k];
+////                    }
+////                    else{
+////                        aa[k] = 0;
+////                        bb[k] = 0;
+////                    }
+////                    size++;
+////                }
+//
+//                xx = _mm256_load_ps(&a[j*8]);
+//                yy = _mm256_load_ps(&b[j*8]);
+//                sum += dot_product( xx , yy);
 //            }
-//            VecNN v(X_col_shape.at(0), a);
-            vector<float>::const_iterator first1 =this->matrix.begin() + x_dim;
-            vector<float>::const_iterator last1 = this->matrix.begin() + x_dim + X_col_shape.at(0);
-            vector<float> a(first1, last1);
-            //VecAVX v(X_col_shape.at(0), a);
-//            float res = v.dot(w);
             //float res = dotNoSSE(a, b); // can either do this
             float res = float(std::inner_product(a.begin(), a.end(), b.begin(), 0.0)); //or this
+
             out.matrix.at(index) = res;
             x_dim += X_col_shape.at(0);
             index++;
-            //_mm_free(a);
         }
-
-        // _mm_free(b);
         x_dim = 0;
         w_dim += W_row_shape.at(1);
     }
@@ -195,8 +204,6 @@ Matrix Matrix::MaxRow(int kernel_size, int stride, int padding) {
     int pad = padding;
     int x = this->shape.at(0);
     x = x - kernel_size + 2 * pad;
-//    if(x%stride != 0)
-//        pad = 1;
     x = ceil(float(x) / float(stride));
 
     x = x + 1;
@@ -240,37 +247,20 @@ Matrix Matrix::dotMM(Matrix &w) {
     vector<int> out_shape = {1, w.shape.at(1)};
     Matrix out(out_shape);
     int index = 0;
-//    __attribute__((aligned (16))) float a[w.shape.at(0)];
-//    for (int j = 0; j < w.shape.at(0); j++) {
-//        a[j] =  this->matrix.at(j);
-//    }
-//    VecNN v(w.shape.at(0), a);
     vector<float>::const_iterator first =this->matrix.begin();
     vector<float>::const_iterator last = this->matrix.end();
     vector<float> b(first, last);
+    vector<float>::const_iterator first1;
+    vector<float>::const_iterator last1;
+    vector<float> a;
     for (int i = 0; i < w.matrixSizeVector; i = i + w.shape.at(0)) {
-
-//        __attribute__((aligned (16))) float b[w.shape.at(0)];
-//
-//        for (int j = 0; j < w.shape.at(0); j++) {
-//            b[j] = w.matrix.at(j + i);
-//        }
-//        VecNN ww(w.shape.at(0), b);
-        vector<float>::const_iterator first1 =w.matrix.begin() + i;
-        vector<float>::const_iterator last1 = w.matrix.begin() + i + w.shape.at(0);
-        vector<float> a(first1, last1);
-        out.matrix[index] = float(std::inner_product(a.begin(), a.end(), b.begin(), 0.0));
-        //out.matrix[index] = dotNoSSE(b, a);
+        first1 =w.matrix.begin() + i;
+        last1 = w.matrix.begin() + i + w.shape.at(0);
+        a = {first1, last1};
+        //out.matrix[index] = float(std::inner_product(a.begin(), a.end(), b.begin(), 0.0));
+        out.matrix[index] = float(std::inner_product(a.begin(), a.end(), b.begin(), 0.0));//dotNoSSE(b, a);
         index++;
     }
-//    for (int i = 0; i < w.shape.at(1); ++i) {
-//        vector<float> a;
-//        for (int j = i; j < w.matrixSizeVector; j = j + w.shape.at(1)) {
-//            a.push_back(w.matrix[j]);
-//        }
-//        out.matrix[index] = dotNoSSE(b, a);
-//        index++;
-//    }
     return out;
 }
 
@@ -405,3 +395,4 @@ void Matrix::im2col_cpu( Matrix* data_im, int pad_h, const int stride_h, Matrix*
     //}
     cout<<"works"<<endl;
 }
+

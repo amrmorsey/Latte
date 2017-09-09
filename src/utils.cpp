@@ -68,6 +68,6 @@ void im2col(MatrixAVX &input_mat, const std::vector<int> &filterShape, MatrixAVX
     }
 }
 
-inline float dot_product(const __m256 &a, const __m256 &b, __m256 &out) {
+inline float dot_product(const __m256 &a, const __m256 &b) {
     return float(MatrixAVX::hsums(_mm256_mul_ps(a, b))[0]);
 }

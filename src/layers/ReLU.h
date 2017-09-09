@@ -18,7 +18,13 @@ public:
         for (int i = 0; i < input_mat.matrix.size(); i++)
             if (input_mat.matrix[i] < 0)
                 input_mat.matrix[i] = 0;
+        output.matrix = input_mat.matrix;
     };
+
+    void precompute(Matrix& a){
+        output = Matrix(a.shape);
+    }
+
 };
 
 

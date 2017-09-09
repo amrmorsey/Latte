@@ -39,6 +39,8 @@ public:
     Matrix loadMatrix(const string &matrix_dir, const string &matrix_name);
 
     void preprocess(Matrix&);
+
+    void precompute( Matrix &image);
 };
 
 

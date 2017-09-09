@@ -27,6 +27,9 @@ public:
     void setBias(const Matrix &bias);
 
     virtual void calculateOutput(Matrix &inputMat) = 0;
+
+    virtual void precompute(Matrix&) = 0;
+
 };
 
 

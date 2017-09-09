@@ -19,8 +19,24 @@ public:
     ~MaxPool() {};
 
     void calculateOutput(Matrix &input_mat) {
-        input_mat = input_mat.maxPooling(this->kernel_size, this->stride, this->padding);
+        input_mat.maxPooling(this->kernel_size, this->stride, this->padding, output);
     };
+
+    void precompute(Matrix& in_mat){
+        input = in_mat;
+        int pad = padding;
+        int x = in_mat.shape.at(0);
+        x = x - kernel_size + 2 * pad;
+        x = ceil(float(x) / float(stride));
+
+        x = x + 1;
+        int x_row = x * x;
+        int depth = in_mat.shape.at(2);
+        vector<int> outSize = {x, x, depth};
+        Matrix out(outSize);
+        output = out;
+    }
+
 };
 
 

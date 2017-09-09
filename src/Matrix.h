@@ -22,15 +22,12 @@ using namespace std;
 
 class Matrix {
 private:
+    void im2col(vector<int>&, int s, int, Matrix&);
+
+    //Matrix dot(Matrix*, int);
+public:
     vector<int> X_col_shape;
     vector<int> W_row_shape;
-
-    Matrix im2col(vector<int>&, int s, int, int);
-
-
-
-    Matrix dot(Matrix*, int);
-public:
     int calcuteOutput(vector<int> &index);
     int matrixSizeVector;
     // matrix should be a private membder
@@ -52,7 +49,7 @@ public:
     vector<int> calculateIndex(int x);
 
 
-    Matrix conv(Matrix* filter, int s, int padding);
+    void conv(Matrix& filter, int s, int padding, Matrix& im, Matrix& out);
 
     Matrix MaxRow(int kernel_size, int stride, int padding);
 
@@ -72,11 +69,11 @@ public:
 
     float dotNoSSE(vector<float> &a, vector<float> &b);
 
-    Matrix maxPooling(int, int, int);
+    void maxPooling(int, int, int, Matrix&);
 
     void im2col_cpu(Matrix *data_im, int pad_h, const int stride_h, Matrix *data_col, vector<int> &filterShape);
 
-    void dot(const Matrix &a, Matrix &out);
+    void dot(Matrix &a, Matrix &out);
 
 };
 

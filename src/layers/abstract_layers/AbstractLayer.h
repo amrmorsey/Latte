@@ -12,12 +12,17 @@
 class AbstractLayer {
 public:
     std::string name;
-
+    Matrix input;
+    Matrix im2col;
+    Matrix output;
+    Matrix filter;
     explicit AbstractLayer(std::string name) : name(name) {};
 
     virtual ~AbstractLayer() = default;
 
     virtual void calculateOutput(Matrix &input_mat) = 0;
+
+    virtual void precompute(Matrix&) = 0;
 };
 
 #endif //INFERENCEENGINE_LAYER_H

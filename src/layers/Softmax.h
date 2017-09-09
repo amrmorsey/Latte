@@ -31,6 +31,7 @@ public:
 //        // Set input mat to probs
 //        input_mat = Matrix(probs, input_mat.shape);
         softMaxFunction3(input_mat);
+        output.matrix = input_mat.matrix;
     };
 
     void softMaxFunction(Matrix &input_mat){
@@ -75,6 +76,9 @@ public:
         }
     }
 
+    void precompute(Matrix& a){
+        output = Matrix(a.shape);
+    }
 };
 
 

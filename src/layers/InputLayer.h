@@ -24,7 +24,14 @@ public:
 
         if (input_size != input_mat.size())
             throw std::length_error("Input image dimensions does not match dimensions of input layer");
+        output = input_mat;
     };
+
+    void precompute(Matrix& in_mat){
+        input = Matrix(in_mat.shape);
+        //input = in_mat;
+        output = Matrix(in_mat.shape);
+    }
 };
 
 

@@ -9,21 +9,7 @@
 #include "old_vec/VecNN.h"
 
 
-Matrix Matrix::im2col(vector<int> &filterShape, int s, int pad, int x) {
-    int x_row = x * x;
-    int x_col = filterShape[0]*filterShape[1]*filterShape[2];
-//    for (int i = 0; i < filterShape.size() - 1; i++) {
-//        x_col *= filterShape.at(i);
-//    }
-    X_col_shape.push_back(x_col);
-    X_col_shape.push_back(x_row);
-    int xx = filterShape.at(filterShape.size() - 1);
-    W_row_shape.push_back(xx);
-    W_row_shape.push_back(x_col);
-
-    //(x, y, z) = Z*(Dim_Y*Dim_X) + y*DIM_X + x
-    vector<int> out_shape = {X_col_shape.at(0), X_col_shape.at(1)};
-    Matrix out(out_shape);
+void Matrix::im2col(vector<int> &filterShape, int s, int pad, Matrix& out) {
     int index = 0;
 
     for (int i = 0; i < this->shape.at(1); i = i + s) { //length y
@@ -54,9 +40,6 @@ Matrix Matrix::im2col(vector<int> &filterShape, int s, int pad, int x) {
             }
         }
     }
-    out.W_row_shape = this->W_row_shape;
-    out.X_col_shape = this->X_col_shape;
-    return out;
 }
 
 float Matrix::at(vector<int> index) {
@@ -133,20 +116,18 @@ float Matrix::dotNoSSE(vector<float> &a, vector<float> &b) {
 }
 
 // HAVE TO CALL im2col before doing it.
-Matrix Matrix::dot(Matrix *filter, int x) {
-    vector<int> out_shape = {x, x, filter->shape.at(3)};
-    Matrix out(out_shape);
+void Matrix::dot(Matrix& filter, Matrix& out) {
     int x_dim = 0;
     int w_dim = 0;
     int index = 0;
     vector<float>::const_iterator first, last, first1, last1;
     vector<float> a, b;
-    //__attribute__((aligned(sizeof(__m256)))) float aa[8],bb[8];
-    //float aa[8], bb[8];
-    //__m256 xx,yy;
+//    __attribute__((aligned(sizeof(__m256)))) float aa[8],bb[8];
+////    float aa[8], bb[8];
+//    __m256 xx,yy;
     for (int i = 0; i < W_row_shape.at(0); i++) {
-        first =filter->matrix.begin() + w_dim;
-        last = filter->matrix.begin() + w_dim + W_row_shape.at(1);
+        first =filter.matrix.begin() + w_dim;
+        last = filter.matrix.begin() + w_dim + W_row_shape.at(1);
         b = {first, last};
         //VecAVX w(W_row_shape.at(1), b);
         for (int j = 0; j < X_col_shape.at(1); j++) {
@@ -158,20 +139,20 @@ Matrix Matrix::dot(Matrix *filter, int x) {
 //            float sum = 0;
 //            int size = 0;
 //            for(int j = 0; j<number_of_iterations; j++){
-////                for (int k = 0; k < 8; ++k) {
-////                    if(size < a.size()){
-////                        aa[k] = a[j*8 + k];
-////                        bb[k] = b[j*8 + k];
-////                    }
-////                    else{
-////                        aa[k] = 0;
-////                        bb[k] = 0;
-////                    }
-////                    size++;
-////                }
+//                for (int k = 0; k < 8; ++k) {
+//                    if(size < a.size()){
+//                        aa[k] = a[j*8 + k];
+//                        bb[k] = b[j*8 + k];
+//                    }
+//                    else{
+//                        aa[k] = 0;
+//                        bb[k] = 0;
+//                    }
+//                    size++;
+//                }
 //
-//                xx = _mm256_load_ps(&a[j*8]);
-//                yy = _mm256_load_ps(&b[j*8]);
+//                xx = _mm256_load_ps(aa);
+//                yy = _mm256_load_ps(bb);
 //                sum += dot_product( xx , yy);
 //            }
             //float res = dotNoSSE(a, b); // can either do this
@@ -184,19 +165,11 @@ Matrix Matrix::dot(Matrix *filter, int x) {
         x_dim = 0;
         w_dim += W_row_shape.at(1);
     }
-
-    return out;
 }
 
-Matrix Matrix::conv(Matrix *filter, int stride, int padding) {
-    int pad = padding;
-
-    int x = this->shape.at(0);
-    x = x - filter->shape.at(0) + 2 * pad;
-    x = floor(float(x) / float(stride));
-    x = x + 1;
-    Matrix out = this->im2col(filter->shape, stride, pad, x);
-    return out.dot(filter, x);
+void Matrix::conv(Matrix& filter, int stride, int padding, Matrix& im, Matrix& out) {
+    this->im2col(filter.shape, stride, padding, im);
+    im.dot(filter, out);
 }
 
 // Should avoid returning by value here
@@ -322,46 +295,29 @@ void Matrix::subNoSSE(Matrix &m) {
     }
 }
 
-Matrix Matrix::maxPooling(int kernel_size, int stride, int padding) {
-    int pad = padding;
-    int x = this->shape.at(0);
-    x = x - kernel_size + 2 * pad;
-//    if(x%stride != 0)
-//        pad = 1;
-    x = ceil(float(x) / float(stride));
-
-    x = x + 1;
-    int x_row = x * x;
-    int depth = this->shape.at(2);
-    vector<int> outSize = {x, x, depth};
-    Matrix out(outSize);
+void Matrix::maxPooling(int kernel_size, int stride, int padding, Matrix& out) {
     int index = 0;
-
-   // for (int n = 0; n < bottom[0]->num(); ++n) {
-        for (int c = 0; c < this->shape.at(2); ++c) {
-            for (int ph = 0; ph < outSize.at(1); ++ph) {
-                for (int pw = 0; pw < outSize.at(0); ++pw) {
-                    int hstart = ph * stride - pad;
-                    int wstart = pw * stride - pad;
-                    int hend = min(hstart + kernel_size, this->shape.at(0));
-                    int wend = min(wstart + kernel_size, this->shape.at(1));
-                    hstart = max(hstart, 0);
-                    wstart = max(wstart, 0);
-                    const int pool_index = ph * outSize.at(0) + pw + c*out.shape.at(0)*out.shape.at(1);
-                    for (int h = hstart; h < hend; ++h) {
-                        for (int w = wstart; w < wend; ++w) {
-                            const int index = h * this->shape.at(1) + w + c*this->shape.at(0)*this->shape.at(1);
-                            if (this->matrix[index] > out.matrix[pool_index]) {
-                                out.matrix[pool_index] = this->matrix[index];
-                            }
+    for (int c = 0; c < this->shape.at(2); ++c) {
+        for (int ph = 0; ph < out.shape.at(1); ++ph) {
+            for (int pw = 0; pw < out.shape.at(0); ++pw) {
+                int hstart = ph * stride - padding;
+                int wstart = pw * stride - padding;
+                int hend = min(hstart + kernel_size, this->shape.at(0));
+                int wend = min(wstart + kernel_size, this->shape.at(1));
+                hstart = max(hstart, 0);
+                wstart = max(wstart, 0);
+                const int pool_index = ph * out.shape.at(0) + pw + c*out.shape.at(0)*out.shape.at(1);
+                for (int h = hstart; h < hend; ++h) {
+                    for (int w = wstart; w < wend; ++w) {
+                        const int index = h * this->shape.at(1) + w + c*this->shape.at(0)*this->shape.at(1);
+                        if (this->matrix[index] > out.matrix[pool_index]) {
+                            out.matrix[pool_index] = this->matrix[index];
                         }
                     }
                 }
             }
         }
-  //  }
-
-    return out;
+    }
 }
 
 void Matrix::im2col_cpu( Matrix* data_im, int pad_h, const int stride_h, Matrix* data_col, vector<int>& filterShape) {

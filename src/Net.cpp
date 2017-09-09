@@ -131,7 +131,8 @@ void Net::predict(const Matrix &image) {
     Matrix out = image;
     //out.subNoSSE(mean_mat);
     for (auto &&layer : this->layers) {
-        layer.get()->calculateOutput(out);//adasdasdasd
+        layer.get()->calculateOutput(out);
+        out = layer->output;//adasdasdasd
     }
 //    cout<<"works"<<endl;
     // Get top predictions code from caffe
@@ -150,6 +151,14 @@ Matrix Net::loadMatrix(const string &matrix_dir, const string &matrix_name) {
 
 void Net::preprocess(Matrix& m) {
     m.subNoSSE(mean_mat);
+}
+
+void Net::precompute(Matrix& image) {
+    Matrix in_mat = image;
+    for(auto &&layer : this->layers){
+        layer.get()->precompute(in_mat);
+        in_mat = Matrix(layer->output.shape);
+    }
 }
 
 

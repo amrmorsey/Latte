@@ -1,4 +1,5 @@
 #include "utils.h"
+#include "MatrixAVX.h"
 
 // Should return a pointer to the values here instead of returning by copy
 std::vector<float> extractValues(const std::string &file_path) {
@@ -53,7 +54,8 @@ void im2col(MatrixAVX &input_mat, const std::vector<int> &filterShape, MatrixAVX
 //                                vector<int> in = {tem1, tem2, j};
                                 //sdasdasll.push_back(in);
                                 out.setElement(index, input_mat.getElement(
-                                        tem1 + tem2 * input_mat.shape[0] + j * input_mat.shape[0] * input_mat.shape[1]));
+                                        tem1 + tem2 * input_mat.shape[0] +
+                                        j * input_mat.shape[0] * input_mat.shape[1]));
                                 //ll.push_back(this->at(in));
                                 index++;
                             }
@@ -64,4 +66,8 @@ void im2col(MatrixAVX &input_mat, const std::vector<int> &filterShape, MatrixAVX
             }
         }
     }
+}
+
+inline float dot_product(const __m256 &a, const __m256 &b, __m256 &out) {
+    return float(MatrixAVX::hsums(_mm256_mul_ps(a, b))[0]);
 }

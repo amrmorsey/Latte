@@ -16,4 +16,6 @@ MatrixAVX loadMatrix(const std::string &matrix_dir, const std::string &matrix_na
 
 void im2col(MatrixAVX &input_mat, const std::vector<int> &filterShape, MatrixAVX &out, int s, int pad, int x);
 
+inline float dot_product(const __m256& a, const __m256 &b, __m256 &out);
+
 #endif //INFERENCEENGINE_UTILS_H

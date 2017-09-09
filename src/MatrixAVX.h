@@ -26,17 +26,6 @@ private:
     // TODO: Change this to support windows
     __attribute__((aligned(sizeof(__m256)))) float aligned_float_arr[8];
 
-    // Does horizontal sum of a chunk v
-    // Only works if v is __m256, __m128 requires less instructions
-    static inline __m256 hsums(__m256 const &v) {
-        auto x = _mm256_permute2f128_ps(v, v, 1);
-        auto y = _mm256_add_ps(v, x);
-        x = _mm256_shuffle_ps(y, y, _MM_SHUFFLE(2, 3, 0, 1));
-        x = _mm256_add_ps(x, y);
-        y = _mm256_shuffle_ps(x, x, _MM_SHUFFLE(1, 0, 3, 2));
-        return _mm256_add_ps(x, y);
-    };
-
 public:
     unsigned long size;
     std::vector<int> shape;
@@ -80,6 +69,8 @@ public:
             xmm.push_back(_mm256_setzero_ps());
         }
     }
+
+    MatrixAVX() : shape({0}), aligned_size(0), stranglers(0), size(0) {}
 
     __m256 operator[](unsigned int index) const {
         return getChunk(index);
@@ -155,6 +146,36 @@ public:
         if (shape[1] != a.shape[0])
             throw std::logic_error("Matrices not of correct dimensions " + shape_str() + " vs " + a.shape_str());
 
+        MatrixAVX smaller_mat, bigger_mat;
+
+        int repeated_dim, kept_dim;
+        if (size < a.size) {
+            smaller_mat = *this;
+            bigger_mat = a;
+            kept_dim = a.shape[0];
+            repeated_dim = a.shape[1];
+        } else {
+            smaller_mat = a;
+            bigger_mat = *this;
+            kept_dim = shape[1];
+            repeated_dim = shape[0];
+        }
+
+        unsigned long aligned_sec_size = static_cast<unsigned long>(std::ceil(smaller_mat.size / 8.0) * 8);
+
+        std::vector<float> sequence_vec(aligned_sec_size, 0.0f);
+        std::vector<float> matrix_vec;
+        matrix_vec.reserve(static_cast<unsigned long>(shape[0] * a.shape[1]));
+
+        for (unsigned int i = 0; i < smaller_mat.size; i++)
+            sequence_vec[i] = smaller_mat.getElement(i);
+
+
+        for (int i = 0; i < repeated_dim; i++) {
+            matrix_vec.insert(matrix_vec.end(), sequence_vec.begin(), sequence_vec.end());
+        }
+
+        MatrixAVX repeated_mat(matrix_vec, {1, matrix_vec.size()});
         std::fill(aligned_float_arr, aligned_float_arr + 8, 0);
 
         unsigned int out_index = 0;
@@ -164,7 +185,7 @@ public:
                 out.setChunk(out_index++, _mm256_load_ps(aligned_float_arr));
                 std::fill(aligned_float_arr, aligned_float_arr + 8, 0);
             }
-            aligned_float_arr[i - 1 % 8] = float(hsums(_mm256_mul_ps(xmm[i - 1], a.xmm[i - 1]))[0]);
+            aligned_float_arr[i - 1 % 8] = float(hsums(_mm256_mul_ps(bigger_mat.xmm[i - 1], repeated_mat.xmm[i - 1]))[0]);
         }
         out.setChunk(out_index, _mm256_load_ps(aligned_float_arr));
     }
@@ -172,7 +193,7 @@ public:
     std::string shape_str() const {
         std::string shape_str = "(";
 
-        for(int i = 0; i < shape.size() - 1; i++) {
+        for (int i = 0; i < shape.size() - 1; i++) {
             shape_str += std::to_string(shape[i]) + ", ";
         }
         shape_str += std::to_string(shape[shape.size() - 1]) + ")";
@@ -194,6 +215,16 @@ public:
         shape = new_shape;
     }
 
+    // Does horizontal sum of a chunk v
+    // Only works if v is __m256, __m128 requires less instructions
+    static inline __m256 hsums(__m256 const &v) {
+        auto x = _mm256_permute2f128_ps(v, v, 1);
+        auto y = _mm256_add_ps(v, x);
+        x = _mm256_shuffle_ps(y, y, _MM_SHUFFLE(2, 3, 0, 1));
+        x = _mm256_add_ps(x, y);
+        y = _mm256_shuffle_ps(x, x, _MM_SHUFFLE(1, 0, 3, 2));
+        return _mm256_add_ps(x, y);
+    };
     // operator << : Displays contents of matrix
     friend std::ostream &operator<<(std::ostream &stream, const MatrixAVX &matrix) {
         for (unsigned int i = 0; i < matrix.xmm_size; i++) {

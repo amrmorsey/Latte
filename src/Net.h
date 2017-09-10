@@ -32,7 +32,7 @@ public:
 
     void preprocess(MatrixAVX&);
 
-    void precompute(MatrixAVX& a);
+    void setup(MatrixAVX& a);
 };
 
 

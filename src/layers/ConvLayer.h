@@ -36,14 +36,15 @@ public:
         im2col(input_mat, weights.get()->shape, im2col_out, stride, padding);
         weights.get()->reshape({im2col_out.W_row_shape[1], im2col_out.W_row_shape[0]});
         im2col_out.reshape({im2col_out.X_col_shape[1], im2col_out.X_col_shape[0]});
-        auto start = std::chrono::system_clock::now();
-        for (size_t counter = 0; counter < 10000; ++counter) {
-            im2col_out.dot_product(*weights.get(), output_before_bias);
-        }
-        auto duration =
-                std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now() - start) / 10000;
+//        auto start = std::chrono::system_clock::now();
+//        for (size_t counter = 0; counter < 10000; ++counter) {
+//            im2col_out.dot_product(*weights.get(), output_before_bias);
+//        }
+//        auto duration =
+//                std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now() - start) / 10000;
+        im2col_out.dot_product(*weights.get(), output_before_bias);
         output_before_bias.add(biases, biases_stranglers, output);
-        std::cout << "Completed function in " << duration.count() << " microseconds." << std::endl;
+        //std::cout << "Completed function in " << duration.count() << " microseconds." << std::endl;
     };
 
     void precompute(MatrixAVX &in_mat) {

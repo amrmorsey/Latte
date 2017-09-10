@@ -16,6 +16,7 @@
 #include <algorithm>
 #include <ostream>
 #include <iostream>
+#include <iomanip>
 
 class MatrixAVX {
 private:
@@ -39,12 +40,13 @@ public:
         for (int x : shape)
             size *= x;
 
-        xmm_size = static_cast<unsigned long>(ceil(size / 8.0f));
+        xmm_size = static_cast<unsigned long>(std::ceil(size / 8.0f));
 
         aligned_size = size / 8;
+        xmm.reserve(aligned_size + 5);
 
         for (int i = 0; i < aligned_size; i++) {
-            xmm.push_back(_mm256_loadu_ps(&vec[i*8]));
+            xmm.push_back(_mm256_loadu_ps(&vec[i * 8]));
         }
 
         // Check for stranglers in case matrix size is not divisible by 8
@@ -67,13 +69,15 @@ public:
 
         xmm_size = static_cast<unsigned long>(ceil(size / 8.0f));
 
+        xmm.reserve(xmm_size);
 
         for (int i = 0; i < xmm_size; i++) {
             xmm.push_back(_mm256_setzero_ps());
         }
     }
 
-    explicit MatrixAVX(aligned_vector xmm, std::vector<int> shape) : shape(shape), xmm(xmm), aligned_size(0), stranglers(0) {
+    explicit MatrixAVX(aligned_vector xmm, std::vector<int> shape) : shape(shape), xmm(xmm), aligned_size(0),
+                                                                     stranglers(0) {
         size = 1;
 
         for (int x : shape)
@@ -121,7 +125,7 @@ public:
 
     void add(aligned_vector &biases, aligned_vector &stranglers, MatrixAVX &out) {
         int limit = std::floor((this->shape[0] * this->shape[1]) / 8.0);
-        int rem = (this->shape[0] * this->shape[0])%8;
+        int rem = (this->shape[0] * this->shape[0]) % 8;
         int j = 0;
         for (unsigned int i = 0; i < biases.size(); i++) {
             for (; j < limit + i * (limit + 1) && j < this->xmm_size; ++j) {
@@ -132,7 +136,7 @@ public:
                 ++j;
             }
         }
-        for(int i = 0; i < out.size % 8; i++) {
+        for (int i = 0; i < 8 - (out.size % 8); i++) {
             out.setElement(out.xmm_size * 8 - 1 - i, 0.0f);
         }
     }
@@ -182,7 +186,6 @@ public:
         unsigned int chunk_range = std::ceil(kept_dim / 8.0);
         unsigned int big_reserve_size = chunk_range * 8 * repeated_dim;
         unsigned int small_reserve_size = chunk_range * 8 * other_dim;
-        unsigned long aligned_sec_size = static_cast<unsigned long>(chunk_range * 8);
 
         std::vector<float> small_matrix_vec(small_reserve_size, 0.0f);
         std::vector<float> big_matrix_vec(big_reserve_size, 0.0f);
@@ -217,7 +220,6 @@ public:
         MatrixAVX big(big_matrix_vec, {big_reserve_size, 1});
         float res;
         unsigned int out_index = 0;
-        unsigned int array_ind = 1;
         std::fill(aligned_float_arr, aligned_float_arr + 8, 0);
 
         for (int small_chunk = 0; small_chunk < small.xmm_size; small_chunk += chunk_range) {
@@ -231,6 +233,14 @@ public:
                 out.setElement(out_index++, res);
             }
         }
+//        [0] = {float} 0
+//                      [1] = {float} 0
+//                                    [2] = {float} 0
+//                                                  [3] = {float} 4.21845627
+//                                                                [4] = {float} 7.06306934
+//                                                                              [5] = {float} 8.99108505
+//                                                                                            [6] = {float} 15.2818079
+//                                                                                                          [7] = {float} 15.2818079
 //        for (unsigned int i = 0; i < smaller_mat.size;) {
 //            small_matrix_vec[i] = smaller_mat.getElement(i);
 //            if (i%row_col_size)
@@ -303,7 +313,7 @@ public:
     // operator << : Displays contents of matrix
     friend std::ostream &operator<<(std::ostream &stream, const MatrixAVX &matrix) {
         for (unsigned int i = 0; i < matrix.xmm_size; i++) {
-            stream << "[";
+            stream << std::to_string(i * 8) + " - [";
             for (unsigned int j = 0; j < 7; j++)
                 stream << std::to_string(matrix.xmm[i][j]) + " ";
             stream << std::to_string(matrix.xmm[i][7]);

@@ -26,15 +26,15 @@ int main() {
     net.preprocess(image);
     //net.predict(image);
     net.setup(image);
-    //net.predict(image);
-    auto start = std::chrono::system_clock::now();
-    for (size_t counter = 0; counter < 10000; ++counter)
-        net.predict(image);
-
-    auto duration =
-            std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now() - start) / 10000;
-
-    std::cout << "Completed function in " << duration.count() << " microseconds." << std::endl;
+    net.predict(image);
+//    auto start = std::chrono::system_clock::now();
+//    for (size_t counter = 0; counter < 10000; ++counter)
+//        net.predict(image);
+//
+//    auto duration =
+//            std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now() - start) / 10000;
+//
+//    std::cout << "Completed function in " << duration.count() << " microseconds." << std::endl;
 
     return 0;
 }

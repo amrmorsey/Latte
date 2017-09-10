@@ -37,7 +37,7 @@ void im2col(MatrixAVX &input_mat, const std::vector<int> &filterShape, MatrixAVX
     int index = 0;
 
     for (int i = 0; i < input_mat.shape[1]; i = i + s) { //length y
-        for (int k = 0; k < input_mat.shape[0]; k = k + s) { //width x
+            for (int k = 0; k < input_mat.shape[0]; k = k + s) { //width x
             for (int j = 0; j < input_mat.shape.at(2); j++) { // depth z
                 int tt = k - pad + filterShape.at(0) - 1;
                 int yy = i - pad + filterShape.at(0) - 1;

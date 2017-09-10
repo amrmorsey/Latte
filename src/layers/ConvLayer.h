@@ -31,20 +31,13 @@ public:
     ~ConvLayer() {};
 
     void calculateOutput(MatrixAVX &input_mat) {
-
-
         im2col(input_mat, weights.get()->shape, im2col_out, stride, padding);
         weights.get()->reshape({im2col_out.W_row_shape[1], im2col_out.W_row_shape[0]});
         im2col_out.reshape({im2col_out.X_col_shape[1], im2col_out.X_col_shape[0]});
-//        auto start = std::chrono::system_clock::now();
-//        for (size_t counter = 0; counter < 10000; ++counter) {
-//            im2col_out.dot_product(*weights.get(), output_before_bias);
-//        }
-//        auto duration =
-//                std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now() - start) / 10000;
         im2col_out.dot_product(*weights.get(), output_before_bias);
         output_before_bias.add(biases, biases_stranglers, output);
-        //std::cout << "Completed function in " << duration.count() << " microseconds." << std::endl;
+        std::cout << output << std::endl;
+//        input_mat = out_bias;
     };
 
     void precompute(MatrixAVX &in_mat) {
@@ -87,20 +80,19 @@ public:
 
         if (rem) {
             __m256i mask = _mm256_setr_epi32(-rem, 1 - rem, 2 - rem, 3 - rem, 4 - rem, 5 - rem, 6 - rem, 7 - rem);
+            rem = 8 - rem;
             __m256i mask2 = _mm256_setr_epi32(7 - rem, 6 - rem, 5 - rem, 4 - rem, 3 - rem, 2 - rem, 1 - rem, -rem);
 
             for (int k = 0; k < biases.size(); ++k) {
                 if (k + 1 < biases.size()) {
-                    __m256 x = _mm256_add_ps(_mm256_maskload_ps(reinterpret_cast<const float *>(&biases[k]), mask),
-                                             _mm256_maskload_ps(reinterpret_cast<const float *>(&biases[k + 1]),
-                                                                mask2));
+                    __m256 f1 = _mm256_maskload_ps(reinterpret_cast<const float *>(&biases[k]), mask);
+                    __m256 f2 = _mm256_maskload_ps(reinterpret_cast<const float *>(&biases[k + 1]), mask2);
+                    __m256 x = _mm256_or_ps(f1, f2);
                     biases_stranglers.push_back(x);
                 } else
                     biases_stranglers.push_back(_mm256_maskload_ps(reinterpret_cast<const float *>(&biases[k]), mask));
             }
         }
-
-
     }
 };
 

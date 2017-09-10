@@ -16,67 +16,23 @@ public:
 
     // Can this calculation be done inplace?
     void calculateOutput(MatrixAVX &input_mat) {
-//        float temp = 10;    // What is this?
-//        vector<float> probs;
-//        double sum = 0;
-//        for (auto weight : input_mat.matrix) {
-//            float pr = std::exp(weight / temp);
-//            sum += pr;
-//            probs.push_back(pr);
-//        }
-//        for (auto &pr : probs) {
-//            pr /= sum;
-//        }
-//
-//        // Set input mat to probs
-//        input_mat = Matrix(probs, input_mat.shape);
         softMaxFunction3(input_mat);
     };
-
-//    void softMaxFunction(MatrixAVX &input_mat){
-//        std::vector <float> y = input_mat.matrix;
-//        float ymax = *std::max_element(y.begin(), y.end());
-//        float sumofelements = 0;
-//        for (auto& n : y)
-//            sumofelements += n;
-//        for(int f = 0; f < y.size(); f++) {
-//            y.at(f) = exp(y.at(f) - ymax);
-//            float ysum = 0;
-//            for (int i = 0; i <=f ; i++) {
-//                ysum +=y.at(i);
-//            }
-//            y.at(f) = y.at(f) / ysum;
-//        }
-//        input_mat.matrix = y;
-//    }
-//
-//    void softMaxFunction2(MatrixAVX &input_mat){
-//        std::vector<float> y = input_mat.matrix;
-//        for (int i = 0; i < y.size(); i++) {
-//            float sum = 0;
-//            float ymax = *std::max_element(y.begin(), y.begin()+i);
-//            for (int j = 0; j <=i ; j++) {
-//                sum += exp(y[j] - ymax);
-//            }
-//            y[i] = exp(input_mat.matrix[i] - ymax - log(sum));
-//        }
-//        input_mat.matrix = y;
-//    }
 
     void softMaxFunction3(MatrixAVX &input_mat){
         float sum = 0;
         for (unsigned int i = 0; i < input_mat.size; ++i) {
-            input_mat.setElement(i, std::exp(input_mat.getElement(i)));
-            sum += input_mat.getElement(i);
+            output.setElement(i, std::exp(input_mat.getElement(i)));
+            sum += output.getElement(i);
         }
 
         for (unsigned int i = 0; i < input_mat.size; ++i) {
-            input_mat.setElement(i, input_mat.getElement(i) / sum);
+            output.setElement(i, output.getElement(i) / sum);
         }
     }
 
     void precompute(MatrixAVX& in_mat){
-
+        output = MatrixAVX(in_mat.shape);
     }
 
 };

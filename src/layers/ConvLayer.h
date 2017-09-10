@@ -44,11 +44,6 @@ public:
                 std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now() - start) / 10000;
 
         std::cout << "Completed function in " << duration.count() << " microseconds." << std::endl;
-        output_before_bias.add(biases, biases_stranglers, output);
-        //std::cout << out_dot << std::endl;
-
-        //std::cout << output;
-//        input_mat = out_bias;
     };
 
     void precompute(MatrixAVX &in_mat) {

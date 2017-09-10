@@ -42,7 +42,7 @@ public:
         }
         auto duration =
                 std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now() - start) / 10000;
-
+        output_before_bias.add(biases, biases_stranglers, output);
         std::cout << "Completed function in " << duration.count() << " microseconds." << std::endl;
     };
 

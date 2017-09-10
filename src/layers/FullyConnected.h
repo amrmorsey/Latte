@@ -54,7 +54,7 @@ public:
     };
 
     void precompute(MatrixAVX& in_mat){
-
+        input = in_mat;
     }
 };
 

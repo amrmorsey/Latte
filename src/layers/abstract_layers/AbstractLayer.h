@@ -16,8 +16,10 @@ public:
     MatrixAVX output;
     MatrixAVX output_before_bias;
     MatrixAVX im2col_out;
+    MatrixAVX filter;
     aligned_vector biases;
     aligned_vector biases_stranglers;
+
     int rem;
 
     explicit AbstractLayer(std::string name) : name(name) {};

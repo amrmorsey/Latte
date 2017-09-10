@@ -21,7 +21,7 @@ public:
         weights.get()->reshape({im2col_out.W_row_shape[1], im2col_out.W_row_shape[0]});
         im2col_out.reshape({im2col_out.X_col_shape[1], im2col_out.X_col_shape[0]});
         im2col_out.dot_product(*weights.get(), output_before_bias);
-        output_before_bias.add(biases, biases_stranglers, output);
+        output_before_bias.add(biases, biases_stranglers, output);//asdasd
     };
 
     void precompute(MatrixAVX& in_mat){

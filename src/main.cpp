@@ -2,6 +2,7 @@
 #include <vector>
 #include <emmintrin.h>
 #include "Matrix.h"
+#include "utils.h"
 using namespace std;
 ////
 ////void feedForward(int (*inp)[7][7], int (*ws)[3][3][3], int* bs, int stride, int filter){
@@ -618,7 +619,10 @@ int main(int argc, char **argv)
 ////    __m256 x = _mm256_load_ps(aa);
 
     float first[4] = {1,2,3,4};
-    float second[4] = {1,1,1,1};
-    __m128  res = _mm_mul_ps(  *reinterpret_cast<__m128*>( first ) , *reinterpret_cast<__m128*>( second ) );
+    float second[4] = {1,2,1,1};
+    __m128 xx = _mm_load_ps(first);
+    __m128 yy = _mm_load_ps(second);
+    float res = dot_product(xx, yy) ;
+    cout<<res<<endl;
     return 0;
 }

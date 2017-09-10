@@ -141,9 +141,9 @@ Matrix Matrix::dot(Matrix *filter, int x) {
     int index = 0;
     vector<float>::const_iterator first, last, first1, last1;
     vector<float> a, b;
-    //__attribute__((aligned(sizeof(__m256)))) float aa[8],bb[8];
-    //float aa[8], bb[8];
-    //__m256 xx,yy;
+//    __attribute__((aligned(sizeof(__m256)))) float aa[8],bb[8];
+    float aa[4], bb[4];
+    __m128 xx,yy;
     for (int i = 0; i < W_row_shape.at(0); i++) {
         first =filter->matrix.begin() + w_dim;
         last = filter->matrix.begin() + w_dim + W_row_shape.at(1);
@@ -153,31 +153,31 @@ Matrix Matrix::dot(Matrix *filter, int x) {
             first1 =this->matrix.begin() + x_dim;
             last1 = this->matrix.begin() + x_dim + X_col_shape.at(0);
             a = {first1, last1};
-//            int size_mod_8 = a.size() % 8;
-//            int number_of_iterations = std::ceil(a.size() / 8.0);
-//            float sum = 0;
-//            int size = 0;
-//            for(int j = 0; j<number_of_iterations; j++){
-////                for (int k = 0; k < 8; ++k) {
-////                    if(size < a.size()){
-////                        aa[k] = a[j*8 + k];
-////                        bb[k] = b[j*8 + k];
-////                    }
-////                    else{
-////                        aa[k] = 0;
-////                        bb[k] = 0;
-////                    }
-////                    size++;
-////                }
-//
-//                xx = _mm256_load_ps(&a[j*8]);
-//                yy = _mm256_load_ps(&b[j*8]);
-//                sum += dot_product( xx , yy);
-//            }
-            //float res = dotNoSSE(a, b); // can either do this
-            float res = float(std::inner_product(a.begin(), a.end(), b.begin(), 0.0)); //or this
+            int size_mod_8 = a.size() % 4;
+            int number_of_iterations = std::ceil(a.size() / 4.0);
+            float sum = 0;
+            int size = 0;
+            for(int j = 0; j<number_of_iterations; j++){
+                for (int k = 0; k < 4; ++k) {
+                    if(size < a.size()){
+                        aa[k] = a[j*4 + k];
+                        bb[k] = b[j*4 + k];
+                    }
+                    else{
+                        aa[k] = 0;
+                        bb[k] = 0;
+                    }
+                    size++;
+                }
 
-            out.matrix.at(index) = res;
+                xx = _mm_load_ps(aa);
+                yy = _mm_load_ps(bb);
+                sum += dot_product( xx , yy);
+            }
+            //float res = dotNoSSE(a, b); // can either do this
+            //float res = float(std::inner_product(a.begin(), a.end(), b.begin(), 0.0)); //or this
+
+            out.matrix.at(index) = sum;
             x_dim += X_col_shape.at(0);
             index++;
         }

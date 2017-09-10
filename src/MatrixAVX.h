@@ -24,7 +24,7 @@ private:
     unsigned long aligned_size;
     unsigned int stranglers;
     // TODO: Change this to support windows
-    __attribute__((aligned(sizeof(__m256)))) float aligned_float_arr[8];
+    float aligned_float_arr[8] __attribute__((aligned(sizeof(__m256))));
 
 public:
     aligned_vector xmm;
@@ -44,7 +44,7 @@ public:
         aligned_size = size / 8;
 
         for (int i = 0; i < aligned_size; i++) {
-            xmm.push_back(_mm256_loadu_ps(&vec[i * 8]));
+            xmm.push_back(_mm256_loadu_ps(&vec[i*8]));
         }
 
         // Check for stranglers in case matrix size is not divisible by 8
@@ -71,6 +71,15 @@ public:
         for (int i = 0; i < xmm_size; i++) {
             xmm.push_back(_mm256_setzero_ps());
         }
+    }
+
+    explicit MatrixAVX(aligned_vector xmm, std::vector<int> shape) : shape(shape), xmm(xmm), aligned_size(0), stranglers(0) {
+        size = 1;
+
+        for (int x : shape)
+            size *= x;
+
+        xmm_size = static_cast<unsigned long>(ceil(size / 8.0f));
     }
 
     MatrixAVX() : shape({0}), aligned_size(0), stranglers(0), size(0) {}
@@ -213,25 +222,15 @@ public:
 
         for (int small_chunk = 0; small_chunk < small.xmm_size; small_chunk += chunk_range) {
             for (int big_chunk = 0; big_chunk < big.xmm_size; big_chunk += chunk_range) {
-                if (array_ind % 9 == 0) {
-//                    aligned_float_arr[7] = res;
-                    out.setChunk(out_index++, _mm256_loadu_ps(aligned_float_arr));
-                    std::fill(aligned_float_arr, aligned_float_arr + 8, 0);
-                    array_ind = 1;
-                }
                 res = 0;
                 for (int partial_index = 0; partial_index < chunk_range; partial_index++) {
                     // AVX2 float conversion is ~10-20microseconds faster
                     res += float(hsums(_mm256_mul_ps(big.xmm[big_chunk + partial_index],
                                                      small.xmm[small_chunk + partial_index]))[0]);
                 }
-
-                aligned_float_arr[array_ind - 1] = res;
-                ++array_ind;
-
+                out.setElement(out_index++, res);
             }
         }
-        out.setChunk(out_index, _mm256_loadu_ps(aligned_float_arr));
 //        for (unsigned int i = 0; i < smaller_mat.size;) {
 //            small_matrix_vec[i] = smaller_mat.getElement(i);
 //            if (i%row_col_size)

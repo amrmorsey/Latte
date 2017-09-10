@@ -33,7 +33,7 @@ MatrixAVX loadMatrix(const std::string &matrix_dir, const std::string &matrix_na
     return MatrixAVX(image_vec, image_shape);
 }
 
-void im2col(MatrixAVX &input_mat, const std::vector<int> &filterShape, MatrixAVX &out, int s, int pad, int x) {
+void im2col(MatrixAVX &input_mat, const std::vector<int> &filterShape, MatrixAVX &out, int s, int pad) {
     int index = 0;
 
     for (int i = 0; i < input_mat.shape[1]; i = i + s) { //length y

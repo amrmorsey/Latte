@@ -25,6 +25,10 @@ public:
         if (input_size != input_mat.size)
             throw std::length_error("Input image dimensions does not match dimensions of input layer");
     };
+
+    void precompute(MatrixAVX& in_mat){
+
+    }
 };
 
 

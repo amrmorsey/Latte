@@ -131,5 +131,10 @@ void Net::preprocess(MatrixAVX &m) {
     m = out;
 }
 
+void Net::precompute(MatrixAVX &a) {
+    layers[1].get()->precompute(a);
+    layers[1].get()->calculateOutput(a);
+}
+
 
 

@@ -18,6 +18,10 @@ public:
 //            input_mat.matrix[i] = input_mat.matrix[i] / (1 + abs(input_mat.matrix[i]));
 //        }
     };
+
+    void precompute(MatrixAVX& in_mat){
+
+    }
 };
 
 #endif //INFERENCEENGINE_SIGMOID_H

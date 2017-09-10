@@ -20,6 +20,11 @@ public:
             if (input_mat.getElement(i) < 0)
                 input_mat.setElement(i, 0);
     };
+
+    void precompute(MatrixAVX& in_mat){
+
+    }
+
 };
 
 

@@ -75,6 +75,10 @@ public:
         }
     }
 
+    void precompute(MatrixAVX& in_mat){
+
+    }
+
 };
 
 

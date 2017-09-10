@@ -12,12 +12,21 @@
 class AbstractLayer {
 public:
     std::string name;
+    MatrixAVX input;
+    MatrixAVX output;
+    MatrixAVX output_before_bias;
+    MatrixAVX im2col_out;
+    aligned_vector biases;
+    aligned_vector biases_stranglers;
+    int rem;
 
     explicit AbstractLayer(std::string name) : name(name) {};
 
     virtual ~AbstractLayer() = default;
 
     virtual void calculateOutput(MatrixAVX &input_mat) = 0;
+
+    virtual void precompute(MatrixAVX&) = 0;
 };
 
 #endif //INFERENCEENGINE_LAYER_H

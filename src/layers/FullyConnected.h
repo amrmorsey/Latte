@@ -47,11 +47,15 @@ public:
         std::vector<int> out_shape = {X_col_shape.at(0), X_col_shape.at(1)};
         MatrixAVX out(out_shape), out_dot(out_shape), out_bias(out_shape);
 
-        im2col(input_mat, weights.get()->shape, out, stride, pad, x);
+        im2col(input_mat, weights.get()->shape, out, stride, pad);
         out.dot_product(*weights.get(), out_dot);
-        out_dot.add(*bias, out_bias);
+        out_dot.add(biases,biases_stranglers, out_bias);
         input_mat = out_bias;
     };
+
+    void precompute(MatrixAVX& in_mat){
+
+    }
 };
 
 

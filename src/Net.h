@@ -31,6 +31,8 @@ public:
     void printLayers();
 
     void preprocess(MatrixAVX&);
+
+    void precompute(MatrixAVX& a);
 };
 
 

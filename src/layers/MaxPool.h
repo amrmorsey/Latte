@@ -60,6 +60,10 @@ public:
 
         input_mat = out;
     };
+
+    void precompute(MatrixAVX& in_mat){
+
+    }
 };
 
 

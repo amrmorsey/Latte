@@ -19,15 +19,17 @@
 
 class MatrixAVX {
 private:
-    aligned_vector xmm;
+
     unsigned long xmm_size;
     unsigned long aligned_size;
     unsigned int stranglers;
-
     // TODO: Change this to support windows
     __attribute__((aligned(sizeof(__m256)))) float aligned_float_arr[8];
 
 public:
+    aligned_vector xmm;
+    std::vector<int> X_col_shape;
+    std::vector<int> W_row_shape;
     unsigned long size;
     std::vector<int> shape;
 
@@ -85,7 +87,7 @@ public:
     // Set a single element (float value) into the matrix
     // Caution: This might be an expensive operation if called multiple times. Use setChunk instead
     inline void setElement(unsigned int index, float value) {
-        if (index >= size) {
+        if (index >= xmm_size * 8) {
             throw std::out_of_range("Index " + std::to_string(index) + " is out of range. Matrix size is " +
                                     std::to_string(size));
         }
@@ -108,9 +110,21 @@ public:
         return xmm[index];
     }
 
-    void add(const MatrixAVX &a, MatrixAVX &out) {
-        for (unsigned int i = 0; i < xmm_size; i++) {
-            out.setChunk(i, _mm256_add_ps(xmm[i], a.xmm[0]));
+    void add(aligned_vector &biases, aligned_vector &stranglers, MatrixAVX &out) {
+        int limit = std::floor((this->shape[0] * this->shape[1]) / 8.0);
+        int rem = (this->shape[0] * this->shape[0])%8;
+        int j = 0;
+        for (unsigned int i = 0; i < biases.size(); i++) {
+            for (; j < limit + i * (limit + 1) && j < this->xmm_size; ++j) {
+                out.setChunk(j, _mm256_add_ps(xmm[j], biases[i]));
+            }
+            if (j < this->xmm_size && rem) {
+                out.setChunk(j, _mm256_add_ps(xmm[j], stranglers[i]));
+                ++j;
+            }
+        }
+        for(int i = 0; i < out.size % 8; i++) {
+            out.setElement(out.xmm_size * 8 - 1 - i, 0.0f);
         }
     }
 
@@ -199,9 +213,11 @@ public:
 
         for (int small_chunk = 0; small_chunk < small.xmm_size; small_chunk += chunk_range) {
             for (int big_chunk = 0; big_chunk < big.xmm_size; big_chunk += chunk_range) {
-                if (array_ind % 8 == 0) {
-                    out.setChunk(out_index++, _mm256_load_ps(aligned_float_arr));
+                if (array_ind % 9 == 0) {
+//                    aligned_float_arr[7] = res;
+                    out.setChunk(out_index++, _mm256_loadu_ps(aligned_float_arr));
                     std::fill(aligned_float_arr, aligned_float_arr + 8, 0);
+                    array_ind = 1;
                 }
                 res = 0;
                 for (int partial_index = 0; partial_index < chunk_range; partial_index++) {
@@ -209,11 +225,13 @@ public:
                     res += float(hsums(_mm256_mul_ps(big.xmm[big_chunk + partial_index],
                                                      small.xmm[small_chunk + partial_index]))[0]);
                 }
-                aligned_float_arr[(array_ind - 1) % 8] = res;
+
+                aligned_float_arr[array_ind - 1] = res;
                 ++array_ind;
+
             }
         }
-        out.setChunk(out_index, _mm256_load_ps(aligned_float_arr));
+        out.setChunk(out_index, _mm256_loadu_ps(aligned_float_arr));
 //        for (unsigned int i = 0; i < smaller_mat.size;) {
 //            small_matrix_vec[i] = smaller_mat.getElement(i);
 //            if (i%row_col_size)

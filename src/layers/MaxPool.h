@@ -45,24 +45,21 @@ public:
         }
     }
     void calculateOutput(MatrixAVX &input_mat) {
-        int x = input_mat.shape[0];
+        maxPool(input_mat,output);
+    };
+
+    void precompute(MatrixAVX& in_mat){
+        int x = in_mat.shape[0];
         x = x - kernel_size + 2 * padding;
 
         x = std::ceil(float(x) / float(stride));
 
         x = x + 1;
         int x_row = x * x;
-        int depth = input_mat.shape[2];
+        int depth = in_mat.shape[2];
         std::vector<int> outSize = {x, x, depth};
         MatrixAVX out(outSize);
-
-        maxPool(input_mat,out);
-
-        input_mat = out;
-    };
-
-    void precompute(MatrixAVX& in_mat){
-
+        output = out;
     }
 };
 

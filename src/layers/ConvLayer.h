@@ -31,11 +31,11 @@ public:
     ~ConvLayer() {};
 
     void calculateOutput(MatrixAVX &input_mat) {
-        im2col(input_mat, weights.get()->shape, im2col_out, stride, padding);
+        im2col(input_mat, oldShape, im2col_out, stride, padding);
         std::vector<int> oldShape = weights.get()->shape;
         weights.get()->reshape({im2col_out.W_row_shape[1], im2col_out.W_row_shape[0]});
         im2col_out.reshape({im2col_out.X_col_shape[1], im2col_out.X_col_shape[0]});
-        im2col_out.dot_product(kept_dim, big_matrix_vec,big_reserve_size, s, chunk_range, output_before_bias);
+        im2col_out.dot_product(kept_dim, big_matrix_vec, big_reserve_size, s, chunk_range, output_before_bias);
         output_before_bias.add(biasMat, output);
         weights.get()->reshape(oldShape);
 //        std::cout << output << std::endl;
@@ -103,7 +103,6 @@ public:
             }
         }
         biasMat = MatrixAVX(biases, output.shape);
-
 
         /////////////////////////////////////////////////////
         std::vector<int> oldShape = weights.get()->shape;

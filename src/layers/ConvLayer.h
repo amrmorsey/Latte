@@ -72,30 +72,9 @@ public:
         output_before_bias = out;
         output = out;
 
-//        //int limit = std::floor((output_before_bias.shape[0] * output_before_bias.shape[1])/8.0);
-//        int rem = (output_before_bias.shape[0] * output_before_bias.shape[0]) % 8;
-//        for (int i = 0; i < bias.get()->size; i++)
-//            biases.push_back(_mm256_set1_ps(bias.get()->xmm[0][i]));
-//
-//        if (rem) {
-//            __m256i mask = _mm256_setr_epi32(-rem, 1 - rem, 2 - rem, 3 - rem, 4 - rem, 5 - rem, 6 - rem, 7 - rem);
-//            rem = 8 - rem;
-//            __m256i mask2 = _mm256_setr_epi32(7 - rem, 6 - rem, 5 - rem, 4 - rem, 3 - rem, 2 - rem, 1 - rem, -rem);
-//
-//            for (int k = 0; k < biases.size(); ++k) {
-//                if (k + 1 < biases.size()) {
-//                    __m256 f1 = _mm256_maskload_ps(reinterpret_cast<const float *>(&biases[k]), mask);
-//                    __m256 f2 = _mm256_maskload_ps(reinterpret_cast<const float *>(&biases[k + 1]), mask2);
-//                    __m256 x = _mm256_or_ps(f1, f2);
-//                    biases_stranglers.push_back(x);
-//                } else
-//                    biases_stranglers.push_back(_mm256_maskload_ps(reinterpret_cast<const float *>(&biases[k]), mask));
-//            }
-//        }
 
         for (int j = 0; j < output.shape.at(2); ++j) {
             for (int i = 0; i < output.shape.at(0) * output.shape.at(1); ++i) {
-//                biases.push_back(bias->getElement(j));
                 biases.push_back(bias->getElement(j));
             }
         }

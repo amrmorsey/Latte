@@ -100,7 +100,6 @@ Net::getWeightAndBias(const std::string &layer_name, const std::map<std::string,
     return std::make_tuple(std::move(weights_mat), std::move(bias_mat));
 }
 
-
 void Net::printLayers() {
     for (auto &&layer : this->layers)
         std::cout << layer.get()->name << std::endl; // layer->name is better but gives a false error in clion

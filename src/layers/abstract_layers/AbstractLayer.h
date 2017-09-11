@@ -18,10 +18,8 @@ public:
     MatrixAVX im2col_out;
     MatrixAVX filter;
     std::vector<float> biases;
-    aligned_vector biases_stranglers;
     MatrixAVX biasMat;
-    MatrixAVX smaller_mat, bigger_mat;
-    std::vector<int> oldShape;
+    MatrixAVX smaller_mat;
     unsigned int chunk_range;
     unsigned int big_reserve_size;
     unsigned int small_reserve_size;

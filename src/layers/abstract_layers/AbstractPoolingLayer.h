@@ -14,10 +14,6 @@ private:
     int kernel_size;
     int stride;
     int padding;
-//    double *input;
-//    double *output;
-//    std::vector<int> input_dims;
-//    std::vector<int> output_dims;
 public:
     AbstractPoolingLayer(std::string name, int kernel_size, int stride, int padding)
             : AbstractLayer(name), kernel_size(kernel_size),

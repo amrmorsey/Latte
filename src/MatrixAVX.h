@@ -81,8 +81,7 @@ public:
         }
     }
 
-    explicit MatrixAVX(aligned_vector xmm, std::vector<int> shape) : shape(shape), xmm(xmm), aligned_size(0),
-                                                                     stranglers(0) {
+    explicit MatrixAVX(aligned_vector xmm, std::vector<int> shape) : shape(shape), xmm(xmm), aligned_size(0), stranglers(0) {
         size = 1;
 
         for (int x : shape)

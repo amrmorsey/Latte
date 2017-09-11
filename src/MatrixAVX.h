@@ -105,21 +105,21 @@ public:
     // Set a single element (float value) into the matrix
     // Caution: This might be an expensive operation if called multiple times. Use setChunk instead
     inline void setElement(unsigned int index, float value) {
-        if (index >= xmm_size * 8) {
-            throw std::out_of_range("Index " + std::to_string(index) + " is out of range. Matrix size is " +
-                                    std::to_string(size));
-        }
+//        if (index >= xmm_size * 8) {
+//            throw std::out_of_range("Index " + std::to_string(index) + " is out of range. Matrix size is " +
+//                                    std::to_string(size));
+//        }
         xmm[index / 8].f[index % 8] = value;
     }
 
     // Set a whole chunk (8 float values) into the matrix
     // This is prefered over setElement
     inline void setChunk(unsigned int index, __m256 chunk) {
-        if (index >= xmm_size) {
-            throw std::out_of_range(
-                    "Index " + std::to_string(index) + " is out of range. Total number of chunks is " +
-                    std::to_string(xmm_size));
-        }
+//        if (index >= xmm_size) {
+//            throw std::out_of_range(
+//                    "Index " + std::to_string(index) + " is out of range. Total number of chunks is " +
+//                    std::to_string(xmm_size));
+//        }
         xmm[index].v = chunk;
     }
 
@@ -170,7 +170,7 @@ public:
 
     // Calculates dot product of two matricies
     // Out is expected to be initialized with its xmm vector already resize to the correct length
-    void dot_product(int kept_dim, std::vector<float> big_matrix_vec, unsigned int big_reserve_size, MatrixAVX& small,unsigned int chunk_range, MatrixAVX &out) {
+    void dot_product(int kept_dim, const std::vector<float> &big_matrix_vec, unsigned int big_reserve_size, const MatrixAVX& small,unsigned int chunk_range, MatrixAVX &out) {
         int out_index = 0;
         float res;
 
@@ -182,40 +182,9 @@ public:
                     res += _mm_cvtss_f32(_mm256_castps256_ps128(hsums(_mm256_mul_ps(xmm[big_chunk + partial_index].v,
                                                      small.xmm[small_chunk + partial_index].v))));
                 }
-                out.setElement(out_index++, res);
+                out.setElement(static_cast<unsigned int>(out_index++), res);
             }
         }
-//        [0] = {float} 0
-//                      [1] = {float} 0
-//                                    [2] = {float} 0
-//                                                  [3] = {float} 4.21845627
-//                                                                [4] = {float} 7.06306934
-//                                                                              [5] = {float} 8.99108505
-//                                                                                            [6] = {float} 15.2818079
-//                                                                                                          [7] = {float} 15.2818079
-//        for (unsigned int i = 0; i < smaller_mat.size;) {
-//            small_matrix_vec[i] = smaller_mat.getElement(i);
-//            if (i%row_col_size)
-//        }
-
-//
-//        for (int i = 0; i < row_col_size; i++) {
-//            matrix_vec.insert(matrix_vec.end(), sequence_vec.begin(), sequence_vec.end());
-//        }
-//
-//        MatrixAVX repeated_mat(matrix_vec, {1, matrix_vec.size()});
-//        std::fill(aligned_float_arr, aligned_float_arr + 8, 0);
-//
-//        unsigned int out_index = 0;
-//
-//        for (unsigned int i = 1; i <= xmm_size; i++) {
-//            if (i % 8 == 0) {
-//                out.setChunk(out_index++, _mm256_load_ps(aligned_float_arr));
-//                std::fill(aligned_float_arr, aligned_float_arr + 8, 0);
-//            }
-//            aligned_float_arr[i - 1 % 8] = float(hsums(_mm256_mul_ps(bigger_mat.xmm[i - 1], repeated_mat.xmm[i - 1]))[0]);
-//        }
-//        out.setChunk(out_index, _mm256_load_ps(aligned_float_arr));
     }
 
     std::string shape_str() const {
@@ -236,18 +205,18 @@ public:
             new_size *= x;
         }
 
-        if (size != new_size) {
-            std::string shape_str = "(";
-
-            for (int i = 0; i < new_shape.size() - 1; i++) {
-                shape_str += std::to_string(new_shape[i]) + ", ";
-            }
-            shape_str += std::to_string(new_shape[new_shape.size() - 1]) + ")";
-
-            throw std::logic_error(
-                    "Cannot reshape matrix of size " + std::to_string(size) + " into shape " + shape_str);
-
-        }
+//        if (size != new_size) {
+//            std::string shape_str = "(";
+//
+//            for (int i = 0; i < new_shape.size() - 1; i++) {
+//                shape_str += std::to_string(new_shape[i]) + ", ";
+//            }
+//            shape_str += std::to_string(new_shape[new_shape.size() - 1]) + ")";
+//
+//            throw std::logic_error(
+//                    "Cannot reshape matrix of size " + std::to_string(size) + " into shape " + shape_str);
+//
+//        }
         shape = new_shape;
     }
 

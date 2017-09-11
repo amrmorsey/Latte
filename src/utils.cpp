@@ -36,41 +36,34 @@ MatrixAVX loadMatrix(const std::string &matrix_dir, const std::string &matrix_na
 void im2col(MatrixAVX &input_mat, const std::vector<int> &filterShape, MatrixAVX &out, int s, int pad) {
     int index = 0;
     int count = 0;
-    int counter = 0;
-    for (int i = 0; i < input_mat.shape[1]; i = i + s) { //length y
-        for (int k = 0; k < input_mat.shape[0]; k = k + s) { //width x
-            for (int j = 0; j < input_mat.shape.at(2); j++) { // depth z
-                int tt = k - pad + filterShape.at(0) - 1;
-                int yy = i - pad + filterShape.at(0) - 1;
-                if (tt < input_mat.shape[0] + pad && yy < input_mat.shape[0] + pad) {
-                    for (int l = i - pad;
-                         l < i - pad + filterShape.at(0) && l < input_mat.shape[1] + pad; l++) { // for i
-                        for (int m = k - pad;
-                             m < k - pad + filterShape.at(0) && m < input_mat.shape[0] + pad; m++) { //for j
-                            int tem1 = m;
-                            int tem2 = l;
-                            if (tem1 < 0 || tem2 < 0 || tem1 >= input_mat.shape[0] || tem2 >= input_mat.shape[1]) {
+    int filter_size = filterShape[0] * filterShape[1] * filterShape[2];
+    int kernel_size = filterShape[0];
+    int tt, yy, tem1, tem2;
+    int y = input_mat.shape[1], x = input_mat.shape[0], z = input_mat.shape[2];
+    for (int i = 0; i < y; i = i + s) { //length y
+        for (int k = 0; k < x; k = k + s) { //width x
+            for (int j = 0; j < z; j++) { // depth z
+                tt = k - pad + kernel_size - 1;
+                yy = i - pad + kernel_size - 1;
+                if (tt < x + pad && yy < x + pad) {
+                    for (int l = i - pad; l < i - pad + kernel_size && l < y + pad; l++) { // for i
+                        for (int m = k - pad; m < k - pad + kernel_size && m < x + pad; m++) { //for j
+                            tem1 = m;
+                            tem2 = l;
+                            if (tem1 < 0 || tem2 < 0 || tem1 >= x || tem2 >= y) {
                                 index++;
                                 count++;
-                                counter++;
-
                             } else {
-                                if(count < filterShape[0] * filterShape[1] * filterShape[2]) {
-                                    out.setElement(index, input_mat.getElement(
-                                            tem1 + tem2 * input_mat.shape[0] +
-                                            j * input_mat.shape[0] * input_mat.shape[1]));
+                                if (count < filter_size) {
+                                    out.setElement(static_cast<unsigned int>(index), input_mat.getElement(
+                                            static_cast<unsigned int>(tem1 + tem2 * x + j * x * y)));
                                     index++;
                                     count++;
                                 }
-                                if(count >=filterShape[0] * filterShape[1] * filterShape[2]) {
-                                    while (count % 8 != 0) {
-                                        ++count;
-                                        ++index;
-                                    }
+                                if (count >= filter_size) {
+                                    index += 8 - (filter_size % 8);
                                     count = 0;
                                 }
-                                counter++;
-
                             }
 
                         }

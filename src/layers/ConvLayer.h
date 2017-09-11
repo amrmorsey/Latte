@@ -32,13 +32,11 @@ public:
 
     void calculateOutput(MatrixAVX &input_mat) {
         im2col(input_mat, weights->shape, im2col_out, stride, padding);
-//        std::cout << im2col_out << std::endl;
         std::vector<int> oldShape = weights.get()->shape;
         weights.get()->reshape({im2col_out.W_row_shape[1], im2col_out.W_row_shape[0]});
         im2col_out.dot_product(kept_dim, big_matrix_vec, big_reserve_size, s, chunk_range, output_before_bias);
         output_before_bias.add(biasMat, output);
         weights.get()->reshape(oldShape);
-//        input_mat = out_bias;
     };
 
     void precompute(MatrixAVX &in_mat) {

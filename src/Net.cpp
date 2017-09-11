@@ -107,16 +107,10 @@ void Net::printLayers() {
 }
 
 void Net::predict(const MatrixAVX &image) {
-    MatrixAVX out = image;
-    //out.subNoSSE(mean_mat);
-//    for (auto &layer : this->layers) {
-//        layer.get()->calculateOutput(out);//adasdasdasd
-//    }
     for (int i = 1; i < layers.size(); ++i) {
         layers[i].get()->calculateOutput(layers[i-1]->output);
     }
 //    std::cout << layers[layers.size()-1]->output << std::endl;
-    // Get top predictions code from caffe
 }
 
 void Net::preprocess(MatrixAVX &m) {

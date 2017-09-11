@@ -19,8 +19,6 @@ public:
     ~MaxPool() {};
 
     void maxPool(MatrixAVX &input_mat, MatrixAVX &out) {
-        int index = 0;
-
         // for (int n = 0; n < bottom[0]->num(); ++n) {
         for (int c = 0; c < input_mat.shape[2]; ++c) {
             for (int ph = 0; ph < out.shape[1]; ++ph) {
@@ -55,7 +53,6 @@ public:
         x = std::ceil(float(x) / float(stride));
 
         x = x + 1;
-        int x_row = x * x;
         int depth = in_mat.shape[2];
         std::vector<int> outSize = {x, x, depth};
         MatrixAVX out(outSize);

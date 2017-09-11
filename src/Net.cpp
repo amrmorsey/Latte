@@ -62,7 +62,7 @@ Net::Net(const std::string &protoxt_path, const std::string &weights_dir, const 
         } else if (layer_type == "Sigmoid") {
             std::unique_ptr<AbstractLayer> ptr(new Sigmoid(layer_name));
             this->layers.push_back(std::move(ptr));
-        }else if (layer_type == "Tanh") {
+        }else if (layer_type == "TanH") {
             std::unique_ptr<AbstractLayer> ptr(new Tanh(layer_name));
             this->layers.push_back(std::move(ptr));
         }else

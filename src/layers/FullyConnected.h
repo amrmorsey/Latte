@@ -22,7 +22,8 @@ public:
         im2col_out.reshape({im2col_out.X_col_shape[1], im2col_out.X_col_shape[0]});
         im2col_out.dot_product(kept_dim, big_matrix_vec,big_reserve_size, s, chunk_range, output_before_bias);
 //        std::cout << output_before_bias << std::endl;
-        output_before_bias.add(biasMat, output);//asdasd
+        output_before_bias.add(biasMat, output);
+//        std::cout << output << std::endl;
     };
 
     void precompute(MatrixAVX &in_mat) {

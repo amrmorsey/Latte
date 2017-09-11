@@ -179,8 +179,8 @@ public:
                 res = 0;
                 for (int partial_index = 0; partial_index < chunk_range; partial_index++) {
                     // AVX2 float conversion is ~10-20microseconds faster
-                    res += float(hsums(_mm256_mul_ps(xmm[big_chunk + partial_index].v,
-                                                     small.xmm[small_chunk + partial_index].v))[0]);
+                    res += _mm_cvtss_f32(_mm256_castps256_ps128(hsums(_mm256_mul_ps(xmm[big_chunk + partial_index].v,
+                                                     small.xmm[small_chunk + partial_index].v))));
                 }
                 out.setElement(out_index++, res);
             }

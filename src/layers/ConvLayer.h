@@ -110,12 +110,12 @@ public:
                 ++vec_index;
         }
 
-        MatrixAVX small(small_matrix_vec, {small_reserve_size, 1});
+        MatrixAVX small(small_matrix_vec, {(int)small_reserve_size, 1});
 
         s = small;
         weights.get()->reshape(oldShape);
 
-        MatrixAVX mat(big_matrix_vec, {big_reserve_size, 1});
+        MatrixAVX mat(big_matrix_vec, {(int)big_reserve_size, 1});
         im2col_out = mat;
         im2col_out.X_col_shape = X_col_shape;
         im2col_out.W_row_shape = W_row_shape;

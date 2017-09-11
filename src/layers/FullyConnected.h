@@ -20,7 +20,7 @@ public:
         im2col(input_mat, filter.shape, im2col_out, 1, 0);
         weights.get()->reshape({im2col_out.W_row_shape[1], im2col_out.W_row_shape[0]});
         im2col_out.reshape({im2col_out.X_col_shape[1], im2col_out.X_col_shape[0]});
-        im2col_out.dot_product(kept_dim, big_matrix_vec,big_reserve_size, s, chunk_range, output_before_bias);
+        im2col_out.dot_product(kept_dim, big_matrix_vec, big_reserve_size, s, chunk_range, output_before_bias);
         output_before_bias.add(biasMat, output);
     };
 
@@ -88,7 +88,7 @@ public:
                 ++vec_index;
         }
 
-        MatrixAVX small(small_matrix_vec, {small_reserve_size, 1});
+        MatrixAVX small(small_matrix_vec, {(int) small_reserve_size, 1});
         s = small;
         weights.get()->reshape(oldShape);
     }

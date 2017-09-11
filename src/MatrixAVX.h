@@ -7,8 +7,7 @@
 
 #include "AlignedVector.h"
 
-#include <avxintrin.h>
-#include <xmmintrin.h>
+#include <immintrin.h>
 #include <utility>
 #include <vector>
 #include <cmath>

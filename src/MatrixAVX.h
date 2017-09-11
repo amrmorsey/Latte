@@ -192,7 +192,7 @@ public:
         unsigned int out_index = 0;
 
         MatrixAVX big(big_matrix_vec, {big_reserve_size, 1});
-
+        //std::cout<<big<<std::endl;
         for (int small_chunk = 0; small_chunk < small.xmm_size; small_chunk += chunk_range) {
             for (int big_chunk = 0; big_chunk < big.xmm_size; big_chunk += chunk_range) {
                 res = 0;

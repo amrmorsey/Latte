@@ -10,8 +10,8 @@ using namespace std;
 
 
 int main() {
-    Net net("simple_what.ahsf", "weights_original", "mean");
-    MatrixAVX image = loadMatrix("image_original", "image");
+    Net net("simple_test28Gray.ahsf", "weights", "mean");
+    MatrixAVX image = loadMatrix("image", "image");
     net.preprocess(image);
     net.setup(image);
     auto start = std::chrono::system_clock::now();

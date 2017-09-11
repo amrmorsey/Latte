@@ -5,14 +5,14 @@ from PIL import Image
 from json_tricks.np import dump
 
 output_path = './image'
-image_path = '/home/shadyf/Programming/mnist_png/mnist_png/training/0/1.png'
+image_path = './1.png'
 
 if not os.path.exists(output_path):
     os.makedirs(output_path)
 
 im = Image.open(image_path)
 im_data = np.asarray(im)
-im_data = im_data.T
+
 with open(os.path.join(output_path, 'image.ahsf'), 'w') as mean_file:
     dump(im_data.flatten(), mean_file)
 

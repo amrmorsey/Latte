@@ -2,7 +2,7 @@
 from caffe.proto import caffe_pb2
 from google.protobuf import text_format
 
-new_format_model_def = 'what.prototxt'
+new_format_model_def = 'test28Gray.2conv.2fc.prototxt'
 file_name = new_format_model_def.split('.')[0]
 
 parsible_net = caffe_pb2.NetParameter()

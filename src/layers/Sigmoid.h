@@ -14,9 +14,14 @@ public:
     ~Sigmoid() {};
 
     void calculateOutput(MatrixAVX &input_mat) {
-//        for (int i = 0; i < input_mat.matrix.size(); i++) {
-//            input_mat.matrix[i] = input_mat.matrix[i] / (1 + abs(input_mat.matrix[i]));
-//        }
+        for (unsigned int i = 0; i < input_mat.size; ++i) {
+            output.setElement(i, std::exp(input_mat.getElement(i)));
+        }
+        float x;
+        for (unsigned int i = 0; i < input_mat.size; ++i) {
+            x = output.getElement(i);
+            output.setElement(i,  x/ (x+1));
+        }
     };
 
     void precompute(MatrixAVX& in_mat){

@@ -20,6 +20,7 @@ public:
 
     void maxPool(MatrixAVX &input_mat, MatrixAVX &out) {
         // for (int n = 0; n < bottom[0]->num(); ++n) {
+        float element;
         for (int c = 0; c < input_mat.shape[2]; ++c) {
             for (int ph = 0; ph < out.shape[1]; ++ph) {
                 for (int pw = 0; pw < out.shape[0]; ++pw) {
@@ -33,8 +34,9 @@ public:
                     for (int h = hstart; h < hend; ++h) {
                         for (int w = wstart; w < wend; ++w) {
                             const int index = h * input_mat.shape[1] + w + c*input_mat.shape[0]*input_mat.shape[1];
-                            if (input_mat.getElement(index) > out.getElement(pool_index)) {
-                                out.setElement(pool_index, input_mat.getElement(index));
+                            element = input_mat.getElement(index);
+                            if ( element > out.getElement(pool_index)) {
+                                out.setElement(pool_index, element);
                             }
                         }
                     }

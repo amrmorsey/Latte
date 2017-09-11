@@ -7,6 +7,8 @@
 #include "layers/ReLU.h"
 #include "layers/Softmax.h"
 #include "layers/FullyConnected.h"
+#include "layers/Sigmoid.h"
+#include "layers/Tanh.h"
 
 Net::Net(const std::string &protoxt_path, const std::string &weights_dir, const std::string &mean_dir) : prototxt_path(
         protoxt_path), weights_dir(weights_dir), mean_mat(loadMatrix(mean_dir, "mean")) {
@@ -57,7 +59,13 @@ Net::Net(const std::string &protoxt_path, const std::string &weights_dir, const 
             std::unique_ptr<AbstractLayer> ptr(
                     new FullyConnected(layer_name, num_of_outputs, std::move(weights), std::move(bias)));
             this->layers.push_back(std::move(ptr));
-        } else
+        } else if (layer_type == "Sigmoid") {
+            std::unique_ptr<AbstractLayer> ptr(new Sigmoid(layer_name));
+            this->layers.push_back(std::move(ptr));
+        }else if (layer_type == "Tanh") {
+            std::unique_ptr<AbstractLayer> ptr(new Tanh(layer_name));
+            this->layers.push_back(std::move(ptr));
+        }else
             std::cerr << "Parsing Error - Ignoring \"" + layer_type + "\" as it is not a supported layer" << std::endl;
     }
 }

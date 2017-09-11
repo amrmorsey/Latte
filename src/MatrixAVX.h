@@ -171,34 +171,15 @@ public:
     // Calculates dot product of two matricies
     // Out is expected to be initialized with its xmm vector already resize to the correct length
     void dot_product(int kept_dim, std::vector<float> big_matrix_vec, unsigned int big_reserve_size, MatrixAVX& small,unsigned int chunk_range, MatrixAVX &out) {
-//        if (shape[1] != a.shape[0])
-//            throw std::logic_error("Matrices not of correct dimensions " + shape_str() + " vs " + a.shape_str());
-
-
-        unsigned int i = 0;
-        unsigned int vec_index = 0;
-        while (i < this->size) {
-            for (int j = 0; j < kept_dim; j++) {
-                big_matrix_vec[vec_index + j] = this->getElement(i + j);
-            }
-            vec_index += kept_dim;
-            i += kept_dim;
-
-            while (vec_index % 8 != 0)
-                ++vec_index;
-        }
-
+        int out_index = 0;
         float res;
-        unsigned int out_index = 0;
-
-        MatrixAVX big(big_matrix_vec, {big_reserve_size, 1});
 
         for (int small_chunk = 0; small_chunk < small.xmm_size; small_chunk += chunk_range) {
-            for (int big_chunk = 0; big_chunk < big.xmm_size; big_chunk += chunk_range) {
+            for (int big_chunk = 0; big_chunk < xmm_size; big_chunk += chunk_range) {
                 res = 0;
                 for (int partial_index = 0; partial_index < chunk_range; partial_index++) {
                     // AVX2 float conversion is ~10-20microseconds faster
-                    res += float(hsums(_mm256_mul_ps(big.xmm[big_chunk + partial_index].v,
+                    res += float(hsums(_mm256_mul_ps(xmm[big_chunk + partial_index].v,
                                                      small.xmm[small_chunk + partial_index].v))[0]);
                 }
                 out.setElement(out_index++, res);

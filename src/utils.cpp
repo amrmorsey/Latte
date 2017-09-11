@@ -36,7 +36,7 @@ MatrixAVX loadMatrix(const std::string &matrix_dir, const std::string &matrix_na
 void im2col(MatrixAVX &input_mat, const std::vector<int> &filterShape, MatrixAVX &out, int s, int pad) {
     int index = 0;
     int count = 0;
-
+    int counter = 0;
     for (int i = 0; i < input_mat.shape[1]; i = i + s) { //length y
         for (int k = 0; k < input_mat.shape[0]; k = k + s) { //width x
             for (int j = 0; j < input_mat.shape.at(2); j++) { // depth z
@@ -52,6 +52,8 @@ void im2col(MatrixAVX &input_mat, const std::vector<int> &filterShape, MatrixAVX
                             if (tem1 < 0 || tem2 < 0 || tem1 >= input_mat.shape[0] || tem2 >= input_mat.shape[1]) {
                                 index++;
                                 count++;
+                                counter++;
+
                             } else {
                                 if(count < filterShape[0] * filterShape[1] * filterShape[2]) {
                                     out.setElement(index, input_mat.getElement(
@@ -60,13 +62,14 @@ void im2col(MatrixAVX &input_mat, const std::vector<int> &filterShape, MatrixAVX
                                     index++;
                                     count++;
                                 }
-                                else {
+                                if(count >=filterShape[0] * filterShape[1] * filterShape[2]) {
                                     while (count % 8 != 0) {
                                         ++count;
                                         ++index;
                                     }
                                     count = 0;
                                 }
+                                counter++;
 
                             }
 

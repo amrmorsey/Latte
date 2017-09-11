@@ -35,7 +35,7 @@ MatrixAVX loadMatrix(const std::string &matrix_dir, const std::string &matrix_na
 
 void im2col(MatrixAVX &input_mat, const std::vector<int> &filterShape, MatrixAVX &out, int s, int pad) {
     int index = 0;
-    int count = 0;
+
     for (int i = 0; i < input_mat.shape[1]; i = i + s) { //length y
             for (int k = 0; k < input_mat.shape[0]; k = k + s) { //width x
             for (int j = 0; j < input_mat.shape.at(2); j++) { // depth z
@@ -51,22 +51,10 @@ void im2col(MatrixAVX &input_mat, const std::vector<int> &filterShape, MatrixAVX
                             if (tem1 < 0 || tem2 < 0 || tem1 >= input_mat.shape[0] || tem2 >= input_mat.shape[1]) {
                                 index++;
                             } else {
-//                                vector<int> in = {tem1, tem2, j};
-                                //sdasdasll.push_back(in);
-                                if(count != filterShape[0]) {
-                                    out.setElement(index, input_mat.getElement(
-                                            tem1 + tem2 * input_mat.shape[0] +
-                                            j * input_mat.shape[0] * input_mat.shape[1]));
-                                    index++;
-                                    count++;
-                                }
-                                else{
-                                    count = 0;
-                                    for (int n = 0; n < 8 - ((filterShape[0])%8); ++n) {
-                                        out.setElement(index, 0);
-                                        index++;
-                                    }
-                                }
+                                out.setElement(index, input_mat.getElement(
+                                        tem1 + tem2 * input_mat.shape[0] +
+                                        j * input_mat.shape[0] * input_mat.shape[1]));
+                                index++;
                             }
 
                         }
@@ -75,9 +63,4 @@ void im2col(MatrixAVX &input_mat, const std::vector<int> &filterShape, MatrixAVX
             }
         }
     }
-    std::cout<<"here";
-}
-
-inline float dot_product(const __m256 &a, const __m256 &b) {
-    return float(MatrixAVX::hsums(_mm256_mul_ps(a, b))[0]);
 }

@@ -138,6 +138,4 @@ private:
     aligned_allocator &operator=(const aligned_allocator &);
 };
 
-typedef std::vector<__m256, aligned_allocator<__m256, sizeof(__m256)> > aligned_vector;
-
 #endif //INFERENCEENGINE_ALIGNEDVECTOR_H

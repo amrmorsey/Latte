@@ -9,6 +9,7 @@
 
 #include <avxintrin.h>
 #include <xmmintrin.h>
+#include <utility>
 #include <vector>
 #include <cmath>
 #include <exception>
@@ -18,6 +19,13 @@
 #include <iostream>
 #include <iomanip>
 
+union __m256_f{
+    __m256 v;
+    float f[8];
+};
+
+typedef std::vector<__m256_f, aligned_allocator<__m256_f, sizeof(__m256_f)> > aligned_vector;
+
 class MatrixAVX {
 private:
 
@@ -25,7 +33,7 @@ private:
     unsigned long aligned_size;
     unsigned int stranglers;
     // TODO: Change this to support windows
-    float aligned_float_arr[8] __attribute__((aligned(sizeof(__m256))));
+    float aligned_float_arr[8] __attribute__((aligned(sizeof(__m256_f))));
 
 public:
     aligned_vector xmm;
@@ -34,7 +42,7 @@ public:
     unsigned long size;
     std::vector<int> shape;
 
-    explicit MatrixAVX(std::vector<float> vec, std::vector<int> shape) : shape(shape) {
+    explicit MatrixAVX(const std::vector<float> &vec, std::vector<int> shape) : shape(shape) {
         size = 1;
 
         for (int x : shape)
@@ -43,10 +51,10 @@ public:
         xmm_size = static_cast<unsigned long>(std::ceil(size / 8.0f));
 
         aligned_size = size / 8;
-        xmm.reserve(aligned_size + 5);
+        xmm.resize(aligned_size + 1);
 
         for (int i = 0; i < aligned_size; i++) {
-            xmm.push_back(_mm256_loadu_ps(&vec[i * 8]));
+            xmm[i].v = _mm256_loadu_ps(&vec[i*8]);
         }
 
         // Check for stranglers in case matrix size is not divisible by 8
@@ -57,7 +65,7 @@ public:
             // Highest bit -> 0 in mask element means corresponding array element will be taken as 0
             unsigned int rem = stranglers;
             __m256i mask = _mm256_setr_epi32(-rem, 1 - rem, 2 - rem, 3 - rem, 4 - rem, 5 - rem, 6 - rem, 7 - rem);
-            xmm.push_back(_mm256_maskload_ps(&vec[aligned_size * 8], mask));
+            xmm[aligned_size].v = _mm256_maskload_ps(&vec[aligned_size * 8], mask);
         }
     };
 
@@ -69,10 +77,10 @@ public:
 
         xmm_size = static_cast<unsigned long>(ceil(size / 8.0f));
 
-        xmm.reserve(xmm_size);
+        xmm.resize(xmm_size);
 
         for (int i = 0; i < xmm_size; i++) {
-            xmm.push_back(_mm256_setzero_ps());
+            xmm[i].v = _mm256_setzero_ps();
         }
     }
 
@@ -94,7 +102,7 @@ public:
 
     // Get a single element (float value) from the matrix
     inline float getElement(unsigned int index) {
-        return xmm[index / 8][index % 8];
+        return xmm[index / 8].f[index % 8];
     }
 
     // Set a single element (float value) into the matrix
@@ -104,7 +112,7 @@ public:
             throw std::out_of_range("Index " + std::to_string(index) + " is out of range. Matrix size is " +
                                     std::to_string(size));
         }
-        xmm[index / 8][index % 8] = value;
+        xmm[index / 8].f[index % 8] = value;
     }
 
     // Set a whole chunk (8 float values) into the matrix
@@ -115,12 +123,12 @@ public:
                     "Index " + std::to_string(index) + " is out of range. Total number of chunks is " +
                     std::to_string(xmm_size));
         }
-        xmm[index] = chunk;
+        xmm[index].v = chunk;
     }
 
     // Retrieve a chunk from the matrix
     __m256 getChunk(unsigned int index) const {
-        return xmm[index];
+        return xmm[index].v;
     }
 
     void add(MatrixAVX bias, MatrixAVX &out) {
@@ -140,7 +148,7 @@ public:
 //            out.setElement(out.xmm_size * 8 - 1 - i, 0.0f);
 //        }
         for (int i = 0; i < bias.xmm_size; ++i) {
-            out.setChunk(i, _mm256_add_ps(xmm[i], bias.xmm[i]));
+            out.setChunk(i, _mm256_add_ps(xmm[i].v, bias.xmm[i].v));
         }
     }
 
@@ -151,7 +159,7 @@ public:
                     ")");
         }
         for (unsigned int i = 0; i < xmm_size; i++) {
-            out.setChunk(i, _mm256_sub_ps(xmm[i], a.xmm[i]));
+            out.setChunk(i, _mm256_sub_ps(xmm[i].v, a.xmm[i].v));
         }
     }
 
@@ -159,7 +167,7 @@ public:
     void sub(const float &a, MatrixAVX &out) {
         __m256 sub_chunk = _mm256_set1_ps(a);
         for (unsigned int i = 0; i < xmm_size; i++) {
-            out.setChunk(i, _mm256_sub_ps(xmm[i], sub_chunk));
+            out.setChunk(i, _mm256_sub_ps(xmm[i].v, sub_chunk));
         }
     }
 
@@ -230,8 +238,8 @@ public:
                 res = 0;
                 for (int partial_index = 0; partial_index < chunk_range; partial_index++) {
                     // AVX2 float conversion is ~10-20microseconds faster
-                    res += float(hsums(_mm256_mul_ps(big.xmm[big_chunk + partial_index],
-                                                     small.xmm[small_chunk + partial_index]))[0]);
+                    res += float(hsums(_mm256_mul_ps(big.xmm[big_chunk + partial_index].v,
+                                                     small.xmm[small_chunk + partial_index].v))[0]);
                 }
                 out.setElement(out_index++, res);
             }
@@ -318,8 +326,8 @@ public:
         for (unsigned int i = 0; i < matrix.xmm_size; i++) {
             stream << std::to_string(i * 8) + " - [";
             for (unsigned int j = 0; j < 7; j++)
-                stream << std::to_string(matrix.xmm[i][j]) + " ";
-            stream << std::to_string(matrix.xmm[i][7]);
+                stream << std::to_string(matrix.xmm[i].f[j]) + " ";
+            stream << std::to_string(matrix.xmm[i].f[7]);
             stream << "]\n";
         }
         return stream;

@@ -35,10 +35,10 @@ public:
         std::vector<int> oldShape = weights.get()->shape;
         weights.get()->reshape({im2col_out.W_row_shape[1], im2col_out.W_row_shape[0]});
         im2col_out.reshape({im2col_out.X_col_shape[1], im2col_out.X_col_shape[0]});
-        im2col_out.dot_product(*weights.get(), output_before_bias);
+        im2col_out.dot_product(kept_dim, big_matrix_vec,big_reserve_size, s, chunk_range, output_before_bias);
         output_before_bias.add(biasMat, output);
         weights.get()->reshape(oldShape);
-        //std::cout << output << std::endl;
+//        std::cout << output << std::endl;
 //        input_mat = out_bias;
     };
 
@@ -103,6 +103,42 @@ public:
             }
         }
         biasMat = MatrixAVX(biases, output.shape);
+
+
+        /////////////////////////////////////////////////////
+        std::vector<int> oldShape = weights.get()->shape;
+        weights.get()->reshape({im2col_out.W_row_shape[1], im2col_out.W_row_shape[0]});
+
+        kept_dim = weights->shape[0];
+        other_dim = weights->shape[1];
+        repeated_dim = im2col_out.shape[1];
+        smaller_mat = *weights.get();
+
+        chunk_range = std::ceil(kept_dim / 8.0);
+        big_reserve_size = chunk_range * 8 * repeated_dim;
+        small_reserve_size = chunk_range * 8 * other_dim;
+
+        small_matrix_vec = std::vector<float>(small_reserve_size, 0.0f);
+        big_matrix_vec = std::vector<float>(big_reserve_size, 0.0f);
+
+        unsigned int i = 0;
+        unsigned int vec_index = 0;
+
+        while (i < smaller_mat.size) {
+            for (int j = 0; j < kept_dim; j++) {
+                small_matrix_vec[vec_index + j] = smaller_mat.getElement(i + j);
+            }
+            vec_index += kept_dim;
+            i += kept_dim;
+
+            while (vec_index % 8 != 0)
+                ++vec_index;
+        }
+
+        MatrixAVX small(small_matrix_vec, {small_reserve_size, 1});
+
+        s = small;
+        weights.get()->reshape(oldShape);
     }
 };
 

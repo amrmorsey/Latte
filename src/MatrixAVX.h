@@ -172,52 +172,16 @@ public:
 
     // Calculates dot product of two matricies
     // Out is expected to be initialized with its xmm vector already resize to the correct length
-    void dot_product(const MatrixAVX &a, MatrixAVX &out) {
-        if (shape[1] != a.shape[0])
-            throw std::logic_error("Matrices not of correct dimensions " + shape_str() + " vs " + a.shape_str());
+    void dot_product(int kept_dim, std::vector<float> big_matrix_vec, unsigned int big_reserve_size, MatrixAVX& small,unsigned int chunk_range, MatrixAVX &out) {
+//        if (shape[1] != a.shape[0])
+//            throw std::logic_error("Matrices not of correct dimensions " + shape_str() + " vs " + a.shape_str());
 
-        MatrixAVX smaller_mat, bigger_mat;
-
-        int repeated_dim, kept_dim, other_dim;
-        if (size < a.size) {
-            smaller_mat = *this;
-            bigger_mat = a;
-            kept_dim = a.shape[0];
-            repeated_dim = a.shape[1];
-            other_dim = shape[0];
-        } else {
-            smaller_mat = a;
-            bigger_mat = *this;
-            kept_dim = shape[1];
-            repeated_dim = shape[0];
-            other_dim = a.shape[1];
-        }
-
-        unsigned int chunk_range = std::ceil(kept_dim / 8.0);
-        unsigned int big_reserve_size = chunk_range * 8 * repeated_dim;
-        unsigned int small_reserve_size = chunk_range * 8 * other_dim;
-
-        std::vector<float> small_matrix_vec(small_reserve_size, 0.0f);
-        std::vector<float> big_matrix_vec(big_reserve_size, 0.0f);
 
         unsigned int i = 0;
         unsigned int vec_index = 0;
-        while (i < bigger_mat.size) {
+        while (i < this->size) {
             for (int j = 0; j < kept_dim; j++) {
-                big_matrix_vec[vec_index + j] = bigger_mat.getElement(i + j);
-            }
-            vec_index += kept_dim;
-            i += kept_dim;
-
-            while (vec_index % 8 != 0)
-                ++vec_index;
-        }
-        vec_index = 0;
-        i = 0;
-
-        while (i < smaller_mat.size) {
-            for (int j = 0; j < kept_dim; j++) {
-                small_matrix_vec[vec_index + j] = smaller_mat.getElement(i + j);
+                big_matrix_vec[vec_index + j] = this->getElement(i + j);
             }
             vec_index += kept_dim;
             i += kept_dim;
@@ -226,12 +190,10 @@ public:
                 ++vec_index;
         }
 
-        MatrixAVX small(small_matrix_vec, {small_reserve_size, 1});
-        MatrixAVX big(big_matrix_vec, {big_reserve_size, 1});
         float res;
         unsigned int out_index = 0;
-        std::fill(aligned_float_arr, aligned_float_arr + 8, 0);
-
+        //td::fill(aligned_float_arr, aligned_float_arr + 8, 0);
+        MatrixAVX big(big_matrix_vec, {big_reserve_size, 1});
         for (int small_chunk = 0; small_chunk < small.xmm_size; small_chunk += chunk_range) {
             for (int big_chunk = 0; big_chunk < big.xmm_size; big_chunk += chunk_range) {
                 res = 0;

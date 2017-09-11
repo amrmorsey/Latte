@@ -137,7 +137,7 @@ void Net::predict() {
     for (int i = 1; i < layers.size() ; ++i) {
         layers[i].get()->calculateOutput(layers[i-1]->output);
     }
-    //cout<<"works"<<endl;
+    cout<<"works"<<endl;
     // Get top predictions code from caffe
 }
 

@@ -131,7 +131,7 @@ void Matrix::dot(Matrix& filter, Matrix& out) {
             last1 = this->matrix.begin() + x_dim + X_col_shape.at(0);
             a = {first1, last1};
             float res = float(std::inner_product(a.begin(), a.end(), b.begin(), 0.0)); //or this
-
+            //float res = dotNoSSE(b,a);
             out.matrix.at(index) = res;
             x_dim += X_col_shape.at(0);
             index++;

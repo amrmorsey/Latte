@@ -51,12 +51,9 @@ void im2col(MatrixAVX &input_mat, const std::vector<int> &filterShape, MatrixAVX
                             if (tem1 < 0 || tem2 < 0 || tem1 >= input_mat.shape[0] || tem2 >= input_mat.shape[1]) {
                                 index++;
                             } else {
-//                                vector<int> in = {tem1, tem2, j};
-                                //sdasdasll.push_back(in);
                                 out.setElement(index, input_mat.getElement(
                                         tem1 + tem2 * input_mat.shape[0] +
                                         j * input_mat.shape[0] * input_mat.shape[1]));
-                                //ll.push_back(this->at(in));
                                 index++;
                             }
 
@@ -66,8 +63,4 @@ void im2col(MatrixAVX &input_mat, const std::vector<int> &filterShape, MatrixAVX
             }
         }
     }
-}
-
-inline float dot_product(const __m256 &a, const __m256 &b) {
-    return float(MatrixAVX::hsums(_mm256_mul_ps(a, b))[0]);
 }

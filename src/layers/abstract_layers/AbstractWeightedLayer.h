@@ -7,26 +7,27 @@
 
 #include <string>
 #include <memory>
-#include "../../Matrix.h"
 #include "AbstractLayer.h"
 
 class AbstractWeightedLayer : public AbstractLayer {
 protected:
-    std::unique_ptr<Matrix> weights;
-    std::unique_ptr<Matrix> bias;
+    std::unique_ptr<MatrixAVX> weights;
+    std::unique_ptr<MatrixAVX> bias;
     int num_of_outputs;
 public:
-    AbstractWeightedLayer(std::string name, std::unique_ptr<Matrix> weights, std::unique_ptr<Matrix> bias,
+    AbstractWeightedLayer(std::string name, std::unique_ptr<MatrixAVX> weights, std::unique_ptr<MatrixAVX> bias,
                           int num_of_outputs)
             : AbstractLayer(name), weights(std::move(weights)), bias(std::move(bias)), num_of_outputs(num_of_outputs) {};
 
     ~AbstractWeightedLayer() {};
 
-    void setWeights(const Matrix &weights);
+    void setWeights(const MatrixAVX &weights);
 
-    void setBias(const Matrix &bias);
+    void setBias(const MatrixAVX &bias);
 
-    virtual void calculateOutput(Matrix &inputMat) = 0;
+    virtual void calculateOutput(MatrixAVX &inputMat) = 0;
+
+    virtual void precompute(MatrixAVX&) = 0;
 };
 
 

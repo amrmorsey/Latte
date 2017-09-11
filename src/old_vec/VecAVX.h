@@ -6,7 +6,6 @@
 #define INFERENCEENGINE_VECAVX_H
 
 #include <immintrin.h>
-#include <x86intrin.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <emmintrin.h>

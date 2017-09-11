@@ -25,6 +25,8 @@ public:
               padding(padding) {};
 
     ~AbstractPoolingLayer() {};
+
+    void precompute(MatrixAVX&) = 0;
 };
 
 

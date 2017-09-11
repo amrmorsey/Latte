@@ -35,6 +35,6 @@ int main() {
             std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now() - start) / 10000;
 
     std::cout << "Completed function in " << duration.count() << " microseconds." << std::endl;
-
+    std::cout <<"Predictions\n" << net.layers[net.layers.size()-1]->output << std::endl;
     return 0;
 }

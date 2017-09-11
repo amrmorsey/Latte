@@ -110,7 +110,6 @@ void Net::predict(const MatrixAVX &image) {
     for (int i = 1; i < layers.size(); ++i) {
         layers[i].get()->calculateOutput(layers[i-1]->output);
     }
-//    std::cout << layers[layers.size()-1]->output << std::endl;
 }
 
 void Net::preprocess(MatrixAVX &m) {

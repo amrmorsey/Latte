@@ -20,6 +20,11 @@ public:
     std::vector<float> biases;
     aligned_vector biases_stranglers;
     MatrixAVX biasMat;
+    MatrixAVX smaller_mat, bigger_mat;
+    std::vector<int> oldShape;
+    unsigned int chunk_range;
+    unsigned int big_reserve_size;
+    unsigned int small_reserve_size;
 
     int rem;
 

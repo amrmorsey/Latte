@@ -17,8 +17,9 @@ public:
     MatrixAVX output_before_bias;
     MatrixAVX im2col_out;
     MatrixAVX filter;
-    aligned_vector biases;
+    std::vector<float> biases;
     aligned_vector biases_stranglers;
+    MatrixAVX biasMat;
 
     int rem;
 

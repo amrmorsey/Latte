@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.6)
 project(InferenceEngine)
 
 set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mavx -std=c++11")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mavx -std=c++11 -Wno-c++11-narrowing")
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mavx -std=c++11 -O3 -DNDEBUG -Wall -Wno-sign-compare -Wno-uninitialized -Wno-c++11-narrowing")
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -Rpass=loop-vectorize -Rpass-analysis=loop-vectorize-m64 -mavx -msse4.1")
 

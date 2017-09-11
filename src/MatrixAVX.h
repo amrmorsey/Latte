@@ -31,8 +31,6 @@ private:
     unsigned long xmm_size;
     unsigned long aligned_size;
     unsigned int stranglers;
-    // TODO: Change this to support windows
-    float aligned_float_arr[8] __attribute__((aligned(sizeof(__m256_f))));
 
 public:
     aligned_vector xmm;
@@ -230,7 +228,6 @@ public:
         MatrixAVX big(big_matrix_vec, {big_reserve_size, 1});
         float res;
         unsigned int out_index = 0;
-        std::fill(aligned_float_arr, aligned_float_arr + 8, 0);
 
         for (int small_chunk = 0; small_chunk < small.xmm_size; small_chunk += chunk_range) {
             for (int big_chunk = 0; big_chunk < big.xmm_size; big_chunk += chunk_range) {

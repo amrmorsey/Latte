@@ -28,11 +28,11 @@ typedef std::vector<__m256_f, aligned_allocator<__m256_f, sizeof(__m256_f)> > al
 class MatrixAVX {
 private:
 
-    unsigned long xmm_size;
     unsigned long aligned_size;
     unsigned int stranglers;
 
 public:
+    unsigned long xmm_size;
     aligned_vector xmm;
     std::vector<int> X_col_shape;
     std::vector<int> W_row_shape;

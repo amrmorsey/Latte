@@ -18,7 +18,9 @@
 #include <iostream>
 #include <iomanip>
 
-union __m256_f{
+//#define ALIGNED(X) __attribute__ aligned(sizeof(__m256_f))x;
+
+union __m256_f {
     __m256 v;
     float f[8];
 };
@@ -30,6 +32,8 @@ private:
 
     unsigned long aligned_size;
     unsigned int stranglers;
+
+    __attribute__((aligned(sizeof(__m256_f)))) float aligned_float_arr[8];
 
 public:
     unsigned long xmm_size;
@@ -51,7 +55,7 @@ public:
         xmm.resize(aligned_size + 1);
 
         for (int i = 0; i < aligned_size; i++) {
-            xmm[i].v = _mm256_loadu_ps(&vec[i*8]);
+            xmm[i].v = _mm256_loadu_ps(&vec[i * 8]);
         }
 
         // Check for stranglers in case matrix size is not divisible by 8
@@ -72,7 +76,7 @@ public:
         for (int x : shape)
             size *= x;
 
-        xmm_size = static_cast<unsigned long>(ceil(size / 8.0f));
+        xmm_size = static_cast<unsigned long>(std::ceil(size / 8.0f));
 
         xmm.resize(xmm_size);
 
@@ -81,13 +85,14 @@ public:
         }
     }
 
-    explicit MatrixAVX(aligned_vector xmm, std::vector<int> shape) : shape(shape), xmm(xmm), aligned_size(0), stranglers(0) {
+    explicit MatrixAVX(aligned_vector xmm, std::vector<int> shape) : shape(shape), xmm(std::move(xmm)), aligned_size(0),
+                                                                     stranglers(0) {
         size = 1;
 
         for (int x : shape)
             size *= x;
 
-        xmm_size = static_cast<unsigned long>(ceil(size / 8.0f));
+        xmm_size = static_cast<unsigned long>(std::ceil(size / 8.0f));
     }
 
     MatrixAVX() : shape({0}), aligned_size(0), stranglers(0), size(0) {}
@@ -113,6 +118,15 @@ public:
 
     // Set a whole chunk (8 float values) into the matrix
     // This is prefered over setElement
+    inline void setChunk(unsigned int index, float *chunk) {
+//        if (index >= xmm_size) {
+//            throw std::out_of_range(
+//                    "Index " + std::to_string(index) + " is out of range. Total number of chunks is " +
+//                    std::to_string(xmm_size));
+//        }
+        xmm[index].v = _mm256_load_ps(chunk);
+    }
+
     inline void setChunk(unsigned int index, __m256 chunk) {
 //        if (index >= xmm_size) {
 //            throw std::out_of_range(
@@ -151,8 +165,7 @@ public:
     void sub(const MatrixAVX &a, MatrixAVX &out) {
         if (size != a.size) {
             throw std::logic_error(
-                    "Matrices not of equal size (" + std::to_string(size) + ") vs (" + std::to_string(a.size) +
-                    ")");
+                    "Matrices not of equal size (" + std::to_string(size) + ") vs (" + std::to_string(a.size) + ")");
         }
         for (unsigned int i = 0; i < xmm_size; i++) {
             out.setChunk(i, _mm256_sub_ps(xmm[i].v, a.xmm[i].v));
@@ -169,7 +182,8 @@ public:
 
     // Calculates dot product of two matricies
     // Out is expected to be initialized with its xmm vector already resize to the correct length
-    void dot_product(int kept_dim, const std::vector<float> &big_matrix_vec, unsigned int big_reserve_size, const MatrixAVX& small,unsigned int chunk_range, MatrixAVX &out) {
+    void dot_product(int kept_dim, const std::vector<float> &big_matrix_vec, unsigned int big_reserve_size,
+                     const MatrixAVX &small, unsigned int chunk_range, MatrixAVX &out) {
         int out_index = 0;
         float res;
 
@@ -179,7 +193,8 @@ public:
                 for (int partial_index = 0; partial_index < chunk_range; partial_index++) {
                     // AVX2 float conversion is ~10-20microseconds faster
                     res += _mm_cvtss_f32(_mm256_castps256_ps128(hsums(_mm256_mul_ps(xmm[big_chunk + partial_index].v,
-                                                     small.xmm[small_chunk + partial_index].v))));
+                                                                                    small.xmm[small_chunk +
+                                                                                              partial_index].v))));
                 }
                 out.setElement(static_cast<unsigned int>(out_index++), res);
             }

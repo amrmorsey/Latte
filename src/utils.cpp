@@ -55,12 +55,10 @@ void im2col(MatrixAVX &input_mat, const std::vector<int> &filterShape, MatrixAVX
                                 index++;
                                 count++;
                             } else {
-                                if (count < filter_size) {
-                                    out.setElement(static_cast<unsigned int>(index), input_mat.getElement(
-                                            static_cast<unsigned int>(tem1 + tem2 * x + j * x * y)));
-                                    index++;
-                                    count++;
-                                }
+                                out.setElement(static_cast<unsigned int>(index), input_mat.getElement(
+                                        static_cast<unsigned int>(tem1 + tem2 * x + j * x * y)));
+                                index++;
+                                count++;
                                 if (count >= filter_size) {
                                     index += 8 - (filter_size % 8);
                                     count = 0;

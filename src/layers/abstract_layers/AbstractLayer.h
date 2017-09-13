@@ -5,6 +5,7 @@
 #ifndef INFERENCEENGINE_LAYER_H
 #define INFERENCEENGINE_LAYER_H
 
+#include <utility>
 #include <vector>
 #include <string>
 #include "../../MatrixAVX.h"
@@ -31,7 +32,7 @@ public:
 
     int rem;
 
-    explicit AbstractLayer(std::string name) : name(name) {};
+    explicit AbstractLayer(std::string name) : name(std::move(name)) {};
 
     virtual ~AbstractLayer() = default;
 

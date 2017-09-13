@@ -110,14 +110,14 @@ Net::getWeightAndBias(const std::string &layer_name, const std::map<std::string,
 
 void Net::printLayers() {
     for (auto &&layer : this->layers)
-        std::cout << layer.get()->name << std::endl; // layer->name is better but gives a false error in clion
+        std::cout << layer->name << std::endl; // layer->name is better but gives a false error in clion
 }
 
 void Net::predict(const MatrixAVX &image) {
     for (int i = 1; i < layers.size(); ++i) {
 //    auto start = std::chrono::system_clock::now();
 //    for (size_t counter = 0; counter < 10000; ++counter)
-        layers[i]->calculateOutput(layers[i-1]->output);
+        layers[i]->calculateOutput(layers[i - 1]->output);
 //    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now() - start) / 10000;
 //    std::cout << "Completed function in " << duration.count() << " microseconds." << std::endl;
     }

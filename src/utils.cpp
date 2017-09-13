@@ -65,7 +65,6 @@ void im2col(MatrixAVX &input_mat, const std::vector<int> &filterShape, MatrixAVX
                                     count = 0;
                                 }
                             }
-
                         }
                     }
                 }

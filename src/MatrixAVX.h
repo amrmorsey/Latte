@@ -113,7 +113,10 @@ public:
 //            throw std::out_of_range("Index " + std::to_string(index) + " is out of range. Matrix size is " +
 //                                    std::to_string(size));
 //        }
+//        int x = index/8;
+//        int rem = index - 8*x;
         xmm[index / 8].f[index % 8] = value;
+//        xmm[x].f[(rem == 8)?0:rem] = value;
     }
 
     // Set a whole chunk (8 float values) into the matrix

@@ -33,13 +33,17 @@ MatrixAVX loadMatrix(const std::string &matrix_dir, const std::string &matrix_na
     return MatrixAVX(image_vec, image_shape);
 }
 
+typedef __attribute__((aligned(sizeof(__m256_f)))) float aligned_float_array[8];
+
 void im2col(MatrixAVX &input_mat, const std::vector<int> &filterShape, MatrixAVX &out, int s, int pad) {
-    int index = 0;
+    //int index = 0;
     int count = 0;
     int filter_size = filterShape[0] * filterShape[1] * filterShape[2];
     int kernel_size = filterShape[0];
     int tt, yy, tem1, tem2;
-
+    aligned_float_array buffer;
+    int arri = 0;
+    int chunki = 0;
     int y = input_mat.shape[1], x = input_mat.shape[0], z = input_mat.shape[2];
     for (int i = 0; i < y; i = i + s) { //length y
         for (int k = 0; k < x; k = k + s) { //width x
@@ -52,16 +56,29 @@ void im2col(MatrixAVX &input_mat, const std::vector<int> &filterShape, MatrixAVX
                             tem1 = m;
                             tem2 = l;
                             if (tem1 < 0 || tem2 < 0 || tem1 >= x || tem2 >= y) {
-                                index++;
+                                //index++;
                                 count++;
+                                arri++;
                             } else {
-                                out.setElement(static_cast<unsigned int>(index), input_mat.getElement(
-                                        static_cast<unsigned int>(tem1 + tem2 * x + j * x * y)));
-                                index++;
+                                buffer[arri] = input_mat.getElement(static_cast<unsigned int>(tem1 + tem2 * x + j * x * y));
+//                                out.setElement(static_cast<unsigned int>(index), input_mat.getElement(
+//                                        static_cast<unsigned int>(tem1 + tem2 * x + j * x * y)));
+                                arri++;
+                                //index++;
                                 count++;
+                                if(arri >= 8) {
+                                    arri = 0;
+                                    out.setChunk(chunki, buffer);
+                                    chunki++;
+                                    //buffer[0] = buffer[1] = buffer[2] = buffer[3] = buffer[4] = buffer[5] = buffer[6] = buffer[7] = 0;
+                                    memset(buffer, 0, sizeof(buffer));
+                                }
                                 if (count >= filter_size) {
-                                    index += 8 - (filter_size % 8);
+                                    out.setChunk(chunki, buffer);
+                                    //index += 8 - (filter_size % 8);
                                     count = 0;
+                                    arri = 0;
+                                    chunki++;
                                 }
                             }
 

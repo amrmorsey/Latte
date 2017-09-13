@@ -115,7 +115,13 @@ void Net::printLayers() {
 
 void Net::predict(const MatrixAVX &image) {
     for (int i = 1; i < layers.size(); ++i) {
+//    auto start = std::chrono::system_clock::now();
+//    for (size_t counter = 0; counter < 10000; ++counter)
         layers[i].get()->calculateOutput(layers[i-1]->output);
+//    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now() - start) / 10000;
+//    std::cout << "Completed function in " << duration.count() << " microseconds." << std::endl;
+//    std::cout <<"Predictions\n" << net.layers[net.layers.size()-1]->output << std::endl;
+//        layers[i].get()->calculateOutput(layers[i-1]->output);
     }
 }
 

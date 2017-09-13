@@ -117,11 +117,9 @@ void Net::predict(const MatrixAVX &image) {
     for (int i = 1; i < layers.size(); ++i) {
 //    auto start = std::chrono::system_clock::now();
 //    for (size_t counter = 0; counter < 10000; ++counter)
-        layers[i].get()->calculateOutput(layers[i-1]->output);
+        layers[i]->calculateOutput(layers[i-1]->output);
 //    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now() - start) / 10000;
 //    std::cout << "Completed function in " << duration.count() << " microseconds." << std::endl;
-//    std::cout <<"Predictions\n" << net.layers[net.layers.size()-1]->output << std::endl;
-//        layers[i].get()->calculateOutput(layers[i-1]->output);
     }
 }
 
@@ -143,7 +141,7 @@ void Net::preprocess(MatrixAVX &m) {
 void Net::setup(MatrixAVX &image) {
     MatrixAVX in_mat = image;
     for (auto &&layer : this->layers){
-        layer.get()->precompute(in_mat);
+        layer->precompute(in_mat);
         in_mat = MatrixAVX(layer->output.shape);
     }
 }

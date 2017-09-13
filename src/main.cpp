@@ -14,7 +14,7 @@ int main() {
     MatrixAVX image = loadMatrix("image", "image");
     net.preprocess(image);
     net.setup(image);
-    net.predict(image);
+//    net.predict(image);
     auto start = std::chrono::system_clock::now();
     for (size_t counter = 0; counter < 100000; ++counter)
         net.predict(image);

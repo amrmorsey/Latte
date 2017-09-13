@@ -52,18 +52,15 @@ void im2col(MatrixAVX &input_mat, const std::vector<int> &filterShape, MatrixAVX
                         for (int m = k - pad; m < k - pad + kernel_size && m < x + pad; m++) { //for j
                             tem1 = m;
                             tem2 = l;
-                            if (tem1 < 0 || tem2 < 0 || tem1 >= x || tem2 >= y) {
-                                index++;
-                                count++;
-                            } else {
+                            if (tem1 >= 0 && tem2 >= 0 && tem1 < x && tem2 < y) {
                                 out.setElement(static_cast<unsigned int>(index), input_mat.getElement(
                                         static_cast<unsigned int>(tem1 + tem2 * x + j * x * y)));
-                                index++;
-                                count++;
-                                if (count >= filter_size) {
-                                    index += 8 - (filter_size % 8);
-                                    count = 0;
-                                }
+                            }
+                            index++;
+                            count++;
+                            if (count >= filter_size) {
+                                index += 8 - (filter_size % 8);
+                                count = 0;
                             }
                         }
                     }

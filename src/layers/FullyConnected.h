@@ -15,7 +15,7 @@ public:
             : AbstractWeightedLayer(name, std::move(weights), std::move(bias), num_of_outputs) {};
 
     ~FullyConnected() {};
-
+// Calculates the output of the FullyConnected.
     void calculateOutput(MatrixAVX &input_mat) {
         im2col(input_mat, filter.shape, im2col_out, 1, 0);
         weights.get()->reshape({im2col_out.W_row_shape[1], im2col_out.W_row_shape[0]});
@@ -23,9 +23,11 @@ public:
         im2col_out.dot_product(kept_dim, big_matrix_vec, big_reserve_size, s, chunk_range, output_before_bias);
         output_before_bias.add(biasMat, output);
     };
-
+// Sets up the FullyConnected layer, it takes the shape of the matrix before it to compute its own matrices.
     void precompute(std::vector<int> &in_mat) {
         input = MatrixAVX(in_mat);
+
+        // Compute the size output of the im2col function, the X col, and W row matrices.
         filter = MatrixAVX(weights->xmm, {in_mat[0], in_mat[1], in_mat[2], this->weights->shape[1]});
         int x = input.shape[0];
         x = x - filter.shape[0];
@@ -45,12 +47,14 @@ public:
         im2col_out = im;
         im2col_out.W_row_shape = W_row_shape;
         im2col_out.X_col_shape = X_col_shape;
+
+        // Computes the output size of the matrix of the dot product function and of the add bias.
         std::vector<int> out_shape = {x, x, filter.shape.at(3)};
         MatrixAVX out(out_shape);
         output_before_bias = out;
         output = out;
 
-
+        // Set up the bias matrix so that its ready to be added to the output after the dot product.
         for (int j = 0; j < output.shape.at(2); ++j) {
             for (int i = 0; i < output.shape.at(0) * output.shape.at(1); ++i) {
                 biases.push_back(bias->getElement(j));
@@ -58,7 +62,7 @@ public:
         }
         biasMat = MatrixAVX(biases, output.shape);
 
-        /////////////////////////////////////////////////////
+        // Setting up the weights matrix and reshaping it to the desired shape for the dot product.
         std::vector<int> oldShape = weights.get()->shape;
         weights.get()->reshape({im2col_out.W_row_shape[1], im2col_out.W_row_shape[0]});
 

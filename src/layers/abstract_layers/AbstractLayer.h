@@ -9,7 +9,7 @@
 #include <vector>
 #include <string>
 #include "../../MatrixAVX.h"
-
+//This is the abstract class for layer, its the parent of all classes.
 class AbstractLayer {
 public:
     std::string name;
@@ -35,9 +35,9 @@ public:
     explicit AbstractLayer(std::string name) : name(std::move(name)) {};
 
     virtual ~AbstractLayer() = default;
-
+//  Calculate output is the function that computes the output of this layer.
     virtual void calculateOutput(MatrixAVX &input_mat) = 0;
-
+//  Precomute sets up the required matrices and variables required for calculateOutput to work.
     virtual void precompute(std::vector<int>&) = 0;
 };
 

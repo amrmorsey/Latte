@@ -17,7 +17,7 @@ public:
                                                                           stride(stride), padding(padding) {};
 
     ~MaxPool() {};
-
+// Calculates the maxpooling of the matrix depending on the padding and the stride.
     void maxPool(MatrixAVX &input_mat, MatrixAVX &out) {
         // for (int n = 0; n < bottom[0]->num(); ++n) {
         float element;
@@ -44,12 +44,13 @@ public:
             }
         }
     }
-
+// Calculates the output of the Maxpooling.
     void calculateOutput(MatrixAVX &input_mat) {
         maxPool(input_mat, output);
     };
-
+// Sets up the Maxpooling layer, it takes the shape of the matrix before it to compute its own matrices.
     void precompute(std::vector<int> &in_mat) {
+        //Calculate output size.
         int x = in_mat[0];
         x = x - kernel_size + 2 * padding;
 

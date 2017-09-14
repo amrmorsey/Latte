@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 #include "AbstractLayer.h"
-
+// This is the parent of the pooling layer, it has no weights, only a kernel, padding and stride.
 class AbstractPoolingLayer : AbstractLayer {
 private:
     int kernel_size;
@@ -22,7 +22,7 @@ public:
 
     ~AbstractPoolingLayer() {};
 
-    void precompute(std::vector<int>&) = 0;
+    virtual void precompute(std::vector<int>&) = 0;
 };
 
 

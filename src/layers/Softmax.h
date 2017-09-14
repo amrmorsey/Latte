@@ -29,7 +29,6 @@ public:
         for (unsigned int i = 0; i < input_mat.size; ++i) {
             output.setElement(i, output.getElement(i) / sum);
         }
-//        std::cout<<output<<std::endl;
     }
 
     void precompute(std::vector<int>& in_mat){

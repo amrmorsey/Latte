@@ -8,7 +8,7 @@
 #include <string>
 #include <memory>
 #include "AbstractLayer.h"
-
+// This is the parent of all weighted layers that deals with weights (Conv and FC).
 class AbstractWeightedLayer : public AbstractLayer {
 protected:
     std::unique_ptr<MatrixAVX> weights;

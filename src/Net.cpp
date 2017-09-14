@@ -9,7 +9,7 @@
 #include "layers/FullyConnected.h"
 #include "layers/Sigmoid.h"
 #include "layers/Tanh.h"
-
+// Sets up the network layers.
 Net::Net(const std::string &protoxt_path, const std::string &weights_dir, const std::string &mean_dir) : prototxt_path(
         protoxt_path), weights_dir(weights_dir), mean_mat(loadMatrix(mean_dir, "mean")) {
     std::cout << "Creating network...\n";
@@ -69,7 +69,7 @@ Net::Net(const std::string &protoxt_path, const std::string &weights_dir, const 
             std::cerr << "Parsing Error - Ignoring \"" + layer_type + "\" as it is not a supported layer" << std::endl;
     }
 }
-
+// Get shapes of the weights.
 std::map<std::string, std::vector<int>> Net::getWeightShapes() {
     int dim;
     std::string layer_name;
@@ -90,7 +90,7 @@ std::map<std::string, std::vector<int>> Net::getWeightShapes() {
 
     return shapes;
 }
-
+// Gets the weights and its biases.
 std::tuple<std::unique_ptr<MatrixAVX>, std::unique_ptr<MatrixAVX>>
 Net::getWeightAndBias(const std::string &layer_name, const std::map<std::string, std::vector<int>> &shape_map) {
     // Get shapes of weight and bias matrices
@@ -107,7 +107,7 @@ Net::getWeightAndBias(const std::string &layer_name, const std::map<std::string,
 
     return std::make_tuple(std::move(weights_mat), std::move(bias_mat));
 }
-
+// Print layers.
 void Net::printLayers() {
     for (auto &&layer : this->layers)
         std::cout << layer->name << std::endl; // layer->name is better but gives a false error in clion
@@ -120,7 +120,7 @@ void Net::predict(const MatrixAVX &image) {
         layers[i]->calculateOutput(layers[i - 1]->output);
     }
 }
-
+// Subtract the mean from the image.
 void Net::preprocess(MatrixAVX &m) {
     MatrixAVX out(m.shape);
     // Calculate average
@@ -134,7 +134,7 @@ void Net::preprocess(MatrixAVX &m) {
     m.sub(average, out);
     m = out;
 }
-
+// Sets up the weights of each layers and their matrices.
 void Net::setup(std::vector<int> &image) {
     std::vector<int> in_mat = image;
     for (auto &&layer : this->layers){

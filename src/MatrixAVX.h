@@ -109,7 +109,6 @@ public:
 //        int x = index/8;
 //        int rem = index - 8*x;
         xmm[index / 8].f[index % 8] = value;
-//        xmm[x].f[(rem == 8)?0:rem] = value;
     }
 
     // Set a whole chunk (8 float values) into the matrix
@@ -122,7 +121,7 @@ public:
 //        }
         xmm[index].v = _mm256_load_ps(chunk);
     }
-
+// Sets eight numbers together (__m256).
     inline void setChunk(unsigned int index, __m256 chunk) {
 //        if (index >= xmm_size) {
 //            throw std::out_of_range(
@@ -136,13 +135,13 @@ public:
     __m256 getChunk(unsigned int index) const {
         return xmm[index].v;
     }
-
+// Adds two matrices together, mainly for the bias.
     void add(MatrixAVX bias, MatrixAVX &out) {
         for (int i = 0; i < bias.xmm_size; ++i) {
             out.setChunk(i, _mm256_add_ps(xmm[i].v, bias.xmm[i].v));
         }
     }
-
+//Subtract two matrices.
     void sub(const MatrixAVX &a, MatrixAVX &out) {
         if (size != a.size) {
             throw std::logic_error(
@@ -181,7 +180,7 @@ public:
             }
         }
     }
-
+// Prints the shape.
     std::string shape_str() const {
         std::string shape_str = "(";
 
@@ -192,7 +191,7 @@ public:
         return shape_str;
 
     }
-
+// reshapes the matrix.
     void reshape(const std::vector<int> &new_shape) {
         unsigned long new_size = 1;
 

@@ -21,7 +21,7 @@ std::vector<float> extractValues(const std::string &file_path) {
 
     return values;
 }
-
+// Loads the matrices.
 MatrixAVX loadMatrix(const std::string &matrix_dir, const std::string &matrix_name) {
     std::vector<float> image_vec(extractValues(matrix_dir + "/" + matrix_name + ".ahsf"));
     std::vector<int> image_shape(3);
@@ -32,7 +32,7 @@ MatrixAVX loadMatrix(const std::string &matrix_dir, const std::string &matrix_na
 
     return MatrixAVX(image_vec, image_shape);
 }
-
+// Change the image shape to make it in columns depending on the size of the filter.
 void im2col(MatrixAVX &input_mat, const std::vector<int> &filterShape, MatrixAVX &out, int s, int pad) {
     int index = 0;
     int count = 0;

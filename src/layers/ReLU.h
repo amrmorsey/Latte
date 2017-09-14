@@ -17,7 +17,7 @@ public:
 
     // use get and set chunks
     void calculateOutput(MatrixAVX &input_mat) {
-        __m256 zero;
+        __m256 zero = _mm256_setzero_ps();
         __m256 vcmp;
         __m256 x;
         float e;
@@ -26,11 +26,6 @@ public:
             vcmp = _mm256_cmp_ps(zero, x, _CMP_GT_OQ);
             auto vcmp_i = _mm256_cvtps_epi32(vcmp);
             if (!_mm256_testz_si256(vcmp_i, vcmp_i)) {
-//                for (int j = 0; j < 8; ++j) {
-//                    e = input_mat.getElement(i * 8 + j);
-//                    if (e > 0)
-//                        output.setElement(i * 8 + j, e);
-//                }
                 output.setElement(i*8 + 0, std::max(input_mat.getElement(i * 8 + 0),0.0f));
                 output.setElement(i*8 + 1, std::max(input_mat.getElement(i * 8 + 1),0.0f));
                 output.setElement(i*8 + 2, std::max(input_mat.getElement(i * 8 + 2),0.0f));
@@ -44,8 +39,8 @@ public:
         }
     };
 
-    void precompute(MatrixAVX &in_mat) {
-        output = MatrixAVX(in_mat.shape);
+    void precompute(std::vector<int> &in_mat) {
+        output = MatrixAVX(in_mat);
     }
 
 };

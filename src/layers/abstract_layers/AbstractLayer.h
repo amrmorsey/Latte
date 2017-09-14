@@ -38,7 +38,7 @@ public:
 
     virtual void calculateOutput(MatrixAVX &input_mat) = 0;
 
-    virtual void precompute(MatrixAVX&) = 0;
+    virtual void precompute(std::vector<int>&) = 0;
 };
 
 #endif //INFERENCEENGINE_LAYER_H

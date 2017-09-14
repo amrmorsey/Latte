@@ -12,8 +12,8 @@ using namespace std;
 int main() {
     Net net("simple_test28Gray.ahsf", "weights", "mean");
     MatrixAVX image = loadMatrix("image", "image");
+    net.setup(image.shape);
     net.preprocess(image);
-    net.setup(image);
 //    net.predict(image);
     auto start = std::chrono::system_clock::now();
     for (size_t counter = 0; counter < 100000; ++counter)

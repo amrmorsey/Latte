@@ -31,7 +31,7 @@ public:
 
     void preprocess(MatrixAVX&);
 
-    void setup(MatrixAVX& a);
+    void setup(std::vector<int>& a);
 };
 
 

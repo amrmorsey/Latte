@@ -22,7 +22,7 @@ public:
 
     ~AbstractPoolingLayer() {};
 
-    void precompute(MatrixAVX&) = 0;
+    void precompute(std::vector<int>&) = 0;
 };
 
 

@@ -39,11 +39,11 @@ public:
         weights.get()->reshape(oldShape);
     };
 
-    void precompute(MatrixAVX &in_mat) {
+    void precompute(std::vector<int>&in_mat) {
         int pad = padding;
 
         std::vector<int> filter_shape = this->weights.get()->shape;
-        int x = in_mat.shape[0];
+        int x = in_mat[0];
         x = x - filter_shape[0] + 2 * pad;
         x = floor(float(x) / float(stride));
         x = x + 1;

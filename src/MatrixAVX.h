@@ -138,21 +138,6 @@ public:
     }
 
     void add(MatrixAVX bias, MatrixAVX &out) {
-//        int limit = std::floor((this->shape[0] * this->shape[1]) / 8.0);
-//        int rem = (this->shape[0] * this->shape[1]) % 8;
-//        int j = 0;
-//        for (unsigned int i = 0; i < biases.size(); i++) {
-//            for (; j < limit + i * (limit + 1) && j < this->xmm_size; ++j) {
-//                out.setChunk(j, _mm256_add_ps(xmm[j], biases[i]));
-//            }
-//            if (j < this->xmm_size && rem) {
-//                out.setChunk(j, _mm256_add_ps(xmm[j], stranglers[i]));
-//                ++j;
-//            }
-//        }
-//        for (int i = 0; i < 8 - (out.size % 8); i++) {
-//            out.setElement(out.xmm_size * 8 - 1 - i, 0.0f);
-//        }
         for (int i = 0; i < bias.xmm_size; ++i) {
             out.setChunk(i, _mm256_add_ps(xmm[i].v, bias.xmm[i].v));
         }

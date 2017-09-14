@@ -23,7 +23,7 @@ public:
 
     virtual void calculateOutput(MatrixAVX &inputMat) = 0;
 
-    virtual void precompute(MatrixAVX&) = 0;
+    virtual void precompute(std::vector<int>&) = 0;
 };
 
 

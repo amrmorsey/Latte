@@ -24,8 +24,8 @@ public:
         }
     };
 
-    void precompute(MatrixAVX& in_mat){
-        output = MatrixAVX(in_mat.shape);
+    void precompute(std::vector<int>& in_mat){
+        output = MatrixAVX(in_mat);
     }
 };
 

@@ -24,9 +24,9 @@ public:
         output_before_bias.add(biasMat, output);
     };
 
-    void precompute(MatrixAVX &in_mat) {
-        input = in_mat;
-        filter = MatrixAVX(weights->xmm, {in_mat.shape[0], in_mat.shape[1], in_mat.shape[2], this->weights->shape[1]});
+    void precompute(std::vector<int> &in_mat) {
+        input = MatrixAVX(in_mat);
+        filter = MatrixAVX(weights->xmm, {in_mat[0], in_mat[1], in_mat[2], this->weights->shape[1]});
         int x = input.shape[0];
         x = x - filter.shape[0];
         x = floor(float(x) / float(1));

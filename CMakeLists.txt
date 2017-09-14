@@ -3,7 +3,7 @@ project(InferenceEngine)
 
 set(CMAKE_CXX_STANDARD 11)
 
-IF (WIN32)
+if (MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
 ELSE ()
 #    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mavx -std=c++11")

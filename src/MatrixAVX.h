@@ -13,7 +13,6 @@
 #include <ostream>
 #include <iostream>
 #include <iomanip>
-#include <malloc.h>
 
 union __m256_f {
     __m256 v;

@@ -1,8 +1,18 @@
 # Adapted from https://stackoverflow.com/a/44061386
+import argparse
+
 from caffe.proto import caffe_pb2
 from google.protobuf import text_format
 
-new_format_model_def = 'test28Gray.2conv.2fc.prototxt'
+parser = argparse.ArgumentParser(
+    'Parse original prototxt file into a simplified version. WARNING: caffe\'s upgrade_net_proto_text must be run before inputing the model prototxt to this script.')
+parser.add_argument(metavar='model.prototxt', dest='model_prototxt',
+                    help='Path to model.prototxt')
+
+args = parser.parse_args()
+
+new_format_model_def = args.model_prototxt
+
 file_name = new_format_model_def.split('.')[0]
 
 parsible_net = caffe_pb2.NetParameter()

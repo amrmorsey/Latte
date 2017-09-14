@@ -1,3 +1,5 @@
+import argparse
+
 import caffe
 import numpy as np
 from json_tricks.np import dump, dumps, load, loads, strip_comments
@@ -39,7 +41,10 @@ def extract_caffe_model(model, weights, output_path):
 
 
 if __name__ == '__main__':
-    # arr = np.arange(27)
-    # with open('test.txt', 'w') as outfile:
-    #     dump(arr, outfile)
-    extract_caffe_model("test28Gray.2conv.2fc.prototxt", "test28Gray.2conv.2fc.caffemodel", "./weights")
+    parser = argparse.ArgumentParser('Extract weights from a .caffemodel and output them in a weights folder')
+    parser.add_argument(metavar='model.prototxt', dest='model_prototxt',
+                        help='Path to model.prototxt')
+    parser.add_argument(metavar='model.caffemodel', dest='model_caffemodel', help='Path to model.caffemodel')
+
+    args = parser.parse_args()
+    extract_caffe_model(args.model_prototxt, args.model_caffemodel, "./weights")

@@ -1,10 +1,6 @@
 #ifndef INFERENCEENGINE_MATRIXAVX_H
 #define INFERENCEENGINE_MATRIXAVX_H
 
-#ifdef _WIN32
-#include <malloc.h>
-#endif
-
 #include "AlignedVector.h"
 
 #include <immintrin.h>
@@ -17,8 +13,7 @@
 #include <ostream>
 #include <iostream>
 #include <iomanip>
-
-//#define ALIGNED(X) __attribute__ aligned(sizeof(__m256_f))x;
+#include <malloc.h>
 
 union __m256_f {
     __m256 v;
@@ -33,7 +28,6 @@ private:
     unsigned long aligned_size;
     unsigned int stranglers;
 
-    __attribute__((aligned(sizeof(__m256_f)))) float aligned_float_arr[8];
 
 public:
     unsigned long xmm_size;

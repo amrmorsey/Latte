@@ -33,8 +33,6 @@ MatrixAVX loadMatrix(const std::string &matrix_dir, const std::string &matrix_na
     return MatrixAVX(image_vec, image_shape);
 }
 
-//typedef __attribute__((aligned(sizeof(__m256_f)))) float aligned_float_array[8];
-
 void im2col(MatrixAVX &input_mat, const std::vector<int> &filterShape, MatrixAVX &out, int s, int pad) {
     int index = 0;
     int count = 0;

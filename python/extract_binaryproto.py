@@ -1,9 +1,15 @@
+import argparse
 import os
 import caffe
 import numpy as np
 
 from json_tricks.np import dump
 
+parser = argparse.ArgumentParser('Extract pixel and shape from a mean mean.binaryproto file')
+parser.add_argument(metavar='mean_path', dest='mean',
+                    help='Path to model.prototxt')
+
+args = parser.parse_args()
 
 output_path = './mean'
 
@@ -11,7 +17,7 @@ if not os.path.exists(output_path):
     os.makedirs(output_path)
 
 blob = caffe.proto.caffe_pb2.BlobProto()
-data = open('test28Gray.2conv.2fc.mean.binaryproto', 'rb').read()
+data = open(args.mean, 'rb').read()
 blob.ParseFromString(data)
 arr = np.array(caffe.io.blobproto_to_array(blob))
 

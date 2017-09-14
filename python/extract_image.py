@@ -1,11 +1,18 @@
+import argparse
 import os
 import numpy as np
 from PIL import Image
 
 from json_tricks.np import dump
 
+parser = argparse.ArgumentParser('Extract pixel and shape from an input image')
+parser.add_argument(metavar='image_path', dest='image',
+                    help='Path to model.prototxt')
+
+args = parser.parse_args()
+
+image_path = args.image
 output_path = './image'
-image_path = './1.png'
 
 if not os.path.exists(output_path):
     os.makedirs(output_path)

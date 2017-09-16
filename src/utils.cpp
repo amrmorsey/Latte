@@ -3,6 +3,7 @@
 #include "utils.h"
 #include "MatrixAVX.h"
 #include <stdexcept>
+#include <cv.hpp>
 
 // Should return a pointer to the values here instead of returning by copy
 std::vector<float> extractValues(const std::string &file_path) {
@@ -46,7 +47,6 @@ MatrixAVX loadImage(const std::string &image_path) {
     }
 
     std::vector<float> pixel_container;
-    std::vector<int> shape{img.rows, img.cols, img.channels()};
 
     if (img.channels() == 1) {
         for (int i = 0; i < img.rows; ++i) {
@@ -55,11 +55,61 @@ MatrixAVX loadImage(const std::string &image_path) {
                 pixel_container.push_back(pixel[j]);
             }
         }
+    } else if (img.channels() == 4) {
+        cv::cvtColor(img, img, cv::COLOR_BGRA2BGR);
+
+        // Loop over all B's
+        for (int i = 0; i < img.rows; ++i) {
+            auto pixel = img.ptr<cv::Vec3b>(i); // point to first pixel in row
+            for (int j = 0; j < img.cols; ++j) {
+                pixel_container.push_back(pixel[j][0]);
+            }
+        }
+
+        // Loop over all G's
+        for (int i = 0; i < img.rows; ++i) {
+            auto pixel = img.ptr<cv::Vec3b>(i); // point to first pixel in row
+            for (int j = 0; j < img.cols; ++j) {
+                pixel_container.push_back(pixel[j][1]);
+            }
+        }
+
+        // Loop over all R's
+        for (int i = 0; i < img.rows; ++i) {
+            auto pixel = img.ptr<cv::Vec3b>(i); // point to first pixel in row
+            for (int j = 0; j < img.cols; ++j) {
+                pixel_container.push_back(pixel[j][2]);
+            }
+        }
+    } else if (img.channels() == 3) {
+        // Loop over all B's
+        for (int i = 0; i < img.rows; ++i) {
+            auto pixel = img.ptr<cv::Vec3b>(i); // point to first pixel in row
+            for (int j = 0; j < img.cols; ++j) {
+                pixel_container.push_back(pixel[j][0]);
+            }
+        }
+
+        // Loop over all G's
+        for (int i = 0; i < img.rows; ++i) {
+            auto pixel = img.ptr<cv::Vec3b>(i); // point to first pixel in row
+            for (int j = 0; j < img.cols; ++j) {
+                pixel_container.push_back(pixel[j][1]);
+            }
+        }
+
+        // Loop over all R's
+        for (int i = 0; i < img.rows; ++i) {
+            auto pixel = img.ptr<cv::Vec3b>(i); // point to first pixel in row
+            for (int j = 0; j < img.cols; ++j) {
+                pixel_container.push_back(pixel[j][2]);
+            }
+        }
     } else {
-        throw std::invalid_argument(image_path + " is not a grayscale image");
+        throw std::invalid_argument(image_path + " is of innappropriate channel size");
     }
 
-    return MatrixAVX(pixel_container, shape);
+    return MatrixAVX(pixel_container, {img.rows, img.cols, img.channels()});
 }
 
 // Change the image shape to make it in columns depending on the size of the filter.

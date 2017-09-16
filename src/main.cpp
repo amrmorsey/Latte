@@ -5,13 +5,14 @@
 #include "MatrixAVX.h"
 #include <iostream>
 #include "utils.h"
+#include <iterator>
 
 using namespace std;
 
 
 int main() {
     Net net("simple_test28Gray.ahsf", "weights", "mean");
-    MatrixAVX image = loadMatrix("image", "image");
+    MatrixAVX image = loadImage("1.png");
     net.setup(image.shape);
     net.preprocess(image);
     auto start = std::chrono::system_clock::now();

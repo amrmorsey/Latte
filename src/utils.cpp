@@ -1,5 +1,8 @@
+#include <opencv2/core/core.hpp>
+#include <opencv2/highgui/highgui.hpp>
 #include "utils.h"
 #include "MatrixAVX.h"
+#include <stdexcept>
 
 // Should return a pointer to the values here instead of returning by copy
 std::vector<float> extractValues(const std::string &file_path) {
@@ -21,6 +24,7 @@ std::vector<float> extractValues(const std::string &file_path) {
 
     return values;
 }
+
 // Loads the matrices.
 MatrixAVX loadMatrix(const std::string &matrix_dir, const std::string &matrix_name) {
     std::vector<float> image_vec(extractValues(matrix_dir + "/" + matrix_name + ".ahsf"));
@@ -32,6 +36,32 @@ MatrixAVX loadMatrix(const std::string &matrix_dir, const std::string &matrix_na
 
     return MatrixAVX(image_vec, image_shape);
 }
+
+MatrixAVX loadImage(const std::string &image_path) {
+    cv::Mat img;
+    img = cv::imread(image_path, cv::IMREAD_UNCHANGED);
+
+    if (img.empty()) {
+        throw std::invalid_argument(image_path + " cannot be opened");
+    }
+
+    std::vector<float> pixel_container;
+    std::vector<int> shape{img.rows, img.cols, img.channels()};
+
+    if (img.channels() == 1) {
+        for (int i = 0; i < img.rows; ++i) {
+            auto pixel = img.ptr<unsigned char>(i); // point to first pixel in row
+            for (int j = 0; j < img.cols; ++j) {
+                pixel_container.push_back(pixel[j]);
+            }
+        }
+    } else {
+        throw std::invalid_argument(image_path + " is not a grayscale image");
+    }
+
+    return MatrixAVX(pixel_container, shape);
+}
+
 // Change the image shape to make it in columns depending on the size of the filter.
 void im2col(MatrixAVX &input_mat, const std::vector<int> &filterShape, MatrixAVX &out, int s, int pad) {
     int index = 0;

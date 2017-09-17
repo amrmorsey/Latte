@@ -12,14 +12,18 @@ using namespace std;
 
 int main() {
     Net net("simple_test28Gray.ahsf", "weights", "mean");
-    MatrixAVX image = loadImage("1.png");
-    net.setup(image.shape);
-    net.preprocess(image);
-    auto start = std::chrono::system_clock::now();
-    for (size_t counter = 0; counter < 100000; ++counter)
-        net.predict(image);
-    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now() - start) / 100000;
-    std::cout << "Completed function in " << duration.count() << " microseconds." << std::endl;
+    MatrixAVX image1 = loadImage("1.png");
+    MatrixAVX image2 = loadImage("5.png");
+
+    net.setup(image1.shape);
+
+    net.preprocess(image2);
+    net.preprocess(image1);
+
+    net.predict(image2);
+    std::cout <<"Predictions\n" << net.layers[net.layers.size()-1]->output << std::endl;
+
+    net.predict(image1);
     std::cout <<"Predictions\n" << net.layers[net.layers.size()-1]->output << std::endl;
     return 0;
 }

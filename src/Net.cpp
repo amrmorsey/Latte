@@ -20,6 +20,13 @@ Net::Net(const std::string &protoxt_path, const std::string &weights_dir, const 
     std::string layer_type, layer_name;
     network_prototxt.open(protoxt_path);
 
+    // Calculate mean average
+    unsigned int j;
+    for (j = 0; j < mean_mat.size; ++j) {
+        mean_average += mean_mat.getElement(j);
+    }
+    mean_average /= j;
+
     // Get a map of the shapes of the weighted layers
     // To be passed to getWeightAndBias
     std::map<std::string, std::vector<int>> shapes = this->getWeightShapes();
@@ -123,15 +130,8 @@ void Net::predict(const MatrixAVX &image) {
 // Subtract the mean from the image.
 void Net::preprocess(MatrixAVX &m) {
     MatrixAVX out(m.shape);
-    // Calculate average
-    float average = 0;
-    unsigned int j;
-    for (j = 0; j < mean_mat.size; ++j) {
-        average += mean_mat.getElement(j);
-    }
-    average /= j;
 
-    m.sub(average, out);
+    m.sub(mean_average, out);
     m = out;
 }
 // Sets up the weights of each layers and their matrices.

@@ -13,6 +13,7 @@ private:
     const std::string weights_dir;
 
     MatrixAVX mean_mat;
+    float mean_average = 0.0;
 
     std::map<std::string, std::vector<int>> getWeightShapes();
 

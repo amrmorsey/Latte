@@ -17,10 +17,9 @@ public:
                                                                           stride(stride), padding(padding) {};
 
     ~MaxPool() {};
-// Calculates the maxpooling of the matrix depending on the padding and the stride.
     void maxPool(MatrixAVX &input_mat, MatrixAVX &out) {
         // for (int n = 0; n < bottom[0]->num(); ++n) {
-        float element;
+        float temp;
         for (int c = 0; c < input_mat.shape[2]; ++c) {
             for (int ph = 0; ph < out.shape[1]; ++ph) {
                 for (int pw = 0; pw < out.shape[0]; ++pw) {
@@ -30,16 +29,15 @@ public:
                     int wend = std::min(wstart + kernel_size, input_mat.shape[1]);
                     hstart = std::max(hstart, 0);
                     wstart = std::max(wstart, 0);
-                    const int pool_index = ph * out.shape[0] + pw + c*out.shape[0]*out.shape[1];
+                    const int pool_index = ph * out.shape[0] + pw + c * out.shape[0] * out.shape[1];
+                    temp = 0;
                     for (int h = hstart; h < hend; ++h) {
                         for (int w = wstart; w < wend; ++w) {
-                            const int index = h * input_mat.shape[1] + w + c*input_mat.shape[0]*input_mat.shape[1];
-                            element = input_mat.getElement(index);
-                            if ( element > out.getElement(pool_index)) {
-                                out.setElement(pool_index, element);
-                            }
+                            const int index = h * input_mat.shape[1] + w + c * input_mat.shape[0] * input_mat.shape[1];
+                            temp = std::max(temp, input_mat.getElement(index));
                         }
                     }
+                    out.setElement(pool_index, temp);
                 }
             }
         }

@@ -1,1 +1,1 @@
-# Calibre a convoution neural network inference engine
+# Calibre: a convoution neural network inference engine

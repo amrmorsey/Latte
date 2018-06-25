@@ -1,5 +1,5 @@
-# Calibre: a convoution neural network inference engine
-Calibre is a convolutional neural network inference engine written in C++ and uses AVX to vectorise operations. The engine runs on Windows 10 (32 and 64 bit), Linux (Kernel = 4.12.10 with gcc = 7.2.0) and macOS Sierra. It have the same accuracy as NVIDIA Caffe and the same inference speed when caffe is built with ATLUS. The engine have its own network files format (.ahsf files), so we provided some python scripts to convert from NVIDIA Caffe's files to our own files.
+# Latte: a convoution neural network (CNN) inference engine
+Latte is a convolutional neural network (CNN) inference engine written in C++ and uses AVX to vectorise operations. The engine runs on Windows 10 (32 and 64 bit), Linux (Kernel = 4.12.10 with gcc = 7.2.0) and macOS Sierra. It have the same accuracy as NVIDIA Caffe and the same inference speed when caffe is built with ATLUS. The engine have its own network files format (.ahsf files), so we provided some python scripts to convert from NVIDIA Caffe's files to our own files.
 
 ## The Engine supports the following layers:
 - Input Layer.
